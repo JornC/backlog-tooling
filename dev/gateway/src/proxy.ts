@@ -1,28 +1,33 @@
-import express from "express";
-import { createProxyMiddleware } from "http-proxy-middleware";
+import { IncomingMessage } from "http";
+
+const express = require("express");
+const { createProxyMiddleware } = require("http-proxy-middleware");
 
 const app = express();
 
-app.use(
-  "/api",
-  createProxyMiddleware({
-    target: "http://localhost:3000",
-    changeOrigin: true,
-    pathRewrite: {
-      "^/api": "",
-    },
-  })
-);
+const apiProxy = createProxyMiddleware("/api", {
+  target: "http://localhost:3000",
+  changeOrigin: true,
+  pathRewrite: {
+    "^/api": "",
+  },
+});
 
-app.use(
-  "/",
-  createProxyMiddleware({
-    target: "http://localhost:5173",
-    changeOrigin: true,
-  })
-);
+const frontendProxy = createProxyMiddleware({
+  target: "http://localhost:5173",
+  changeOrigin: true,
+  ws: true,
+});
 
-const PORT = 8080;
-app.listen(PORT, () => {
-  console.log(`Proxy server listening on port ${PORT}`);
+// Apply middleware
+app.use("/api", apiProxy);
+app.use("/", frontendProxy);
+
+const server = app.listen(8080, () => {
+  console.log(`Proxy server listening on port 8080`);
+});
+
+// WebSocket Proxy
+server.on("upgrade", (req: IncomingMessage, socket: any, head: any) => {
+  frontendProxy.upgrade(req, socket, head);
 });
