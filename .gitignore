@@ -1,0 +1,36 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+cypress.env.json
+node_modules
+.DS_Store
+dist
+dist-ssr
+coverage
+*.local
+.vite
+
+cypress/videos/
+cypress/screenshots/
+cypress/reports/
+cypress/results/
+cypress/downloads/
+cypress/fixtures/tmp/
+cypress/fixtures/unzip/
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
