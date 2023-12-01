@@ -1,15 +1,23 @@
+<template>
+  <div class="app">
+    <application-navigation />
+
+    <main>
+      <RouterView />
+    </main>
+  </div>
+</template>
+
 <script setup lang="ts">
 import { RouterView } from "vue-router";
 </script>
 
-<template>
-  <header>
-    <div class="wrapper">Test.</div>
-  </header>
+<style lang="scss" scoped>
+.app {
+  display: grid;
+  grid-template-columns: minmax(200px, auto) 1fr;
 
-  <div>
-    <RouterView />
-  </div>
-</template>
-
-<style scoped></style>
+  height: 100vh;
+  min-height: 800px;
+}
+</style>

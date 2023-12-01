@@ -1,2 +1,18 @@
 :root {
+  --spacer: 1rem;
+
+  --brand-color: #1982c4;
+  --brand-color-1: #1982c4;
+
+  --brand-color-2: #8ac926;
+  --brand-color-3: #ffca3a;
+  --brand-color-4: #ff595e;
+
+  --anim: 0.15s ease-out;
+}
+
+html,
+body {
+  margin: 0px;
+  padding: 0px;
 }

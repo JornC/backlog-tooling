@@ -1,5 +1,4 @@
 <template>
-  <main>Mainasdfasdf</main>
+  <h1>Lorem Ipsum</h1>
+  <p>Home</p>
 </template>
-
-<script setup lang="ts"></script>

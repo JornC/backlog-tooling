@@ -11,6 +11,7 @@ const apiProxy = createProxyMiddleware("/api", {
   pathRewrite: {
     "^/api": "",
   },
+  ws: true,
 });
 
 const frontendProxy = createProxyMiddleware({
@@ -19,7 +20,6 @@ const frontendProxy = createProxyMiddleware({
   ws: true,
 });
 
-// Apply middleware
 app.use("/api", apiProxy);
 app.use("/", frontendProxy);
 
@@ -27,7 +27,10 @@ const server = app.listen(8080, () => {
   console.log(`Proxy server listening on port 8080`);
 });
 
-// WebSocket Proxy
 server.on("upgrade", (req: IncomingMessage, socket: any, head: any) => {
-  frontendProxy.upgrade(req, socket, head);
+  if (req.url!.startsWith("/api")) {
+    apiProxy.upgrade(req, socket, head);
+  } else {
+    frontendProxy.upgrade(req, socket, head);
+  }
 });

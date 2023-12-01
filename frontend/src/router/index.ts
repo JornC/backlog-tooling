@@ -8,6 +8,11 @@ const router = createRouter({
       name: "home",
       component: () => import("../views/HomeView.vue"),
     },
+    {
+      path: "/agenda/:code",
+      name: "AgendaRoute",
+      component: () => import("../views/AgendaItemView.vue"),
+    },
   ],
 });
 
