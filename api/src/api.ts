@@ -19,6 +19,13 @@ apiNamespace.on("connection", (socket: Socket) => {
     console.log(`User left room: ${roomName}`);
   });
 
+  socket.on("buttonPressEvent", (event) => {
+    const room = Array.from(socket.rooms).find((r) => r !== socket.id);
+    if (room) {
+      apiNamespace.to(room).emit("buttonPressEvent", event);
+    }
+  });
+
   socket.on("disconnect", () => {
     console.log("user disconnected");
   });

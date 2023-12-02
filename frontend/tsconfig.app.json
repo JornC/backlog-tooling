@@ -2,13 +2,12 @@
   "extends": "@vue/tsconfig/tsconfig.dom.json",
   "include": ["env.d.ts", "src/**/*"],
   "exclude": ["src/**/__tests__/*"],
+  "rootDir": "./src",
   "compilerOptions": {
     "composite": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"],
-      "@shared/*": ["../shared/*"]
+      "@/*": ["./src/*"]
     }
-  },
-  "references": [{ "path": "../shared" }]
+  }
 }

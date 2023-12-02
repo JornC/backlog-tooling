@@ -5,16 +5,11 @@ import AutoImport from "unplugin-auto-import/vite";
 import { VueUseComponentsResolver } from "unplugin-vue-components/resolvers";
 import Components from "unplugin-vue-components/vite";
 
-import path from "path";
 import { defineConfig } from "vite";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  build: {
-    rollupOptions: {
-      external: ["@shared"],
-    },
-  },
+  build: {},
   plugins: [
     vue(),
     // Auto import Vue APIs
@@ -31,7 +26,6 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
-      "@shared": path.resolve(__dirname, "../shared/"),
     },
   },
 });

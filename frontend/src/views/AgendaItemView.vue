@@ -1,40 +1,46 @@
 <template>
   <h1>Item: {{ itemTitle }}</h1>
-  <div v-for="(count, eventType) in eventCounts" :key="eventType">
+  <div v-for="eventType in eventTypes" :key="eventType">
     <button @click="sendEvent(eventType)">{{ eventType }}</button>
-    <span>{{ count }}</span>
+    <span>{{ eventCounts[eventType] || 0 }}</span>
   </div>
 </template>
 
 <script setup lang="ts">
+import { ButtonPressEventType, type ButtonPressEvent } from "@/domain/types";
 import { socketManager } from "@/ws/socketManager";
-import { ButtonPressEventType, type ButtonPressEvent } from "@shared/types";
-import { computed, onUnmounted, ref, watch } from "vue";
-import { useRoute } from "vue-router";
 
 const route = useRoute();
 const itemTitle = computed(() => route.params.code);
 
-// Event counter
-const eventCounts = ref<{ [key in ButtonPressEventType]?: number }>({});
+const eventTypes = Object.values(ButtonPressEventType);
+
+const eventCounts = ref(
+  eventTypes.reduce(
+    (acc, eventType) => {
+      acc[eventType] = 0;
+      return acc;
+    },
+    {} as { [key in ButtonPressEventType]: number },
+  ),
+);
 
 function sendEvent(eventType: ButtonPressEventType): void {
   const event: ButtonPressEvent = {
     type: eventType,
-    value: 5, // You can change this value as needed
+    value: 5,
   };
   socketManager.emitEvent(event);
-  incrementEventCount(eventType);
 }
 
 function incrementEventCount(eventType: ButtonPressEventType): void {
-  if (!eventCounts.value[eventType]) {
+  if (eventCounts.value[eventType] === undefined) {
     eventCounts.value[eventType] = 0;
   }
-  eventCounts.value[eventType]++;
+
+  eventCounts.value[eventType]!++;
 }
 
-// Listen to WebSocket events
 socketManager.onEvent((event: ButtonPressEvent) => {
   incrementEventCount(event.type);
 });
@@ -43,6 +49,9 @@ watch(
   () => route.params.code,
   (newCode, oldCode) => {
     if (newCode !== oldCode) {
+      Object.values(ButtonPressEventType).forEach((eventType) => {
+        eventCounts.value[eventType] = 0;
+      });
       socketManager.joinRoom(newCode as string);
     }
   },

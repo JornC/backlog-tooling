@@ -1,4 +1,4 @@
-import { type ButtonPressEvent } from "@shared/types";
+import type { ButtonPressEvent } from "@/domain/types";
 import { Socket, io } from "socket.io-client";
 
 class SocketManager {
@@ -44,6 +44,7 @@ class SocketManager {
   }
 
   onEvent(callback: (event: ButtonPressEvent) => void): void {
+    console.log("Got event: ", event);
     this.socket.on("buttonPressEvent", callback);
   }
 }
