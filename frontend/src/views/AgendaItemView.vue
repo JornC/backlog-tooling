@@ -9,7 +9,10 @@
     <section class="title">
       <h1>
         Currently discussing
-        <a :href="aeriusItemHref" target="_blank" class="item-title">{{ itemTitle }}</a>
+        <a :href="aeriusItemHref" v-if="aeriusItemHref" target="_blank" class="item-title">
+          {{ aeriusItemTitle }}
+        </a>
+        <span v-else class="item-title">{{ aeriusItemTitle }}</span>
       </h1>
       <a v-if="isAeriusItem" :href="aeriusItemHref" target="_blank">
         <div class="anchor-style">{{ aeriusItemHref }}</div>
@@ -19,8 +22,8 @@
 
     <div class="actions">
       <simple-signals
-        v-if="currentRoomState"
-        class="panel"
+        v-if="currentRoomState && socketStore.userId"
+        :user-id="socketStore.userId"
         :roomState="currentRoomState"
         @send-action="sendAction($event)" />
       <estimation-poker
@@ -35,20 +38,23 @@
 
 <script setup lang="ts">
 import type { RoomStateFragment } from "@/domain/types";
+import { useScheduleStore } from "@/stores/scheduleStore";
 import { useSocketStore } from "@/ws/socketManager";
 
 const socketStore = useSocketStore();
+const scheduleStore = useScheduleStore();
 
 const route = useRoute();
 
-const itemTitle = computed(() => (route.params.code as string).toUpperCase());
-
-const isAeriusItem = computed(() => (route.params.code as string).startsWith("aer-"));
-const aeriusItemCode = computed(() =>
-  isAeriusItem.value ? (route.params.code as string).toUpperCase() : null,
+const itemTitle = computed(() =>
+  isAeriusItem.value ? (route.params.code as string).toUpperCase() : route.params.title,
 );
+
+const scheduleItem = computed(() => scheduleStore.findScheduleItem(route.params.code as string));
+const isAeriusItem = computed(() => scheduleItem.value?.code.startsWith("aer-"));
+const aeriusItemTitle = computed(() => scheduleItem.value?.title);
 const aeriusItemHref = computed(
-  () => "https://aerius.atlassian.net/browse/" + aeriusItemCode.value,
+  () => "https://aerius.atlassian.net/browse/" + scheduleItem.value?.code,
 );
 const moderator = computed(() => socketStore.moderator);
 
@@ -80,6 +86,10 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   gap: var(--spacer);
+
+  div {
+    margin: 0 auto;
+  }
 }
 
 .panel {
@@ -113,8 +123,6 @@ main {
 
   .title {
     margin: var(--spacer);
-    padding: var(--spacer);
-    background: var(--brand-color-3);
     display: flex;
     align-items: center;
     flex-direction: column;
@@ -131,7 +139,6 @@ main {
       background: var(--brand-color-1);
       color: white;
       padding: var(--spacer);
-      border: 5px dashed var(--brand-color-4);
       text-decoration: none;
       font-size: 2em;
       display: inline-block;
@@ -143,6 +150,7 @@ main {
       display: flex;
       align-items: center;
       text-decoration: none;
+      background: var(--brand-color-3);
 
       .anchor-style {
         color: #0000ee;

@@ -22,6 +22,7 @@ const socketStore = useSocketStore();
 const schedule = ref([
   { title: "AER-1234", code: "aer-1234" },
   { title: "AER-4321", code: "aer-4321" },
+  { title: "Break", code: "break-1" },
 ]);
 
 const wsStatus = computed(() => {
@@ -36,14 +37,13 @@ const numConnected = computed(() => socketStore.numConnected);
 <style lang="scss" scoped>
 .nav-menu {
   margin: var(--spacer);
-  padding: var(--spacer) 0px;
-  background: #1982c4;
 
   display: flex;
   flex-direction: column;
-  gap: var(--spacer);
 
-  color: white;
+  .bare-item {
+    background: var(--brand-color-2);
+  }
 
   .item,
   .bare-item {
@@ -61,12 +61,12 @@ const numConnected = computed(() => socketStore.numConnected);
     cursor: pointer;
 
     &.router-link-active {
-      background: var(--brand-color-2);
+      background: var(--brand-color-3);
       color: black;
     }
 
     &:hover {
-      background: var(--brand-color-2);
+      background: var(--brand-color-4);
       color: black;
     }
   }

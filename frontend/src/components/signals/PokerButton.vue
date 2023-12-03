@@ -1,5 +1,9 @@
 <template>
-  <div class="action-icon" @click="sendAction" :class="{ hasCount: count > 0 }">
+  <div
+    class="action-icon"
+    @click="sendAction"
+    :style="{ '--count': count }"
+    :class="{ hasCount: count > 0, userHighlight, scale }">
     <div v-if="icon" class="icon material-icons">{{ icon }}</div>
     <div :class="{ showing: count > 0 }" class="count-badge">{{ count || 1 }}</div>
     <div class="label">{{ value || label }}</div>
@@ -11,6 +15,8 @@ import { ActionType } from "@/domain/types";
 
 defineProps<{
   icon?: string;
+  userHighlight?: boolean;
+  scale?: boolean;
   type: ActionType;
   value?: string | number;
   count: number;
@@ -35,6 +41,12 @@ function sendAction(): void {
   padding: 10px;
   user-select: none;
 
+  transition: all 0.15s ease-out;
+
+  &.scale {
+    font-size: min(calc(16px + var(--count) * 12px), 64px);
+  }
+
   .icon {
     font-size: 96px;
     min-width: 96px;
@@ -48,6 +60,11 @@ function sendAction(): void {
     .icon {
       font-size: 128px;
     }
+  }
+
+  &.userHighlight {
+    background: var(--brand-color-2);
+    color: white;
   }
 
   &:hover {

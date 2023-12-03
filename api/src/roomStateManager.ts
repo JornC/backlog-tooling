@@ -77,11 +77,19 @@ const handleRoomWideSignal = (
 
     // Toggle the signal: unset if set, set for current user if not
     if (isSignalSet) {
+      const roomKeys = Object.keys(roomState);
+      if (!roomKeys) {
+        return;
+      }
+
       Object.keys(roomState).forEach((userKey) => {
         roomState[userKey].delete(fragment.type);
       });
     } else {
-      roomState[userId].set(fragment.type, fragment);
+      const userRoomState = roomState[userId];
+      if (userRoomState) {
+        userRoomState.set(fragment.type, fragment);
+      }
     }
   }
 };

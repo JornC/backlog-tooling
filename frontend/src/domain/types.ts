@@ -6,6 +6,7 @@ export enum ActionType {
   SIGNAL_POSTPONE = "SIGNAL_POSTPONE",
   SIGNAL_QUESTIONS = "SIGNAL_QUESTIONS",
   SIGNAL_COFFEE = "SIGNAL_COFFEE",
+  SIGNAL_THINKING = "SIGNAL_THINKING",
 }
 
 export interface RoomStateFragment {

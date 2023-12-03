@@ -1,16 +1,20 @@
 <template>
   <div class="button-container">
     <h2>Poker</h2>
-    <div class="buttons">
+    <div class="buttons" :class="{ revealed }">
       <poker-button
         v-for="card in cards"
+        :user-highlight="isUserSelection(card)"
         @send-action="sendEvent(ActionType.POKER, card)"
+        :scale="true"
         :value="card"
         :type="ActionType.POKER"
         :count="getEventCount(ActionType.POKER, card)" />
     </div>
     <poker-button
       v-if="totalPokerCount > 0"
+      class="estimate-button"
+      :scale="false"
       @send-action="sendEvent(ActionType.POKER_REVEAL)"
       :type="ActionType.POKER_REVEAL"
       :label="revealText"
@@ -26,20 +30,23 @@ const props = defineProps<{
   roomState: RoomStateFragment[];
 }>();
 
-const cards = [1, 2, 3, 5, 8, 13, 20, 40, "inf"];
+const cards = [0.5, 1, 2, 3, 5, 8, 13, 20, 40, "inf"];
 
 const revealed = computed(
   () => props.roomState.filter((v) => v.type === ActionType.POKER_REVEAL).length > 0,
 );
-const revealText = computed(() =>
-  revealed.value
-    ? "Hide estimates"
-    : "Reveal " + (totalPokerCount.value - userPokerCount.value) + " estimates",
-);
+const revealText = computed(() => (revealed.value ? "Hide estimates" : "Reveal estimates"));
 
 const emit = defineEmits<{
   (event: "sendAction", value: RoomStateFragment): void;
 }>();
+
+function isUserSelection(value: string | number) {
+  return (
+    props.roomState.filter((v) => v.user === props.userId).filter((v) => v.value === value).length >
+    0
+  );
+}
 
 function getEventCount(eventType: ActionType, value: string | number) {
   return revealed.value
@@ -52,12 +59,6 @@ function getEventCount(eventType: ActionType, value: string | number) {
 
 const totalPokerCount = computed(
   () => props.roomState.filter((v) => v.type === ActionType.POKER).length,
-);
-const userPokerCount = computed(
-  () =>
-    props.roomState
-      .filter((v) => v.user === props.userId)
-      .filter((v) => v.type === ActionType.POKER).length,
 );
 
 function sendEvent(eventType: ActionType, value?: string | number): void {
@@ -82,5 +83,16 @@ function sendEvent(eventType: ActionType, value?: string | number): void {
   flex-wrap: wrap;
   margin: 0 auto;
   gap: var(--spacer);
+  padding: 25px;
+  border: 10px solid #ddd;
+  transition: all 0.15s ease-out;
+
+  &.revealed {
+    border: 10px solid var(--brand-color-1);
+  }
+}
+
+.estimate-button {
+  margin: 15px;
 }
 </style>

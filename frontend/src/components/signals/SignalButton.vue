@@ -3,7 +3,7 @@
     class="action-icon"
     :style="{ '--count': count }"
     @click="sendAction(type)"
-    :class="{ hasCount: count > 0 }">
+    :class="{ hasCount: count > 0, userHighlight }">
     <div v-if="icon" class="icon material-icons">{{ icon }}</div>
     <div :class="{ showing: count > 0 }" class="count-badge">{{ count || 1 }}</div>
     <div class="label">{{ label }}</div>
@@ -15,6 +15,7 @@ import { ActionType } from "@/domain/types";
 
 defineProps<{
   icon?: string;
+  userHighlight?: boolean;
   type: ActionType;
   label: string | number;
   count: number;
@@ -37,6 +38,11 @@ function sendAction(eventType: ActionType): void {
   border: 5px solid #ddd;
   padding: 10px;
   user-select: none;
+
+  &.userHighlight {
+    background: var(--brand-color-2);
+    color: white;
+  }
 
   .icon {
     font-size: 96px;
