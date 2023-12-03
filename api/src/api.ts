@@ -148,11 +148,6 @@ apiNamespace.on("connection", (socket: Socket) => {
   });
 });
 
-const port = process.env.PORT || 3000;
-server.listen(port, () => {
-  console.log(`listening on *:${port}`);
-});
-
 function broadcastSchedule() {
   schedule.forEach((item) => {
     if (lockedRooms.has(item.code)) {
@@ -188,3 +183,12 @@ function broadcastRoom(roomName: string) {
     apiNamespace.to(roomName).emit("room_state", roomState);
   }
 }
+
+const port = process.env.PORT || 3000;
+server.listen(port, () => {
+  console.log(`listening on *:${port}`);
+
+  app.get("/ping", (_req, res) => {
+    res.send("pong");
+  });
+});
