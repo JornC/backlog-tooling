@@ -32,7 +32,7 @@
   </p>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 fetch("/api/ping");
 </script>
 
