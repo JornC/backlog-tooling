@@ -1,4 +1,6 @@
 import { ConnectionStatus, type RoomStateFragment } from "@/domain/types";
+import router from "@/router";
+import { useScheduleStore, type ScheduleItem } from "@/stores/scheduleStore";
 import { defineStore } from "pinia";
 import { Socket, io } from "socket.io-client";
 
@@ -27,8 +29,13 @@ export const useSocketStore = defineStore("socket", {
     rooms: new Map() as Map<string, RoomStateFragment[]>,
     userId: undefined as string | undefined,
     moderator: undefined as string | undefined,
+    moderatorUserId: undefined as string | undefined,
     numConnected: undefined as number | undefined,
   }),
+
+  getters: {
+    isModerator: (state) => state.userId !== undefined && state.userId === state.moderatorUserId,
+  },
 
   actions: {
     initializeSocket() {
@@ -39,6 +46,10 @@ export const useSocketStore = defineStore("socket", {
 
       socket.get().on("user_socket_id", (userId) => {
         this.userId = userId;
+      });
+
+      socket.get().on("move_room", (roomName) => {
+        router.push({ name: "AgendaRoute", params: { code: roomName } });
       });
 
       socket.get().on("disconnect", () => {
@@ -57,9 +68,14 @@ export const useSocketStore = defineStore("socket", {
       });
 
       socket.get().on("server_status", (serverStatus) => {
-        console.log("Got server status: ", serverStatus);
         this.moderator = serverStatus.moderator;
+        this.moderatorUserId = serverStatus.moderatorUserId;
         this.numConnected = serverStatus.numConnected;
+      });
+
+      socket.get().on("schedule_update", (schedule) => {
+        const scheduleStore = useScheduleStore();
+        scheduleStore.setSchedule(schedule);
       });
 
       socket.get().on("room_state", (roomState) => {
@@ -67,9 +83,24 @@ export const useSocketStore = defineStore("socket", {
           return;
         }
 
-        console.log(roomState);
         this.rooms.set(this.currentRoom, roomState);
       });
+    },
+
+    claimModeration(name: string) {
+      socket.get().emit("claim_moderation", name);
+    },
+
+    stopModeration() {
+      socket.get().emit("stop_moderation", name);
+    },
+
+    updateSchedule(schedule: ScheduleItem[]) {
+      socket.get().emit("update_schedule", schedule);
+    },
+
+    emitNamed(name: string) {
+      socket.get().emit(name);
     },
 
     joinRoom(roomName: string) {

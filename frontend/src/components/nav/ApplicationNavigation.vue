@@ -2,11 +2,16 @@
   <nav class="nav-menu">
     <router-link class="item" :to="{ name: 'home' }">Home</router-link>
     <router-link
-      v-for="item in schedule"
+      v-for="item in scheduleStore.getSchedule()"
       :key="item.code"
       class="item"
       :to="{ name: 'AgendaRoute', params: { code: item.code } }">
-      {{ item.title }}
+      <div class="line">
+        <div>{{ item.title }}</div>
+        <div v-if="item.locked" class="check icon material-icons">check_circle</div>
+        <div v-else-if="isCurrent(item.code)" class="current icon material-icons">forum</div>
+        <div v-else class="pending icon material-icons">timer</div>
+      </div>
     </router-link>
     <div class="spacer"></div>
     <div class="bare-item center" :class="{ highlight: !isConnected }">{{ wsStatus }}</div>
@@ -15,19 +20,20 @@
 
 <script lang="ts" setup>
 import { ConnectionStatus } from "@/domain/types";
+import { useScheduleStore } from "@/stores/scheduleStore";
 import { useSocketStore } from "@/ws/socketManager";
 
 const socketStore = useSocketStore();
-
-const schedule = ref([
-  { title: "AER-1234", code: "aer-1234" },
-  { title: "AER-4321", code: "aer-4321" },
-  { title: "Break", code: "break-1" },
-]);
+const scheduleStore = useScheduleStore();
+const route = useRoute();
 
 const wsStatus = computed(() => {
   return `${socketStore.status} (${numConnected.value || "?"})`;
 });
+
+function isCurrent(code: string) {
+  return (route.params.code as string) === code;
+}
 
 const isConnected = computed(() => socketStore.status === ConnectionStatus.Connected);
 
@@ -35,6 +41,29 @@ const numConnected = computed(() => socketStore.numConnected);
 </script>
 
 <style lang="scss" scoped>
+.line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacer);
+
+  .icon {
+    width: 24px;
+  }
+
+  .check {
+    color: var(--brand-color-2);
+  }
+
+  .current {
+    color: gray;
+  }
+
+  .pending {
+    color: gray;
+  }
+}
+
 .nav-menu {
   margin: var(--spacer);
 
@@ -63,11 +92,18 @@ const numConnected = computed(() => socketStore.numConnected);
     &.router-link-active {
       background: var(--brand-color-3);
       color: black;
+      .icon {
+        color: black;
+      }
     }
 
     &:hover {
       background: var(--brand-color-4);
       color: black;
+
+      .icon {
+        color: white;
+      }
     }
   }
 

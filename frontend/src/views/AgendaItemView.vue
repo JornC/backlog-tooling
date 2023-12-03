@@ -3,13 +3,22 @@
     <section class="moderator">
       <template v-if="moderator">
         <span class="name">{{ moderator }}</span> is moderating
+        <button
+          class="moderate-button"
+          v-if="socketStore.isModerator && !contextStore.isModerating"
+          @click="openModeration">
+          Mod panel
+        </button>
       </template>
-      <template v-else>No moderator</template>
+      <template v-else>
+        <span>No moderator</span>
+        <button class="moderate-button" @click="openModeration">Volunteer</button>
+      </template>
     </section>
     <section class="title">
       <h1>
-        Currently discussing
-        <a :href="aeriusItemHref" v-if="aeriusItemHref" target="_blank" class="item-title">
+        Current item
+        <a :href="aeriusItemHref" v-if="isAeriusItem" target="_blank" class="item-title">
           {{ aeriusItemTitle }}
         </a>
         <span v-else class="item-title">{{ aeriusItemTitle }}</span>
@@ -27,7 +36,7 @@
         :roomState="currentRoomState"
         @send-action="sendAction($event)" />
       <estimation-poker
-        v-if="currentRoomState && socketStore.userId"
+        v-if="isAeriusItem && currentRoomState && socketStore.userId"
         class="panel"
         :user-id="socketStore.userId"
         :roomState="currentRoomState"
@@ -38,17 +47,15 @@
 
 <script setup lang="ts">
 import type { RoomStateFragment } from "@/domain/types";
+import { useContextStore } from "@/stores/contextStore";
 import { useScheduleStore } from "@/stores/scheduleStore";
 import { useSocketStore } from "@/ws/socketManager";
 
 const socketStore = useSocketStore();
 const scheduleStore = useScheduleStore();
+const contextStore = useContextStore();
 
 const route = useRoute();
-
-const itemTitle = computed(() =>
-  isAeriusItem.value ? (route.params.code as string).toUpperCase() : route.params.title,
-);
 
 const scheduleItem = computed(() => scheduleStore.findScheduleItem(route.params.code as string));
 const isAeriusItem = computed(() => scheduleItem.value?.code.startsWith("aer-"));
@@ -67,6 +74,10 @@ watch(
   },
   { immediate: true },
 );
+
+function openModeration() {
+  contextStore.setModerating(true);
+}
 
 function sendAction(fragment: RoomStateFragment): void {
   socketStore.emitEvent(fragment);
@@ -106,6 +117,11 @@ main {
     background: var(--brand-color-2);
     text-align: center;
     font-size: 2em;
+
+    .moderate-button {
+      float: right;
+      clear: all;
+    }
 
     .name {
       font-weight: bold;

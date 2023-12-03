@@ -1,5 +1,5 @@
 export enum ActionType {
-  POKER = "POKER",
+  POKER_ESTIMATE = "POKER_ESTIMATE",
   POKER_REVEAL = "POKER_REVEAL",
   SIGNAL_ESTIMATE = "SIGNAL_ESTIMATE",
   SIGNAL_SNOOZE = "SIGNAL_SNOOZE",
@@ -118,8 +118,27 @@ export const removeRoomStateFragment = (
   }
 };
 export function purgeUser(userId: string) {
-  console.log(roomStates);
   roomStates.forEach((roomState) => {
     delete roomState[userId];
   });
+}
+
+export function purgeSignal(roomName: string) {
+  const room = roomStates.get(roomName) || {};
+  purgeRoom(room, (v) => v.startsWith("SIGNAL_"));
+}
+export function purgePoker(roomName: string) {
+  const room = roomStates.get(roomName) || {};
+  purgeRoom(room, (v) => v.startsWith("POKER_"));
+}
+
+function purgeRoom(room: RoomState, predicate: (v: any) => boolean) {
+  for (const userState of Object.values(room)) {
+    console.log(userState);
+    for (let key of userState.keys()) {
+      if (predicate(key)) {
+        userState.delete(key);
+      }
+    }
+  }
 }

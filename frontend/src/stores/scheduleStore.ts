@@ -1,17 +1,14 @@
 import { defineStore } from "pinia";
 
-interface ScheduleItem {
+export interface ScheduleItem {
   title: string;
   code: string;
+  locked?: boolean;
 }
 
 export const useScheduleStore = defineStore("scheduleStore", {
   state: () => ({
-    schedule: [
-      { title: "AER-1234", code: "aer-1234" },
-      { title: "AER-4321", code: "aer-4321" },
-      { title: "Break", code: "break-1" },
-    ] as ScheduleItem[],
+    schedule: [] as ScheduleItem[],
   }),
 
   getters: {
@@ -21,6 +18,10 @@ export const useScheduleStore = defineStore("scheduleStore", {
   actions: {
     getSchedule(): ScheduleItem[] {
       return this.schedule;
+    },
+
+    setSchedule(schedule: ScheduleItem[]) {
+      this.schedule = schedule;
     },
 
     findScheduleItem(code: string): ScheduleItem | undefined {

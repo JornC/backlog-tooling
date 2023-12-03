@@ -5,11 +5,11 @@
       <poker-button
         v-for="card in cards"
         :user-highlight="isUserSelection(card)"
-        @send-action="sendEvent(ActionType.POKER, card)"
+        @send-action="sendEvent(ActionType.POKER_ESTIMATE, card)"
         :scale="true"
         :value="card"
-        :type="ActionType.POKER"
-        :count="getEventCount(ActionType.POKER, card)" />
+        :type="ActionType.POKER_ESTIMATE"
+        :count="getEventCount(ActionType.POKER_ESTIMATE, card)" />
     </div>
     <poker-button
       v-if="totalPokerCount > 0"
@@ -58,7 +58,7 @@ function getEventCount(eventType: ActionType, value: string | number) {
 }
 
 const totalPokerCount = computed(
-  () => props.roomState.filter((v) => v.type === ActionType.POKER).length,
+  () => props.roomState.filter((v) => v.type === ActionType.POKER_ESTIMATE).length,
 );
 
 function sendEvent(eventType: ActionType, value?: string | number): void {
