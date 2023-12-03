@@ -57,7 +57,6 @@ apiNamespace.on("connection", (socket: Socket) => {
 
     const roomName = Array.from(socket.rooms).find((r) => r !== socket.id);
     if (roomName) {
-      console.log("Purging: " + roomName);
       RoomStateManager.purgeSignal(roomName);
       broadcastRoom(roomName);
     }
@@ -113,13 +112,14 @@ apiNamespace.on("connection", (socket: Socket) => {
 
   socket.on("leave_room", (roomName) => {
     socket.leave(roomName);
-    console.log(`User left room: ${roomName}`);
   });
 
   socket.on("user_action", (msg) => {
     const roomName = Array.from(socket.rooms).find((r) => r !== socket.id);
+    if (roomName && isRoomLocked(roomName)) {
+      return;
+    }
 
-    console.log(`Pushing msg in room ${roomName}:`, msg);
     const fragment: RoomStateManager.RoomStateFragment = msg;
 
     if (roomName) {
@@ -130,7 +130,6 @@ apiNamespace.on("connection", (socket: Socket) => {
 
   socket.on("disconnecting", () => {
     RoomStateManager.purgeUser(userId);
-    console.log("user disconnecting");
 
     const roomName = Array.from(socket.rooms).find((r) => r !== socket.id);
     if (roomName) {
@@ -143,10 +142,13 @@ apiNamespace.on("connection", (socket: Socket) => {
   });
 
   socket.on("disconnect", () => {
-    console.log("user disconnected");
     broadcastServerStatus();
   });
 });
+
+function isRoomLocked(room: string) {
+  return lockedRooms.has(room);
+}
 
 function broadcastSchedule() {
   schedule.forEach((item) => {

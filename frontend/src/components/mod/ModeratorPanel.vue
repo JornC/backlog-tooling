@@ -5,31 +5,63 @@ import type { useSocketStore } from '@/ws/socketManager'; import type { resolveD
     <template v-if="!compact">
       <input type="text" v-model="name" placeholder="name" />
       <p class="error" v-if="showError">Insert a name</p>
-      <button @click="claimModeration">Moderate session</button>
+      <button @click="claimModeration">
+        <span class="material-symbols-outlined button-icon">stars</span>
+        Moderate session
+      </button>
     </template>
     <template v-if="isModerator">
       <template v-if="!compact">
-        <p class="you-are-moderating">You are moderating</p>
-        <button @click="stopModeration">Abdicate moderation</button>
+        <p class="you-are-moderating hero">
+          You are moderating <span class="material-symbols-outlined">social_leaderboard</span>
+        </p>
+        <button @click="stopModeration">
+          <span class="material-symbols-outlined button-icon">hiking</span>
+          Abdicate moderation
+        </button>
         <h2>Schedule</h2>
         <textarea
           rows="10"
           v-model="schedule"
           placeholder="Put items/topics here, one per line"></textarea>
-        <button @click="updateSchedule">Update schedule</button>
+        <button @click="updateSchedule">
+          <span class="material-symbols-outlined button-icon">event_note</span>
+          Update schedule
+        </button>
       </template>
       <h2>Meeting controls</h2>
-      <button @click="resetSignals">Reset current item signals</button>
-      <button @click="resetPoker">Reset current item estimates</button>
+      <button @click="resetSignals">
+        <span class="material-symbols-outlined button-icon">device_reset</span>
+        Reset current item signals
+      </button>
+      <button @click="resetPoker">
+        <span class="material-symbols-outlined button-icon">reset_image</span>
+        Reset current item estimates
+      </button>
       <hr />
-      <button @click="everyoneToModerator">Move everyone to current item</button>
-      <button @click="lockItem">Lock/unlock current item</button>
-      <button @click="finishItemAndNext">Lock + next item</button>
+      <button @click="everyoneToModerator">
+        <span class="material-symbols-outlined button-icon">groups</span>
+        Move everyone to current item
+      </button>
+      <button @click="lockItem">
+        <span class="material-symbols-outlined button-icon">Lock</span>
+        Lock/unlock current item
+      </button>
+      <button @click="finishItemAndNext">
+        <span class="material-symbols-outlined button-icon">start</span>
+        Finish/lock item + next
+      </button>
       <hr />
 
       <div class="spacer"></div>
-      <button @click="compactExpandToggle">Compact/expand</button>
-      <button @click="closeModeration">Close panel</button>
+      <button @click="compactExpandToggle">
+        <span class="material-symbols-outlined button-icon">visibility</span>
+        Compact/expand
+      </button>
+      <button @click="closeModeration">
+        <span class="material-symbols-outlined button-icon">close</span>
+        Close panel
+      </button>
     </template>
   </section>
 </template>
@@ -131,6 +163,22 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
+.hero {
+  display: flex;
+  align-items: center;
+  gap: var(--spacer);
+}
+button {
+  position: relative;
+}
+.button-icon {
+  color: black;
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  left: var(--spacer);
+  top: 7px;
+}
 .mod-panel {
   overflow-y: auto;
   margin: var(--spacer);
