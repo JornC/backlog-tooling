@@ -12,7 +12,10 @@ import type { useSocketStore } from '@/ws/socketManager'; import type { resolveD
         <p class="you-are-moderating">You are moderating</p>
         <button @click="stopModeration">Abdicate moderation</button>
         <h2>Schedule</h2>
-        <textarea rows="10" v-model="schedule"></textarea>
+        <textarea
+          rows="10"
+          v-model="schedule"
+          placeholder="Put items/topics here, one per line"></textarea>
         <button @click="updateSchedule">Update schedule</button>
       </template>
       <h2>Meeting controls</h2>
@@ -129,8 +132,8 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .mod-panel {
+  overflow-y: auto;
   margin: var(--spacer);
-  width: 500px;
   background: var(--brand-color-6);
 
   display: flex;
@@ -159,7 +162,7 @@ p {
 }
 
 hr {
-  width: 100%;
+  min-width: 400px;
 }
 
 h2 {

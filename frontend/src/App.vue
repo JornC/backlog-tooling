@@ -28,4 +28,8 @@ const contextStore = useContextStore();
   height: 100vh;
   min-height: 800px;
 }
+
+main {
+  overflow: auto;
+}
 </style>

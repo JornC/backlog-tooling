@@ -1,6 +1,9 @@
 <template>
   <nav class="nav-menu">
     <router-link class="item" :to="{ name: 'home' }">Home</router-link>
+    <div v-if="scheduleStore.getSchedule().length === 0" @click="moderate" class="item moderate">
+      Start a session
+    </div>
     <router-link
       v-for="item in scheduleStore.getSchedule()"
       :key="item.code"
@@ -20,10 +23,12 @@
 
 <script lang="ts" setup>
 import { ConnectionStatus } from "@/domain/types";
+import { useContextStore } from "@/stores/contextStore";
 import { useScheduleStore } from "@/stores/scheduleStore";
 import { useSocketStore } from "@/ws/socketManager";
 
 const socketStore = useSocketStore();
+const contextStore = useContextStore();
 const scheduleStore = useScheduleStore();
 const route = useRoute();
 
@@ -35,12 +40,19 @@ function isCurrent(code: string) {
   return (route.params.code as string) === code;
 }
 
+function moderate() {
+  contextStore.setModerating(true);
+}
+
 const isConnected = computed(() => socketStore.status === ConnectionStatus.Connected);
 
 const numConnected = computed(() => socketStore.numConnected);
 </script>
 
 <style lang="scss" scoped>
+.moderate {
+}
+
 .line {
   display: flex;
   align-items: center;

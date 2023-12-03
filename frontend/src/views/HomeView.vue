@@ -38,6 +38,6 @@ fetch("/api/ping");
 
 <style lang="scss" scoped>
 p {
-  width: clamp(45ch, 50%, 75ch);
+  max-width: 75ch;
 }
 </style>
