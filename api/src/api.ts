@@ -12,6 +12,7 @@ const apiNamespace = io.of("/api");
 apiNamespace.on("connection", (socket: Socket) => {
   const userId = socket.id;
 
+  socket.emit("user_socket_id", socket.id);
   broadcastServerStatus();
 
   socket.on("join_room", (roomName) => {

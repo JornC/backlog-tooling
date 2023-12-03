@@ -16,11 +16,20 @@
         <span class="no-style">(opens new window)</span></a
       >
     </section>
-    <simple-signals
-      v-if="currentRoomState"
-      :roomState="currentRoomState"
-      @send-action="sendAction($event)"></simple-signals>
-    <estimation-poker></estimation-poker>
+
+    <div class="actions">
+      <simple-signals
+        v-if="currentRoomState"
+        class="panel"
+        :roomState="currentRoomState"
+        @send-action="sendAction($event)" />
+      <estimation-poker
+        v-if="currentRoomState && socketStore.userId"
+        class="panel"
+        :user-id="socketStore.userId"
+        :roomState="currentRoomState"
+        @send-action="sendAction($event)" />
+    </div>
   </main>
 </template>
 
@@ -67,6 +76,16 @@ onUnmounted(() => {
 </script>
 
 <style lang="scss" scoped>
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacer);
+}
+
+.panel {
+  margin: var(--spacer) auto;
+}
+
 main {
   display: flex;
   flex-direction: column;

@@ -8,7 +8,7 @@
   --brand-color-3: #ffca3a;
   --brand-color-4: #ff595e;
   --brand-color-5: #66b2b2;
-  --brand-color-5: #6a4c93;
+  --brand-color-6: #6a4c93;
 
   --anim: 0.15s ease-out;
 }
@@ -17,4 +17,8 @@ html,
 body {
   margin: 0px;
   padding: 0px;
+}
+
+h2 {
+  text-align: center;
 }

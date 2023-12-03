@@ -1,5 +1,6 @@
 export enum ActionType {
   POKER = "POKER",
+  POKER_REVEAL = "POKER_REVEAL",
   SIGNAL_ESTIMATE = "SIGNAL_ESTIMATE",
   SIGNAL_SNOOZE = "SIGNAL_SNOOZE",
   SIGNAL_POSTPONE = "SIGNAL_POSTPONE",
@@ -9,6 +10,7 @@ export enum ActionType {
 
 export interface RoomStateFragment {
   type: ActionType;
+  user?: string;
   value?: string | number;
 }
 

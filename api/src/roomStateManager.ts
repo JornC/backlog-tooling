@@ -1,5 +1,6 @@
 export enum ActionType {
   POKER = "POKER",
+  POKER_REVEAL = "POKER_REVEAL",
   SIGNAL_ESTIMATE = "SIGNAL_ESTIMATE",
   SIGNAL_SNOOZE = "SIGNAL_SNOOZE",
   SIGNAL_POSTPONE = "SIGNAL_POSTPONE",
@@ -9,6 +10,7 @@ export enum ActionType {
 
 export interface RoomStateFragment {
   type: ActionType;
+  user: string;
   value?: string | number;
 }
 
@@ -25,9 +27,10 @@ export const getRoomState = (roomName: string): RoomStateFragment[] | undefined 
   }
 
   let fragments: RoomStateFragment[] = [];
-  for (const userState of Object.values(room)) {
+  for (const [userId, userState] of Object.entries(room)) {
     for (const fragment of userState.values()) {
-      fragments.push(fragment);
+      const updatedFragment = { ...fragment, user: userId };
+      fragments.push(updatedFragment);
     }
   }
   return fragments;
@@ -39,16 +42,52 @@ export const setRoomStateFragment = (
   fragment: RoomStateFragment,
 ): void => {
   const roomState = roomStates.get(roomName) || {};
+
   const userState = roomState[userId] || new Map<ActionType, RoomStateFragment>();
 
-  if (userState.has(fragment.type) && userState.get(fragment.type)?.value === fragment.value) {
-    userState.delete(fragment.type);
+  if (isRoomWideSignal(fragment.type)) {
+    handleRoomWideSignal(roomState, userId, fragment);
   } else {
-    userState.set(fragment.type, fragment);
+    if (userState.has(fragment.type) && userState.get(fragment.type)?.value === fragment.value) {
+      userState.delete(fragment.type);
+    } else {
+      userState.set(fragment.type, fragment);
+    }
   }
 
   roomState[userId] = userState;
   roomStates.set(roomName, roomState);
+};
+
+const handleRoomWideSignal = (
+  roomState: RoomState,
+  userId: string,
+  fragment: RoomStateFragment,
+) => {
+  if (fragment.type === ActionType.POKER_REVEAL) {
+    let isSignalSet = false;
+
+    // Check if any user has the signal set
+    for (const userStates of Object.values(roomState)) {
+      if (userStates.get(fragment.type)) {
+        isSignalSet = true;
+        break;
+      }
+    }
+
+    // Toggle the signal: unset if set, set for current user if not
+    if (isSignalSet) {
+      Object.keys(roomState).forEach((userKey) => {
+        roomState[userKey].delete(fragment.type);
+      });
+    } else {
+      roomState[userId].set(fragment.type, fragment);
+    }
+  }
+};
+
+export const isRoomWideSignal = (actionType: ActionType): boolean => {
+  return actionType === ActionType.POKER_REVEAL;
 };
 
 export const removeRoomStateFragment = (

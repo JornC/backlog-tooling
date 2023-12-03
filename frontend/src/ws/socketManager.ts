@@ -25,7 +25,8 @@ export const useSocketStore = defineStore("socket", {
     status: ConnectionStatus.Disconnected,
     currentRoom: undefined as string | undefined,
     rooms: new Map() as Map<string, RoomStateFragment[]>,
-    moderator: undefined as String | undefined,
+    userId: undefined as string | undefined,
+    moderator: undefined as string | undefined,
     numConnected: undefined as number | undefined,
   }),
 
@@ -34,6 +35,10 @@ export const useSocketStore = defineStore("socket", {
       socket.initialize();
       socket.get().on("connect", () => {
         this.status = ConnectionStatus.Connected;
+      });
+
+      socket.get().on("user_socket_id", (userId) => {
+        this.userId = userId;
       });
 
       socket.get().on("disconnect", () => {

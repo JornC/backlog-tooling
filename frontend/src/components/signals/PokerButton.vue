@@ -1,12 +1,8 @@
 <template>
-  <div
-    class="action-icon"
-    :style="{ '--count': count }"
-    @click="sendAction(type)"
-    :class="{ hasCount: count > 0 }">
+  <div class="action-icon" @click="sendAction" :class="{ hasCount: count > 0 }">
     <div v-if="icon" class="icon material-icons">{{ icon }}</div>
     <div :class="{ showing: count > 0 }" class="count-badge">{{ count || 1 }}</div>
-    <div class="label">{{ label }}</div>
+    <div class="label">{{ value || label }}</div>
   </div>
 </template>
 
@@ -16,16 +12,17 @@ import { ActionType } from "@/domain/types";
 defineProps<{
   icon?: string;
   type: ActionType;
-  label: string | number;
+  value?: string | number;
   count: number;
+  label?: string;
 }>();
 
 const emit = defineEmits<{
-  (event: "sendAction", value: ActionType): void;
+  (event: "sendAction"): void;
 }>();
 
-function sendAction(eventType: ActionType): void {
-  emit("sendAction", eventType);
+function sendAction(): void {
+  emit("sendAction");
 }
 </script>
 
@@ -49,7 +46,7 @@ function sendAction(eventType: ActionType): void {
     border: 5px solid var(--brand-color) !important;
 
     .icon {
-      font-size: min(calc(128px + var(--count) * 8px), 168px);
+      font-size: 128px;
     }
   }
 

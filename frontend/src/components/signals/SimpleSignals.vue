@@ -1,29 +1,32 @@
 <template>
-  <div class="buttons">
-    <signal-button
-      icon="verified"
-      label="Estimate!"
-      @send-action="sendEvent(ActionType.SIGNAL_ESTIMATE)"
-      :type="ActionType.SIGNAL_ESTIMATE"
-      :count="getEventCount(ActionType.SIGNAL_ESTIMATE)" />
-    <signal-button
-      icon="contact_support"
-      label="Questions"
-      @send-action="sendEvent(ActionType.SIGNAL_QUESTIONS)"
-      :type="ActionType.SIGNAL_QUESTIONS"
-      :count="getEventCount(ActionType.SIGNAL_QUESTIONS)" />
-    <signal-button
-      icon="hourglass_bottom"
-      label="Wrap up"
-      @send-action="sendEvent(ActionType.SIGNAL_SNOOZE)"
-      :type="ActionType.SIGNAL_SNOOZE"
-      :count="getEventCount(ActionType.SIGNAL_SNOOZE)" />
-    <signal-button
-      icon="coffee"
-      label="Coffee!"
-      @send-action="sendEvent(ActionType.SIGNAL_COFFEE)"
-      :type="ActionType.SIGNAL_COFFEE"
-      :count="getEventCount(ActionType.SIGNAL_COFFEE)" />
+  <div>
+    <h2>Signals</h2>
+    <div class="buttons">
+      <signal-button
+        icon="verified"
+        label="Estimate!"
+        @send-action="sendEvent(ActionType.SIGNAL_ESTIMATE)"
+        :type="ActionType.SIGNAL_ESTIMATE"
+        :count="getEventCount(ActionType.SIGNAL_ESTIMATE)" />
+      <signal-button
+        icon="contact_support"
+        label="Questions"
+        @send-action="sendEvent(ActionType.SIGNAL_QUESTIONS)"
+        :type="ActionType.SIGNAL_QUESTIONS"
+        :count="getEventCount(ActionType.SIGNAL_QUESTIONS)" />
+      <signal-button
+        icon="hourglass_bottom"
+        label="Wrap up"
+        @send-action="sendEvent(ActionType.SIGNAL_SNOOZE)"
+        :type="ActionType.SIGNAL_SNOOZE"
+        :count="getEventCount(ActionType.SIGNAL_SNOOZE)" />
+      <signal-button
+        icon="coffee"
+        label="Coffee!"
+        @send-action="sendEvent(ActionType.SIGNAL_COFFEE)"
+        :type="ActionType.SIGNAL_COFFEE"
+        :count="getEventCount(ActionType.SIGNAL_COFFEE)" />
+    </div>
   </div>
 </template>
 
