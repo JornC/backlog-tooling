@@ -32,6 +32,10 @@
   </p>
 </template>
 
+<script>
+fetch("/api/ping");
+</script>
+
 <style lang="scss" scoped>
 p {
   width: clamp(45ch, 50%, 75ch);
