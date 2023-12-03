@@ -1,5 +1,6 @@
 <template>
-  <h1>Assistant for Efficiently Relaying Information Using Signals (AERIUS)</h1>
+  <h1>AERIUS, for AERIUS</h1>
+  <p style="font-weight: bold">Assistant for Efficiently Relaying Information Using Signals</p>
   <p>Welcome to the AERIUS tool, a tool to help the AERIUS team coordinate.</p>
   <p>
     The AERIUS tool is an innovative solution designed to streamline the backlog meeting process and
