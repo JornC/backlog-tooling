@@ -9,19 +9,28 @@
       {{ item.title }}
     </router-link>
     <div class="spacer"></div>
-    <div class="bare-item center">{{ wsStatus }}</div>
+    <div class="bare-item center" :class="{ highlight: !isConnected }">{{ wsStatus }}</div>
   </nav>
 </template>
 
 <script lang="ts" setup>
-import { socketManager } from "@/ws/socketManager";
+import { ConnectionStatus } from "@/domain/types";
+import { useSocketStore } from "@/ws/socketManager";
+
+const socketStore = useSocketStore();
 
 const schedule = ref([
   { title: "AER-1234", code: "aer-1234" },
   { title: "AER-4321", code: "aer-4321" },
 ]);
 
-const wsStatus = computed(() => (socketManager.isConnected() ? "connected" : "disconnected"));
+const wsStatus = computed(() => {
+  return `${socketStore.status} (${numConnected.value || "?"})`;
+});
+
+const isConnected = computed(() => socketStore.status === ConnectionStatus.Connected);
+
+const numConnected = computed(() => socketStore.numConnected);
 </script>
 
 <style lang="scss" scoped>
@@ -41,6 +50,11 @@ const wsStatus = computed(() => (socketManager.isConnected() ? "connected" : "di
     padding: var(--spacer);
     text-decoration: none;
     color: currentColor;
+
+    &.highlight {
+      background: red;
+      color: white;
+    }
   }
 
   .item {
