@@ -12,7 +12,7 @@ class SocketService {
   }
 
   initialize() {
-    this.socket = io("http://localhost:8080/api", { path: "/api/socket.io" });
+    this.socket = io("http://localhost:8080", { path: "/api/socket.io" });
   }
 
   get() {

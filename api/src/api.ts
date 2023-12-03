@@ -13,7 +13,7 @@ let moderatorUserId: string | undefined = undefined;
 let lockedRooms = new Set();
 let schedule: any[] = [];
 
-const apiNamespace = io.of("/api");
+const apiNamespace = io.of("/");
 
 apiNamespace.on("connection", (socket: Socket) => {
   const userId = socket.id;
