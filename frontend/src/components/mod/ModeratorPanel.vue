@@ -172,6 +172,10 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
+textarea {
+  min-height: 150px;
+  flex-shrink: 0;
+}
 .hero {
   display: flex;
   align-items: center;
