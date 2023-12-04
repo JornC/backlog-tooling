@@ -15,9 +15,7 @@
       v-if="totalPokerCount > 0"
       class="estimate-button"
       :scale="false"
-      sound="/angelic.mp3"
-      :play-sound="isPlaySounds"
-      @send-action="sendEvent(ActionType.POKER_REVEAL)"
+      @send-action="revealToggle()"
       :type="ActionType.POKER_REVEAL"
       :label="revealText"
       :count="revealed ? 0 : totalPokerCount" />
@@ -49,6 +47,14 @@ const revealText = computed(() => (revealed.value ? "Hide estimates" : "Reveal e
 const emit = defineEmits<{
   (event: "sendAction", value: RoomStateFragment): void;
 }>();
+
+function revealToggle() {
+  if (!revealed.value && isPlaySounds.value) {
+    const audioPlayer = new Audio("/angelic.mp3");
+    audioPlayer.play();
+  }
+  sendEvent(ActionType.POKER_REVEAL);
+}
 
 function isUserSelection(value: string | number) {
   return (
