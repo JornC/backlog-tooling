@@ -21,7 +21,7 @@ export const useContextStore = defineStore("contextStore", {
     },
 
     setPlaySounds(val: boolean) {
-      this.moderating = val;
+      this.playSounds = val;
     },
   },
 });

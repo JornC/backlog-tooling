@@ -17,7 +17,23 @@
       </div>
     </router-link>
     <div class="spacer"></div>
-    <div class="bare-item center" :class="{ highlight: !isConnected }">{{ wsStatus }}</div>
+    <div class="bare-item">
+      <div class="sound-line local" @click="toggleLocalSound">
+        Local:
+        <span class="material-symbols-outlined button-icon">{{
+          contextStore.playSounds ? "volume_up" : "volume_mute"
+        }}</span>
+      </div>
+      <div class="sound-line">
+        Remote:
+        <span class="material-symbols-outlined button-icon">{{
+          socketStore.playSounds ? "volume_up" : "volume_mute"
+        }}</span>
+      </div>
+    </div>
+    <div class="bare-item connection center" :class="{ highlight: !isConnected }">
+      {{ wsStatus }}
+    </div>
   </nav>
 </template>
 
@@ -43,6 +59,10 @@ function isCurrent(code: string) {
 function moderate() {
   contextStore.setModerating(true);
 }
+function toggleLocalSound() {
+  console.log("Toggline: ", contextStore.playSounds);
+  contextStore.setPlaySounds(!contextStore.playSounds);
+}
 
 const isConnected = computed(() => socketStore.status === ConnectionStatus.Connected);
 
@@ -50,7 +70,18 @@ const numConnected = computed(() => socketStore.numConnected);
 </script>
 
 <style lang="scss" scoped>
-.moderate {
+.sound-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  &.local {
+    cursor: pointer;
+  }
+
+  &.local:hover {
+    background: var(--brand-color-3);
+  }
 }
 
 .line {
@@ -82,7 +113,7 @@ const numConnected = computed(() => socketStore.numConnected);
   display: flex;
   flex-direction: column;
 
-  .bare-item {
+  .connection {
     background: var(--brand-color-2);
   }
 

@@ -13,6 +13,8 @@ let moderatorUserId: string | undefined = undefined;
 let lockedRooms = new Set();
 let schedule: any[] = [];
 
+let playSounds = true;
+
 const apiNamespace = io.of("/");
 
 apiNamespace.on("connection", (socket: Socket) => {
@@ -110,6 +112,11 @@ apiNamespace.on("connection", (socket: Socket) => {
     }
   });
 
+  socket.on("mute_sounds_toggle", () => {
+    playSounds = !playSounds;
+    broadcastServerStatus();
+  });
+
   socket.on("leave_room", (roomName) => {
     socket.leave(roomName);
   });
@@ -176,7 +183,7 @@ function getServerStatus() {
     moderator: moderator,
     moderatorUserId: moderatorUserId,
     numConnected: apiNamespace.sockets.size,
-    playSounds: true,
+    playSounds: playSounds,
   };
 }
 

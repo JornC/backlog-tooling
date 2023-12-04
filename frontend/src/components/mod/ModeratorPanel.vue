@@ -52,7 +52,7 @@ import type { useSocketStore } from '@/ws/socketManager'; import type { resolveD
         Finish/lock item + next
       </button>
       <hr />
-      <button @click="lockItem">
+      <button @click="muteSounds">
         <span class="material-symbols-outlined button-icon">volume_mute</span>
         Mute/unmute all sounds
       </button>
@@ -98,6 +98,10 @@ function resetPoker() {
 }
 function lockItem() {
   socketStore.emitNamed("lock_room_toggle");
+}
+
+function muteSounds() {
+  socketStore.emitNamed("mute_sounds_toggle");
 }
 
 function finishItemAndNext() {
