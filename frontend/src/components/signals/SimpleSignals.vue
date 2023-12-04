@@ -14,6 +14,8 @@
       <signal-button
         icon="contact_support"
         label="Question"
+        sound="/ding.mp3"
+        :play-sound="isPlaySounds"
         :user-highlight="isUserSelection(ActionType.SIGNAL_QUESTIONS)"
         @send-action="sendEvent(ActionType.SIGNAL_QUESTIONS)"
         :type="ActionType.SIGNAL_QUESTIONS"
@@ -21,6 +23,8 @@
       <signal-button
         icon="psychology"
         label="Thinking"
+        sound="/minecraft-villager-sound-effect.mp3"
+        :play-sound="isPlaySounds"
         :user-highlight="isUserSelection(ActionType.SIGNAL_THINKING)"
         @send-action="sendEvent(ActionType.SIGNAL_THINKING)"
         :type="ActionType.SIGNAL_THINKING"
@@ -37,6 +41,8 @@
       <signal-button
         icon="coffee"
         label="Coffee!"
+        sound="/can-open.mp3"
+        :play-sound="isPlaySounds"
         :user-highlight="isUserSelection(ActionType.SIGNAL_COFFEE)"
         @send-action="sendEvent(ActionType.SIGNAL_COFFEE)"
         :type="ActionType.SIGNAL_COFFEE"
