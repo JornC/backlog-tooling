@@ -15,6 +15,8 @@
       v-if="totalPokerCount > 0"
       class="estimate-button"
       :scale="false"
+      sound="/angelic.mp3"
+      :play-sound="isPlaySounds"
       @send-action="sendEvent(ActionType.POKER_REVEAL)"
       :type="ActionType.POKER_REVEAL"
       :label="revealText"
@@ -24,13 +26,20 @@
 
 <script setup lang="ts">
 import { ActionType, type RoomStateFragment } from "@/domain/types";
+import { useContextStore } from "@/stores/contextStore";
+import { useSocketStore } from "@/ws/socketManager";
 
 const props = defineProps<{
   userId: string;
   roomState: RoomStateFragment[];
 }>();
 
+const contextStore = useContextStore();
+const socketStore = useSocketStore();
+
 const cards = [0.5, 1, 2, 3, 5, 8, 13, 20, 40, "inf"];
+
+const isPlaySounds = computed(() => contextStore.playSounds && socketStore.playSounds);
 
 const revealed = computed(
   () => props.roomState.filter((v) => v.type === ActionType.POKER_REVEAL).length > 0,

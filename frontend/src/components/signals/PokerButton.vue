@@ -13,9 +13,11 @@
 <script setup lang="ts">
 import { ActionType } from "@/domain/types";
 
-defineProps<{
+const props = defineProps<{
   icon?: string;
   userHighlight?: boolean;
+  sound?: string;
+  playSound?: boolean;
   scale?: boolean;
   type: ActionType;
   value?: string | number;
@@ -30,6 +32,20 @@ const emit = defineEmits<{
 function sendAction(): void {
   emit("sendAction");
 }
+
+const audioPlayer = ref<HTMLAudioElement | null>(null);
+
+watch(
+  () => props.count,
+  (newCount, oldCount) => {
+    if (newCount < oldCount && props.sound && props.playSound) {
+      if (!audioPlayer.value) {
+        audioPlayer.value = new Audio(props.sound);
+      }
+      audioPlayer.value.play().catch((e) => console.error("Error playing sound:", e));
+    }
+  },
+);
 </script>
 
 <style lang="scss" scoped>

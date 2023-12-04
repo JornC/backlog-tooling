@@ -52,6 +52,11 @@ import type { useSocketStore } from '@/ws/socketManager'; import type { resolveD
         Finish/lock item + next
       </button>
       <hr />
+      <button @click="lockItem">
+        <span class="material-symbols-outlined button-icon">volume_mute</span>
+        Mute/unmute all sounds
+      </button>
+      <hr />
 
       <div class="spacer"></div>
       <button @click="compactExpandToggle">

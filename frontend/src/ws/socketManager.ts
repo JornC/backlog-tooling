@@ -31,6 +31,7 @@ export const useSocketStore = defineStore("socket", {
     moderator: undefined as string | undefined,
     moderatorUserId: undefined as string | undefined,
     numConnected: undefined as number | undefined,
+    playSounds: true as boolean | undefined,
   }),
 
   getters: {
@@ -49,6 +50,14 @@ export const useSocketStore = defineStore("socket", {
       });
 
       socket.get().on("move_room", (roomName) => {
+        if (
+          router.currentRoute.value.name !== "AgendaRoute" ||
+          router.currentRoute.value.params.code !== roomName
+        ) {
+          const audioPlayer = new Audio("/swoosh.mp3");
+          audioPlayer.volume = 0.5;
+          audioPlayer.play();
+        }
         router.push({ name: "AgendaRoute", params: { code: roomName } });
       });
 
@@ -71,6 +80,7 @@ export const useSocketStore = defineStore("socket", {
         this.moderator = serverStatus.moderator;
         this.moderatorUserId = serverStatus.moderatorUserId;
         this.numConnected = serverStatus.numConnected;
+        this.playSounds = serverStatus.playSounds;
       });
 
       socket.get().on("schedule_update", (schedule) => {

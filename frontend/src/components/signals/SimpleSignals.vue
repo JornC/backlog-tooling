@@ -5,6 +5,8 @@
       <signal-button
         icon="verified"
         label="Ready!"
+        sound="/ready.mp3"
+        :play-sound="isPlaySounds"
         :user-highlight="isUserSelection(ActionType.SIGNAL_ESTIMATE)"
         @send-action="sendEvent(ActionType.SIGNAL_ESTIMATE)"
         :type="ActionType.SIGNAL_ESTIMATE"
@@ -26,6 +28,8 @@
       <signal-button
         icon="hourglass_bottom"
         label="Wrap up"
+        sound="/clock.mp3"
+        :play-sound="isPlaySounds"
         :user-highlight="isUserSelection(ActionType.SIGNAL_SNOOZE)"
         @send-action="sendEvent(ActionType.SIGNAL_SNOOZE)"
         :type="ActionType.SIGNAL_SNOOZE"
@@ -43,11 +47,21 @@
 
 <script setup lang="ts">
 import { ActionType, type RoomStateFragment } from "@/domain/types";
+import { useContextStore } from "@/stores/contextStore";
+import { useSocketStore } from "@/ws/socketManager";
+
+const contextStore = useContextStore();
+const socketStore = useSocketStore();
 
 const props = defineProps<{
   userId: string;
   roomState: RoomStateFragment[];
 }>();
+
+const isPlaySounds = computed(() => {
+  console.log(contextStore.playSounds, socketStore.playSounds);
+  return contextStore.playSounds && socketStore.playSounds;
+});
 
 const emit = defineEmits<{
   (event: "sendAction", value: RoomStateFragment): void;

@@ -176,6 +176,7 @@ function getServerStatus() {
     moderator: moderator,
     moderatorUserId: moderatorUserId,
     numConnected: apiNamespace.sockets.size,
+    playSounds: true,
   };
 }
 
