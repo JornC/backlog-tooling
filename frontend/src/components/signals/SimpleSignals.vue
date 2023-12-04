@@ -58,10 +58,7 @@ const props = defineProps<{
   roomState: RoomStateFragment[];
 }>();
 
-const isPlaySounds = computed(() => {
-  console.log(contextStore.playSounds, socketStore.playSounds);
-  return contextStore.playSounds && socketStore.playSounds;
-});
+const isPlaySounds = computed(() => contextStore.playSounds && socketStore.playSounds);
 
 const emit = defineEmits<{
   (event: "sendAction", value: RoomStateFragment): void;

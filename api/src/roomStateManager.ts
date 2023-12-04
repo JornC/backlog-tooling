@@ -134,7 +134,6 @@ export function purgePoker(roomName: string) {
 
 function purgeRoom(room: RoomState, predicate: (v: any) => boolean) {
   for (const userState of Object.values(room)) {
-    console.log(userState);
     for (let key of userState.keys()) {
       if (predicate(key)) {
         userState.delete(key);

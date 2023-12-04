@@ -60,7 +60,6 @@ function moderate() {
   contextStore.setModerating(true);
 }
 function toggleLocalSound() {
-  console.log("Toggline: ", contextStore.playSounds);
   contextStore.setPlaySounds(!contextStore.playSounds);
 }
 
