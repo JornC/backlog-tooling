@@ -39,7 +39,10 @@ const socketStore = useSocketStore();
 
 const cards = [0.5, 1, 2, 3, 5, 8, 13, 20, 40, "inf"];
 
-const isPlaySounds = computed(() => contextStore.playSounds && socketStore.playSounds);
+const isPlaySounds = computed(() => {
+  console.log(contextStore.playSounds && socketStore.playSounds);
+  return contextStore.playSounds && socketStore.playSounds;
+});
 
 const revealed = computed(
   () => props.roomState.filter((v) => v.type === ActionType.POKER_REVEAL).length > 0,

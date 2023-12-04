@@ -80,7 +80,7 @@ const numConnected = computed(() => socketStore.numConnected);
   }
 
   &.local:hover {
-    background: var(--brand-color-3);
+    background: var(--brand-color-4);
   }
 }
 
