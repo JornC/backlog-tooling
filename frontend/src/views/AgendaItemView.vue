@@ -29,44 +29,42 @@
       >
     </section>
 
-    <div class="actions">
+    <div class="actions" v-if="currentRoomState && socketStore.userId">
       <simple-signals
-        v-if="currentRoomState && socketStore.userId"
         :user-id="socketStore.userId"
         :roomState="currentRoomState"
         @send-action="sendAction($event)" />
-      <h2>Poker</h2>
-      <div class="poker-section">
-        <h3>Dev</h3>
-        <estimation-poker
-          v-if="isAeriusItem && currentRoomState && socketStore.userId"
-          class="panel"
-          :revealed="revealed"
-          :user-id="socketStore.userId"
-          :roomState="currentRoomState"
-          :estimate-action="ActionType.POKER_DEV_ESTIMATE"
-          @send-action="sendAction($event)" />
-      </div>
-      <div class="poker-section">
-        <h3>Test</h3>
-        <estimation-poker
-          v-if="isAeriusItem && currentRoomState && socketStore.userId"
-          class="panel"
-          :revealed="revealed"
-          :user-id="socketStore.userId"
-          :roomState="currentRoomState"
-          :estimate-action="ActionType.POKER_TEST_ESTIMATE"
-          @send-action="sendAction($event)" />
-      </div>
+      <template v-if="isAeriusItem">
+        <h2>Poker</h2>
+        <div class="poker-section">
+          <h3>Dev</h3>
+          <estimation-poker
+            class="panel"
+            :revealed="revealed"
+            :user-id="socketStore.userId"
+            :roomState="currentRoomState"
+            :estimate-action="ActionType.POKER_DEV_ESTIMATE"
+            @send-action="sendAction($event)" />
+        </div>
+        <div class="poker-section">
+          <h3>Test</h3>
+          <estimation-poker
+            class="panel"
+            :revealed="revealed"
+            :user-id="socketStore.userId"
+            :roomState="currentRoomState"
+            :estimate-action="ActionType.POKER_TEST_ESTIMATE"
+            @send-action="sendAction($event)" />
+        </div>
+      </template>
+      <poker-button
+        v-if="totalPokerCount > 0"
+        :scale="false"
+        @send-action="revealToggle()"
+        :type="ActionType.POKER_REVEAL"
+        :label="revealText"
+        :count="revealed ? 0 : totalPokerCount" />
     </div>
-    <poker-button
-      v-if="totalPokerCount > 0"
-      class="estimate-button"
-      :scale="false"
-      @send-action="revealToggle()"
-      :type="ActionType.POKER_REVEAL"
-      :label="revealText"
-      :count="revealed ? 0 : totalPokerCount" />
   </main>
 </template>
 
@@ -118,6 +116,7 @@ const totalPokerCount = computed(
 function revealToggle() {
   if (!revealed.value && isPlaySounds.value) {
     const audioPlayer = new Audio("/angelic.mp3");
+    audioPlayer.volume = 0.5;
     audioPlayer.play();
   }
   sendAction({ type: ActionType.POKER_REVEAL });

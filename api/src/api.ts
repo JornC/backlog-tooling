@@ -14,6 +14,7 @@ let lockedRooms = new Set();
 let schedule: any[] = [];
 
 let playSounds = true;
+let drumrollType = "/drumroll-1-low.mp3";
 
 const apiNamespace = io.of("/");
 
@@ -82,6 +83,27 @@ apiNamespace.on("connection", (socket: Socket) => {
 
     schedule = arr;
     broadcastSchedule();
+  });
+
+  socket.on("persist_drumroll", (type) => {
+    if (moderatorUserId !== userId) {
+      return;
+    }
+
+    console.log("Changing drumroll to: ", type);
+    drumrollType = type;
+  });
+
+  socket.on("drumroll", () => {
+    if (moderatorUserId !== userId) {
+      return;
+    }
+
+    const roomName = Array.from(socket.rooms).find((r) => r !== socket.id);
+    if (roomName) {
+      console.log("Sending drumroll play: ", drumrollType);
+      apiNamespace.to(roomName).emit("drumroll_play", drumrollType);
+    }
   });
 
   socket.on("lock_room", () => {

@@ -61,6 +61,12 @@ export const useSocketStore = defineStore("socket", {
         router.push({ name: "AgendaRoute", params: { code: roomName } });
       });
 
+      socket.get().on("drumroll_play", (file) => {
+        const audioPlayer = new Audio(file);
+        audioPlayer.volume = 0.5;
+        audioPlayer.play();
+      });
+
       socket.get().on("disconnect", () => {
         this.status = ConnectionStatus.Disconnected;
         this.numConnected = undefined;
@@ -109,8 +115,8 @@ export const useSocketStore = defineStore("socket", {
       socket.get().emit("update_schedule", schedule);
     },
 
-    emitNamed(name: string) {
-      socket.get().emit(name);
+    emitNamed(name: string, value?: any) {
+      socket.get().emit(name, value);
     },
 
     joinRoom(roomName: string) {

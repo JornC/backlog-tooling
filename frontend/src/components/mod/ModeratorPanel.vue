@@ -56,6 +56,16 @@ import type { useSocketStore } from '@/ws/socketManager'; import type { resolveD
         <span class="material-symbols-outlined button-icon">volume_mute</span>
         Mute/unmute all sounds
       </button>
+      <select v-model="drumrollSelection">
+        <option value="" hidden selected>Select to change drumroll sound</option>
+        <option value="/drumroll-1-low.mp3">/drumroll-1-low.mp3</option>
+        <option value="/drumroll-2-mid.mp3">/drumroll-2-mid.mp3</option>
+        <option value="/jeopardy-fade.mp3">/jeopardy-fade.mp3</option>
+      </select>
+      <button @click="drumroll">
+        <span class="material-symbols-outlined button-icon">music_note</span>
+        Drum roll
+      </button>
       <hr />
 
       <div class="spacer"></div>
@@ -85,8 +95,17 @@ const showError = ref(false);
 const schedule = ref("");
 const compact = ref(false);
 
+const drumrollSelection = ref<string>("");
+watch(drumrollSelection, (neww) => {
+  socketStore.emitNamed("persist_drumroll", neww);
+});
+
 const route = useRoute();
 const router = useRouter();
+
+function drumroll() {
+  socketStore.emitNamed("drumroll");
+}
 
 const isModerator = computed(() => socketStore.isModerator);
 
@@ -180,6 +199,9 @@ textarea {
   display: flex;
   align-items: center;
   gap: var(--spacer);
+}
+select {
+  padding: 20px;
 }
 button {
   position: relative;
