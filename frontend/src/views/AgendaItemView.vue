@@ -35,18 +35,44 @@
         :user-id="socketStore.userId"
         :roomState="currentRoomState"
         @send-action="sendAction($event)" />
-      <estimation-poker
-        v-if="isAeriusItem && currentRoomState && socketStore.userId"
-        class="panel"
-        :user-id="socketStore.userId"
-        :roomState="currentRoomState"
-        @send-action="sendAction($event)" />
+      <h2>Poker</h2>
+      <div class="poker-section">
+        <h3>Dev</h3>
+        <estimation-poker
+          v-if="isAeriusItem && currentRoomState && socketStore.userId"
+          class="panel"
+          :revealed="revealed"
+          :user-id="socketStore.userId"
+          :roomState="currentRoomState"
+          :estimate-action="ActionType.POKER_DEV_ESTIMATE"
+          @send-action="sendAction($event)" />
+      </div>
+      <div class="poker-section">
+        <h3>Test</h3>
+        <estimation-poker
+          v-if="isAeriusItem && currentRoomState && socketStore.userId"
+          class="panel"
+          :revealed="revealed"
+          :user-id="socketStore.userId"
+          :roomState="currentRoomState"
+          :estimate-action="ActionType.POKER_TEST_ESTIMATE"
+          @send-action="sendAction($event)" />
+      </div>
     </div>
+    <poker-button
+      v-if="totalPokerCount > 0"
+      class="estimate-button"
+      :scale="false"
+      @send-action="revealToggle()"
+      :type="ActionType.POKER_REVEAL"
+      :label="revealText"
+      :count="revealed ? 0 : totalPokerCount" />
   </main>
 </template>
 
 <script setup lang="ts">
 import type { RoomStateFragment } from "@/domain/types";
+import { ActionType } from "@/domain/types";
 import { useContextStore } from "@/stores/contextStore";
 import { useScheduleStore } from "@/stores/scheduleStore";
 import { useSocketStore } from "@/ws/socketManager";
@@ -75,6 +101,28 @@ watch(
   { immediate: true },
 );
 
+const revealed = computed(
+  () => currentRoomState.value!.filter((v) => v.type === ActionType.POKER_REVEAL).length > 0,
+);
+const revealText = computed(() => (revealed.value ? "Hide estimates" : "Reveal estimates"));
+
+const isPlaySounds = computed(() => contextStore.playSounds && socketStore.playSounds);
+
+const totalPokerCount = computed(
+  () =>
+    currentRoomState.value!.filter(
+      (v) => v.type === ActionType.POKER_DEV_ESTIMATE || v.type === ActionType.POKER_TEST_ESTIMATE,
+    ).length,
+);
+
+function revealToggle() {
+  if (!revealed.value && isPlaySounds.value) {
+    const audioPlayer = new Audio("/angelic.mp3");
+    audioPlayer.play();
+  }
+  sendAction({ type: ActionType.POKER_REVEAL });
+}
+
 function openModeration() {
   contextStore.setModerating(true);
 }
@@ -93,6 +141,11 @@ onUnmounted(() => {
 </script>
 
 <style lang="scss" scoped>
+.poker-section {
+  display: flex;
+  align-items: center;
+  gap: var(--spacer);
+}
 .actions {
   display: flex;
   flex-direction: column;
@@ -101,6 +154,9 @@ onUnmounted(() => {
   div {
     margin: 0 auto;
   }
+}
+.estimate-button {
+  margin: 15px auto;
 }
 
 .panel {
