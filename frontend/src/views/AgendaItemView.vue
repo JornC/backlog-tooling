@@ -57,13 +57,6 @@
             @send-action="sendAction($event)" />
         </div>
       </template>
-      <poker-button
-        v-if="totalPokerCount > 0"
-        :scale="false"
-        @send-action="revealToggle()"
-        :type="ActionType.POKER_REVEAL"
-        :label="revealText"
-        :count="revealed ? 0 : totalPokerCount" />
     </div>
   </main>
 </template>
@@ -112,15 +105,6 @@ const totalPokerCount = computed(
       (v) => v.type === ActionType.POKER_DEV_ESTIMATE || v.type === ActionType.POKER_TEST_ESTIMATE,
     ).length,
 );
-
-function revealToggle() {
-  if (!revealed.value && isPlaySounds.value) {
-    const audioPlayer = new Audio("/angelic.mp3");
-    audioPlayer.volume = 0.5;
-    audioPlayer.play();
-  }
-  sendAction({ type: ActionType.POKER_REVEAL });
-}
 
 function openModeration() {
   contextStore.setModerating(true);

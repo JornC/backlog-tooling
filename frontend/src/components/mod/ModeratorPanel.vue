@@ -52,10 +52,6 @@ import type { useSocketStore } from '@/ws/socketManager'; import type { resolveD
         Finish/lock item + next
       </button>
       <hr />
-      <button @click="muteSounds">
-        <span class="material-symbols-outlined button-icon">volume_mute</span>
-        Mute/unmute all sounds
-      </button>
       <select v-model="drumrollSelection">
         <option value="" hidden selected>Select to change drumroll sound</option>
         <option value="/drumroll-1-low.mp3">/drumroll-1-low.mp3</option>
@@ -66,7 +62,16 @@ import type { useSocketStore } from '@/ws/socketManager'; import type { resolveD
         <span class="material-symbols-outlined button-icon">music_note</span>
         Drum roll
       </button>
+      <button @click="reveal">
+        <span class="material-symbols-outlined button-icon">casino</span>
+        Reveal estimates
+      </button>
       <hr />
+
+      <button @click="muteSounds">
+        <span class="material-symbols-outlined button-icon">volume_mute</span>
+        Mute/unmute all sounds
+      </button>
 
       <div class="spacer"></div>
       <button @click="compactExpandToggle">
@@ -82,6 +87,7 @@ import type { useSocketStore } from '@/ws/socketManager'; import type { resolveD
 </template>
 
 <script lang="ts" setup>
+import { ActionType } from "@/domain/types";
 import { useContextStore } from "@/stores/contextStore";
 import { useScheduleStore } from "@/stores/scheduleStore";
 import { useSocketStore } from "@/ws/socketManager";
@@ -179,6 +185,12 @@ function stopModeration() {
 
 function closeModeration() {
   contextStore.setModerating(false);
+}
+
+function reveal() {
+  socketStore.emitEvent({
+    type: ActionType.POKER_REVEAL,
+  });
 }
 
 function compactExpandToggle() {
