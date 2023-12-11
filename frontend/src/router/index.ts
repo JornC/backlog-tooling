@@ -13,6 +13,11 @@ const router = createRouter({
       name: "AgendaRoute",
       component: () => import("../views/AgendaItemView.vue"),
     },
+    {
+      path: "/summary",
+      name: "summary",
+      component: () => import("../views/SummaryView.vue"),
+    },
   ],
 });
 

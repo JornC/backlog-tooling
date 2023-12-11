@@ -61,6 +61,10 @@ export const useSocketStore = defineStore("socket", {
         router.push({ name: "AgendaRoute", params: { code: roomName } });
       });
 
+      socket.get().on("all_room_state", (allRooms) => {
+        allRooms.forEach((v: any) => this.rooms.set(v[0], v[1]));
+      });
+
       socket.get().on("drumroll_play", (file) => {
         const audioPlayer = new Audio(file);
         audioPlayer.volume = 0.5;

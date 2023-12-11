@@ -64,6 +64,13 @@ apiNamespace.on("connection", (socket: Socket) => {
       broadcastRoom(roomName);
     }
   });
+  socket.on("fetch_all_room_state", () => {
+    const fullRoomState = Array.from(RoomStateManager.roomStates.keys()).map((v) => [
+      v,
+      RoomStateManager.getRoomState(v),
+    ]);
+    socket.emit("all_room_state", fullRoomState);
+  });
   socket.on("reset_room_poker", () => {
     if (moderatorUserId !== userId) {
       return;

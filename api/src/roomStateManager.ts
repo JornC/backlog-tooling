@@ -19,7 +19,7 @@ interface RoomState {
   [userId: string]: Map<ActionType, RoomStateFragment>;
 }
 
-const roomStates = new Map<string, RoomState>();
+export const roomStates = new Map<string, RoomState>();
 
 export const getRoomState = (roomName: string): RoomStateFragment[] | undefined => {
   const room = roomStates.get(roomName);

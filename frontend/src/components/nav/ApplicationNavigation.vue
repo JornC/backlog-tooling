@@ -16,6 +16,12 @@
         <div v-else class="pending icon material-icons">timer</div>
       </div>
     </router-link>
+    <router-link
+      v-if="scheduleStore.getSchedule().length > 0"
+      class="item"
+      :to="{ name: 'summary' }"
+      >Summary</router-link
+    >
     <div class="spacer"></div>
     <div class="bare-item">
       <div class="sound-line local" @click="toggleLocalSound">
