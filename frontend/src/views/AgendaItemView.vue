@@ -95,16 +95,6 @@ watch(
 const revealed = computed(
   () => currentRoomState.value!.filter((v) => v.type === ActionType.POKER_REVEAL).length > 0,
 );
-const revealText = computed(() => (revealed.value ? "Hide estimates" : "Reveal estimates"));
-
-const isPlaySounds = computed(() => contextStore.playSounds && socketStore.playSounds);
-
-const totalPokerCount = computed(
-  () =>
-    currentRoomState.value!.filter(
-      (v) => v.type === ActionType.POKER_DEV_ESTIMATE || v.type === ActionType.POKER_TEST_ESTIMATE,
-    ).length,
-);
 
 function openModeration() {
   contextStore.setModerating(true);
@@ -114,9 +104,27 @@ function sendAction(fragment: RoomStateFragment): void {
   socketStore.emitEvent(fragment);
 }
 
+const isPlaySounds = computed(() => contextStore.playSounds && socketStore.playSounds);
+
 const currentRoomState = computed(() => {
   return socketStore.getRoomState(route.params.code as string);
 });
+watch(
+  () => currentRoomState.value,
+  (neww, old) => {
+    if (
+      (old?.filter((v) => v.type === ActionType.POKER_REVEAL).length === 0 &&
+        neww?.filter((v) => v.type === ActionType.POKER_REVEAL).length) ||
+      0 > 0
+    ) {
+      if (isPlaySounds.value) {
+        const audioPlayer = new Audio("/angelic.mp3");
+        audioPlayer.volume = 0.5;
+        audioPlayer.play();
+      }
+    }
+  },
+);
 
 onUnmounted(() => {
   socketStore.leaveRoom();
