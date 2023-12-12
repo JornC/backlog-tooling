@@ -58,7 +58,7 @@ function parseSchedule(
         return null;
       }
 
-      if (line.trim() === "--group") {
+      if (line.trim() === "-- group") {
         currentGroupTitle = undefined;
         return null;
       }
@@ -78,9 +78,11 @@ function resetSchedule() {
     .map((group, index, array) => {
       const groupHeader = group.groupTitle ? `# ${group.groupTitle}\n` : "";
       const groupItems = group.items.map((item) => item.title).join("\n");
-      const addGroupSeparator = index < array.length - 1 && !array[index + 1].groupTitle;
 
-      return groupHeader + groupItems + (addGroupSeparator ? "\n--group" : "");
+      const addGroupSeparator =
+        group.groupTitle && index < array.length - 1 && !array[index + 1].groupTitle;
+
+      return groupHeader + groupItems + (addGroupSeparator ? "\n-- group" : "");
     })
     .join("\n");
 
