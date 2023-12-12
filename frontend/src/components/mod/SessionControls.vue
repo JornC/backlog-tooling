@@ -23,6 +23,20 @@
         <span class="material-symbols-outlined button-icon">event_note</span>
         Update schedule
       </button>
+      <ul>
+        <li>
+          <strong>Group Titles</strong>: Lines starting with "# " mark the beginning of a new group.
+        </li>
+        <li><strong>End of a Group</strong>: The line "-- group" indicates the end of a group.</li>
+        <li>
+          <strong>Normal Items</strong>: Other lines are treated as individual items within the
+          current group, or as standalone items if not within a group.
+        </li>
+        <li>
+          <strong>AER-* Handling</strong>: Items with titles starting with "aer-" (case insensitive)
+          provide the "poker" feature.
+        </li>
+      </ul>
     </template>
   </section>
 </template>
@@ -108,6 +122,12 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
+ul {
+  color: white;
+  max-width: 400px;
+  padding: var(--spacer);
+  margin: 0px;
+}
 .session-panel {
   display: flex;
   flex-direction: column;
