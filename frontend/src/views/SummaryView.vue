@@ -50,10 +50,12 @@ const formatTestEstimates = (room: RoomStateFragment[] | undefined) =>
   formatEstimates(room, ActionType.POKER_TEST_ESTIMATE);
 
 const itemsWithRooms = computed(() =>
-  items.value.map((item) => ({
-    item,
-    room: getRoom(item.code),
-  })),
+  items.value
+    .filter((v) => v.code.startsWith("aer-"))
+    .map((item) => ({
+      item,
+      room: getRoom(item.code),
+    })),
 );
 
 function refresh() {

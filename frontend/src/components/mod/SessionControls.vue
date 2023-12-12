@@ -45,23 +45,46 @@ function updateSchedule() {
   socketStore.updateSchedule(scheduleArr);
 }
 
-function parseSchedule(scheduleText: string): Array<{ title: string; code: string }> {
-  const titles = scheduleText.split("\n");
+function parseSchedule(
+  scheduleText: string,
+): Array<{ title: string; code: string; groupTitle?: string }> {
+  const lines = scheduleText.split("\n");
+  let currentGroupTitle: string | undefined;
 
-  return titles
-    .map((title) => {
-      const normalizedCode = title.trim().toLowerCase().replace(/\s+/g, "-");
+  return lines
+    .map((line) => {
+      if (line.startsWith("# ")) {
+        currentGroupTitle = line.substring(2).trim();
+        return null;
+      }
 
-      return { title: title.trim(), code: normalizedCode };
+      if (line.trim() === "--group") {
+        currentGroupTitle = undefined;
+        return null;
+      }
+
+      const title = line.trim();
+      const normalizedCode = title.toLowerCase().replace(/\s+/g, "-");
+
+      return title !== "" ? { title, code: normalizedCode, groupTitle: currentGroupTitle } : null;
     })
-    .filter((item) => item.title !== "");
+    .filter((item) => item !== null) as Array<{ title: string; code: string; groupTitle?: string }>;
 }
 
 function resetSchedule() {
-  schedule.value = scheduleStore
-    .getSchedule()
-    .map((v) => v.title)
+  const groupedSchedule = scheduleStore.groupedSchedule;
+
+  const scheduleText = groupedSchedule
+    .map((group, index, array) => {
+      const groupHeader = group.groupTitle ? `# ${group.groupTitle}\n` : "";
+      const groupItems = group.items.map((item) => item.title).join("\n");
+      const addGroupSeparator = index < array.length - 1 && !array[index + 1].groupTitle;
+
+      return groupHeader + groupItems + (addGroupSeparator ? "\n--group" : "");
+    })
     .join("\n");
+
+  schedule.value = scheduleText;
 }
 
 function claimModeration() {

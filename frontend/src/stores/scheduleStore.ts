@@ -3,6 +3,7 @@ import { defineStore } from "pinia";
 export interface ScheduleItem {
   title: string;
   code: string;
+  groupTitle?: string;
   locked?: boolean;
 }
 
@@ -13,6 +14,27 @@ export const useScheduleStore = defineStore("scheduleStore", {
 
   getters: {
     totalScheduleItems: (state) => state.schedule.length,
+    groupedSchedule: (state) => {
+      const orderedGroups: Array<{ groupTitle: string; items: ScheduleItem[] }> = [];
+      let currentGroup: { groupTitle: string; items: ScheduleItem[] } | null = null;
+
+      state.schedule.forEach((item) => {
+        if (!currentGroup || currentGroup.groupTitle !== item.groupTitle) {
+          if (currentGroup) {
+            orderedGroups.push(currentGroup);
+          }
+          currentGroup = { groupTitle: item.groupTitle || "", items: [item] };
+        } else {
+          currentGroup.items.push(item);
+        }
+      });
+
+      if (currentGroup) {
+        orderedGroups.push(currentGroup);
+      }
+
+      return orderedGroups;
+    },
   },
 
   actions: {
