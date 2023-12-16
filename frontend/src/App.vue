@@ -75,6 +75,7 @@ function isView(view: View): boolean {
     padding: var(--spacer);
 
     .item {
+      cursor: pointer;
       padding: var(--spacer);
       background: var(--brand-color-3);
 
