@@ -179,6 +179,7 @@ main {
   display: flex;
   flex-direction: column;
   gap: var(--spacer);
+  padding-bottom: var(--spacer);
 
   .moderator {
     margin: 0px var(--spacer);

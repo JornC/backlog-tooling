@@ -35,7 +35,7 @@ enum View {
   Mod,
 }
 
-const activeView = ref<View | undefined>(undefined);
+const activeView = ref<View | undefined>(View.Item);
 
 function setView(view: View) {
   activeView.value = view;
