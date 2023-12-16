@@ -81,6 +81,9 @@ function isView(view: View): boolean {
       &:hover {
         background: var(--brand-color-4);
       }
+      &.active {
+        background: var(--brand-color-5);
+      }
     }
   }
   .app {

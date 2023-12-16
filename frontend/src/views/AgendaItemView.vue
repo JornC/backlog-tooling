@@ -164,7 +164,12 @@ onUnmounted(() => {
 
 @media (max-width: 1024px) {
   h1,
+  h2,
   h3 {
+    display: none;
+  }
+
+  .anchor-link {
     display: none;
   }
 }
