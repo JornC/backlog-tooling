@@ -2,7 +2,9 @@
   <div
     class="action-icon"
     :style="{ '--count': count }"
+    tabindex="0"
     @click="sendAction(type)"
+    @keyup.enter.space="sendAction(type)"
     :class="{ hasCount: count > 0, userHighlight }">
     <div v-if="icon" class="icon material-icons">{{ icon }}</div>
     <div :class="{ showing: count > 0 }" class="count-badge">{{ count || 1 }}</div>

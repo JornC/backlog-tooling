@@ -2,6 +2,8 @@
   <div
     class="action-icon"
     @click="sendAction"
+    @keyup.enter.space="sendAction"
+    tabindex="0"
     :style="{ '--count': count }"
     :class="{ hasCount: count > 0, userHighlight, scale }">
     <div v-if="icon" class="icon material-icons">{{ icon }}</div>
