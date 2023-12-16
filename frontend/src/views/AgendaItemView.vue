@@ -23,7 +23,7 @@
         </a>
         <span v-else class="item-title">{{ aeriusItemTitle }}</span>
       </h1>
-      <a class="center-wrap" v-if="isAeriusItem" :href="aeriusItemHref" target="_blank">
+      <a class="anchor-link center-wrap" v-if="isAeriusItem" :href="aeriusItemHref" target="_blank">
         <div class="anchor-style">{{ aeriusItemHref }}</div>
         <span class="no-style">(opens new window)</span></a
       >
@@ -162,18 +162,6 @@ onUnmounted(() => {
   margin: var(--spacer) auto;
 }
 
-@media (max-width: 1024px) {
-  h1,
-  h2,
-  h3 {
-    display: none;
-  }
-
-  .anchor-link {
-    display: none;
-  }
-}
-
 h1,
 h2,
 h3 {
@@ -187,7 +175,7 @@ main {
   padding-bottom: var(--spacer);
 
   .moderator {
-    margin: 0px var(--spacer);
+    margin: var(--spacer);
     padding: var(--spacer);
     background: var(--brand-color-2);
     text-align: center;
@@ -256,6 +244,29 @@ main {
 
       &:hover {
         background: var(--brand-color-4);
+      }
+    }
+  }
+}
+
+@media (max-width: 1024px) {
+  h1,
+  h2,
+  h3 {
+    display: none;
+  }
+
+  main {
+    .moderator {
+      margin: 0px var(--spacer);
+    }
+
+    .title {
+      .anchor-link {
+        display: none;
+      }
+      .item-title {
+        padding: 0px var(--spacer);
       }
     }
   }
