@@ -62,6 +62,7 @@ function sendEvent(eventType: ActionType, value?: string | number): void {
   display: flex;
   flex-direction: column;
   gap: var(--spacer);
+  padding: 0px var(--spacer);
 }
 .buttons {
   display: flex;

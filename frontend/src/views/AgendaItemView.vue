@@ -16,27 +16,28 @@
       </template>
     </section>
     <section class="title">
-      <h1>
+      <h1 class="center-wrap">
         Current item
         <a :href="aeriusItemHref" v-if="isAeriusItem" target="_blank" class="item-title">
           {{ aeriusItemTitle }}
         </a>
         <span v-else class="item-title">{{ aeriusItemTitle }}</span>
       </h1>
-      <a v-if="isAeriusItem" :href="aeriusItemHref" target="_blank">
+      <a class="center-wrap" v-if="isAeriusItem" :href="aeriusItemHref" target="_blank">
         <div class="anchor-style">{{ aeriusItemHref }}</div>
         <span class="no-style">(opens new window)</span></a
       >
     </section>
 
     <div class="actions" v-if="currentRoomState && socketStore.userId">
+      <h2>Signals</h2>
       <simple-signals
         :user-id="socketStore.userId"
         :roomState="currentRoomState"
         @send-action="sendAction($event)" />
       <template v-if="isAeriusItem">
         <h2>Poker</h2>
-        <div class="poker-section">
+        <div class="poker-section center-wrap">
           <h3>Dev</h3>
           <estimation-poker
             class="panel"
@@ -46,7 +47,7 @@
             :estimate-action="ActionType.POKER_DEV_ESTIMATE"
             @send-action="sendAction($event)" />
         </div>
-        <div class="poker-section">
+        <div class="poker-section center-wrap">
           <h3>Test</h3>
           <estimation-poker
             class="panel"
@@ -137,10 +138,17 @@ onUnmounted(() => {
   align-items: center;
   gap: var(--spacer);
 }
+
+.center-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
 .actions {
   display: flex;
   flex-direction: column;
   gap: var(--spacer);
+  padding-bottom: var(--spacer);
 
   div {
     margin: 0 auto;
@@ -154,12 +162,26 @@ onUnmounted(() => {
   margin: var(--spacer) auto;
 }
 
+@media (max-width: 1024px) {
+  h1,
+  h3 {
+    display: none;
+  }
+}
+
+h1,
+h2,
+h3 {
+  margin: 0px;
+}
+
 main {
   display: flex;
   flex-direction: column;
+  gap: var(--spacer);
 
   .moderator {
-    margin: var(--spacer);
+    margin: 0px var(--spacer);
     padding: var(--spacer);
     background: var(--brand-color-2);
     text-align: center;
@@ -185,7 +207,7 @@ main {
   }
 
   .title {
-    margin: var(--spacer);
+    margin: 0px var(--spacer);
     display: flex;
     align-items: center;
     flex-direction: column;

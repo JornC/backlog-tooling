@@ -1,60 +1,64 @@
 <template>
-  <nav class="nav-menu">
-    <router-link class="item" :to="{ name: 'home' }">Home</router-link>
-    <div v-if="scheduleStore.schedule.length === 0" @click="moderate" class="item moderate">
-      Start a session
-    </div>
-    <div
-      v-for="group in scheduleStore.groupedSchedule"
-      :key="group.groupTitle"
-      class="group"
-      :class="{ 'active-group': isExpanded(group.groupTitle) }">
-      <div @click="toggleGroup(group.groupTitle)" class="group-title" v-if="group.groupTitle">
-        {{ group.groupTitle || "Ungrouped" }}
-        <span class="toggle-icon material-icons">
-          {{ isExpanded(group.groupTitle) ? "expand_less" : "expand_more" }}
-        </span>
+  <div>
+    <nav class="nav-menu">
+      <router-link class="item" :to="{ name: 'home' }">Home</router-link>
+      <div v-if="scheduleStore.schedule.length === 0" @click="moderate" class="item moderate">
+        Start a session
       </div>
-      <transition name="slide">
-        <div v-show="isExpanded(group.groupTitle) || !group.groupTitle" class="item-content">
-          <router-link
-            v-for="item in group.items"
-            :key="item.code"
-            class="item"
-            :to="{ name: 'AgendaRoute', params: { code: item.code } }">
-            <div class="line">
-              <div>{{ item.title }}</div>
-              <div v-if="item.locked" class="check icon material-icons">check_circle</div>
-              <div v-else-if="isCurrent(item.code)" class="current icon material-icons">forum</div>
-              <div v-else class="pending icon material-icons">timer</div>
-            </div>
-          </router-link>
+      <div
+        v-for="group in scheduleStore.groupedSchedule"
+        :key="group.groupTitle"
+        class="group"
+        :class="{ 'active-group': isExpanded(group.groupTitle) }">
+        <div @click="toggleGroup(group.groupTitle)" class="group-title" v-if="group.groupTitle">
+          {{ group.groupTitle || "Ungrouped" }}
+          <span class="toggle-icon material-icons">
+            {{ isExpanded(group.groupTitle) ? "expand_less" : "expand_more" }}
+          </span>
         </div>
-      </transition>
-    </div>
+        <transition name="slide">
+          <div v-show="isExpanded(group.groupTitle) || !group.groupTitle" class="item-content">
+            <router-link
+              v-for="item in group.items"
+              :key="item.code"
+              class="item"
+              :to="{ name: 'AgendaRoute', params: { code: item.code } }">
+              <div class="line">
+                <div>{{ item.title }}</div>
+                <div v-if="item.locked" class="check icon material-icons">check_circle</div>
+                <div v-else-if="isCurrent(item.code)" class="current icon material-icons">
+                  forum
+                </div>
+                <div v-else class="pending icon material-icons">timer</div>
+              </div>
+            </router-link>
+          </div>
+        </transition>
+      </div>
 
-    <router-link v-if="scheduleStore.schedule.length > 0" class="item" :to="{ name: 'summary' }">
-      Summary
-    </router-link>
-    <div class="spacer"></div>
-    <div class="bare-item">
-      <div class="sound-line local" @click="toggleLocalSound">
-        Local:
-        <span class="material-symbols-outlined button-icon">{{
-          contextStore.playSounds ? "volume_up" : "volume_mute"
-        }}</span>
+      <router-link v-if="scheduleStore.schedule.length > 0" class="item" :to="{ name: 'summary' }">
+        Summary
+      </router-link>
+      <div class="spacer"></div>
+      <div class="bare-item">
+        <div class="sound-line local" @click="toggleLocalSound">
+          Local:
+          <span class="material-symbols-outlined button-icon">{{
+            contextStore.playSounds ? "volume_up" : "volume_mute"
+          }}</span>
+        </div>
+        <div class="sound-line">
+          Remote:
+          <span class="material-symbols-outlined button-icon">{{
+            socketStore.playSounds ? "volume_up" : "volume_mute"
+          }}</span>
+        </div>
       </div>
-      <div class="sound-line">
-        Remote:
-        <span class="material-symbols-outlined button-icon">{{
-          socketStore.playSounds ? "volume_up" : "volume_mute"
-        }}</span>
+      <div class="bare-item connection center" :class="{ highlight: !isConnected }">
+        {{ wsStatus }}
       </div>
-    </div>
-    <div class="bare-item connection center" :class="{ highlight: !isConnected }">
-      {{ wsStatus }}
-    </div>
-  </nav>
+    </nav>
+  </div>
 </template>
 
 <script lang="ts" setup>

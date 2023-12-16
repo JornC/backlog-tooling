@@ -1,53 +1,50 @@
 <template>
-  <div>
-    <h2>Signals</h2>
-    <div class="buttons">
-      <signal-button
-        icon="verified"
-        label="Ready!"
-        sound="/ready.mp3"
-        :play-sound="isPlaySounds"
-        :user-highlight="isUserSelection(ActionType.SIGNAL_ESTIMATE)"
-        @send-action="sendEvent(ActionType.SIGNAL_ESTIMATE)"
-        :type="ActionType.SIGNAL_ESTIMATE"
-        :count="getEventCount(ActionType.SIGNAL_ESTIMATE)" />
-      <signal-button
-        icon="contact_support"
-        label="Question"
-        sound="/ding.mp3"
-        :play-sound="isPlaySounds"
-        :user-highlight="isUserSelection(ActionType.SIGNAL_QUESTIONS)"
-        @send-action="sendEvent(ActionType.SIGNAL_QUESTIONS)"
-        :type="ActionType.SIGNAL_QUESTIONS"
-        :count="getEventCount(ActionType.SIGNAL_QUESTIONS)" />
-      <signal-button
-        icon="psychology"
-        label="Thinking"
-        sound="/minecraft-villager-sound-effect.mp3"
-        :play-sound="isPlaySounds"
-        :user-highlight="isUserSelection(ActionType.SIGNAL_THINKING)"
-        @send-action="sendEvent(ActionType.SIGNAL_THINKING)"
-        :type="ActionType.SIGNAL_THINKING"
-        :count="getEventCount(ActionType.SIGNAL_THINKING)" />
-      <signal-button
-        icon="hourglass_bottom"
-        label="Wrap up"
-        sound="/clock.mp3"
-        :play-sound="isPlaySounds"
-        :user-highlight="isUserSelection(ActionType.SIGNAL_SNOOZE)"
-        @send-action="sendEvent(ActionType.SIGNAL_SNOOZE)"
-        :type="ActionType.SIGNAL_SNOOZE"
-        :count="getEventCount(ActionType.SIGNAL_SNOOZE)" />
-      <signal-button
-        icon="coffee"
-        label="Coffee!"
-        sound="/can-open.mp3"
-        :play-sound="isPlaySounds"
-        :user-highlight="isUserSelection(ActionType.SIGNAL_COFFEE)"
-        @send-action="sendEvent(ActionType.SIGNAL_COFFEE)"
-        :type="ActionType.SIGNAL_COFFEE"
-        :count="getEventCount(ActionType.SIGNAL_COFFEE)" />
-    </div>
+  <div class="buttons">
+    <signal-button
+      icon="verified"
+      label="Ready!"
+      sound="/ready.mp3"
+      :play-sound="isPlaySounds"
+      :user-highlight="isUserSelection(ActionType.SIGNAL_ESTIMATE)"
+      @send-action="sendEvent(ActionType.SIGNAL_ESTIMATE)"
+      :type="ActionType.SIGNAL_ESTIMATE"
+      :count="getEventCount(ActionType.SIGNAL_ESTIMATE)" />
+    <signal-button
+      icon="contact_support"
+      label="Question"
+      sound="/ding.mp3"
+      :play-sound="isPlaySounds"
+      :user-highlight="isUserSelection(ActionType.SIGNAL_QUESTIONS)"
+      @send-action="sendEvent(ActionType.SIGNAL_QUESTIONS)"
+      :type="ActionType.SIGNAL_QUESTIONS"
+      :count="getEventCount(ActionType.SIGNAL_QUESTIONS)" />
+    <signal-button
+      icon="psychology"
+      label="Thinking"
+      sound="/minecraft-villager-sound-effect.mp3"
+      :play-sound="isPlaySounds"
+      :user-highlight="isUserSelection(ActionType.SIGNAL_THINKING)"
+      @send-action="sendEvent(ActionType.SIGNAL_THINKING)"
+      :type="ActionType.SIGNAL_THINKING"
+      :count="getEventCount(ActionType.SIGNAL_THINKING)" />
+    <signal-button
+      icon="hourglass_bottom"
+      label="Wrap up"
+      sound="/clock.mp3"
+      :play-sound="isPlaySounds"
+      :user-highlight="isUserSelection(ActionType.SIGNAL_SNOOZE)"
+      @send-action="sendEvent(ActionType.SIGNAL_SNOOZE)"
+      :type="ActionType.SIGNAL_SNOOZE"
+      :count="getEventCount(ActionType.SIGNAL_SNOOZE)" />
+    <signal-button
+      icon="coffee"
+      label="Coffee!"
+      sound="/can-open.mp3"
+      :play-sound="isPlaySounds"
+      :user-highlight="isUserSelection(ActionType.SIGNAL_COFFEE)"
+      @send-action="sendEvent(ActionType.SIGNAL_COFFEE)"
+      :type="ActionType.SIGNAL_COFFEE"
+      :count="getEventCount(ActionType.SIGNAL_COFFEE)" />
   </div>
 </template>
 
@@ -94,7 +91,9 @@ function sendEvent(eventType: ActionType): void {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  margin: 0 auto;
   gap: var(--spacer);
+  margin: 0px var(--spacer);
+  padding: 0px var(--spacer);
+  justify-content: space-around;
 }
 </style>
