@@ -17,7 +17,7 @@
     </section>
     <section class="title">
       <h1 class="center-wrap">
-        Current item
+        Current topic
         <a :href="aeriusItemHref" v-if="isAeriusItem" target="_blank" class="item-title">
           {{ aeriusItemTitle }}
         </a>
@@ -168,7 +168,8 @@ onUnmounted(() => {
   }
 }
 .description {
-  white-space: pre-line;
+  background: var(--brand-color-3);
+  padding: var(--spacer);
 }
 .estimate-button {
   margin: 15px auto;
