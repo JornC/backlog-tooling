@@ -23,7 +23,7 @@
         </a>
         <span v-else class="item-title">{{ aeriusItemTitle }}</span>
       </h1>
-      <p v-if="scheduleItem?.description" class="description">{{ scheduleItem.description }}</p>
+      <div v-if="scheduleItem?.description" class="description" v-html="itemDescription" />
       <a class="anchor-link center-wrap" v-if="isAeriusItem" :href="aeriusItemHref" target="_blank">
         <div class="anchor-style">{{ aeriusItemHref }}</div>
         <span class="no-style">(opens new window)</span></a
@@ -104,6 +104,18 @@ function openModeration() {
 
 function sendAction(fragment: RoomStateFragment): void {
   socketStore.emitEvent(fragment);
+}
+
+const itemDescription = computed(
+  () =>
+    scheduleItem.value?.description?.split("\n").map((v) => `<p>${formatDescriptionLine(v)}</p>`),
+);
+
+function formatDescriptionLine(text: string): string {
+  const urlRegex = /(\b(https?):\/\/[-A-Z0-9+&@#/%?=~_|!:,.;]*[-A-Z0-9+&@#/%=~_|])/gi;
+  return text.replace(urlRegex, (url) => {
+    return `<a href="${url}" target="_blank">${url}</a>`;
+  });
 }
 
 const isPlaySounds = computed(() => contextStore.playSounds && socketStore.playSounds);
