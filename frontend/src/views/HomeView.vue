@@ -5,7 +5,7 @@
 
     <h2>Changelog</h2>
     <section>
-      <article v-for="entry in changelog" :key="entry.version">
+      <article v-for="entry in changelog.slice().reverse()" :key="entry.version">
         <header>
           <h3>
             {{ entry.version }} -
