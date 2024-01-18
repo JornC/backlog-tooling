@@ -11,8 +11,8 @@
         Controls
       </div>
     </section>
-    <session-controls v-if="isActive('session')"></session-controls>
-    <meeting-controls v-if="isActive('controls')"></meeting-controls>
+    <session-controls v-if="isActive('session')" />
+    <meeting-controls v-if="isActive('controls')" />
 
     <div class="spacer"></div>
     <button @click="closeModeration">

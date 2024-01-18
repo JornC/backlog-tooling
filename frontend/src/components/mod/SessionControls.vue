@@ -5,7 +5,7 @@
     </p>
     <input type="text" v-model="name" placeholder="name" />
     <p class="error" v-if="showError">Insert a name</p>
-    <button @click="claimModeration">
+    <button @click="claimModeration" v-if="!isModerator">
       <span class="material-symbols-outlined button-icon">stars</span>
       Moderate session
     </button>
@@ -28,6 +28,10 @@
           <strong>Group Titles</strong>: Lines starting with "# " mark the beginning of a new group.
         </li>
         <li><strong>End of a Group</strong>: The line "-- group" indicates the end of a group.</li>
+        <li>
+          <strong>Item description</strong>: Lines surrounded by "quotation marks" indicate a
+          paragraph of description text for the previous item. Links will be hyperlink-ified.
+        </li>
         <li>
           <strong>Normal Items</strong>: Other lines are treated as individual items within the
           current group, or as standalone items if not within a group.
@@ -61,14 +65,29 @@ function updateSchedule() {
 
 function parseSchedule(
   scheduleText: string,
-): Array<{ title: string; code: string; groupTitle?: string }> {
+): Array<{ title: string; code: string; description?: string; groupTitle?: string }> {
   const lines = scheduleText.split("\n");
+  let previousItem: {
+    title: string;
+    code: string;
+    description?: string;
+    groupTitle: string | undefined;
+  } | null;
   let currentGroupTitle: string | undefined;
+  let currentGroupDescription: Array<String> = new Array();
 
-  return lines
+  const items = lines
     .map((line) => {
       if (line.startsWith("# ")) {
         currentGroupTitle = line.substring(2).trim();
+        return null;
+      }
+
+      if (line.startsWith('"') && line.endsWith('"')) {
+        currentGroupDescription.push(line.substring(1, line.length - 1));
+        if (previousItem) {
+          previousItem.description = currentGroupDescription.join("\n");
+        }
         return null;
       }
 
@@ -80,9 +99,27 @@ function parseSchedule(
       const title = line.trim();
       const normalizedCode = title.toLowerCase().replace(/\s+/g, "-");
 
-      return title !== "" ? { title, code: normalizedCode, groupTitle: currentGroupTitle } : null;
+      const item =
+        title !== ""
+          ? {
+              title,
+              code: normalizedCode,
+              groupTitle: currentGroupTitle,
+            }
+          : null;
+
+      previousItem = item;
+      currentGroupDescription = new Array();
+      return item;
     })
-    .filter((item) => item !== null) as Array<{ title: string; code: string; groupTitle?: string }>;
+    .filter((item) => item !== null) as Array<{
+    title: string;
+    code: string;
+    description?: string;
+    groupTitle?: string;
+  }>;
+  console.log(items);
+  return items;
 }
 
 function resetSchedule() {
@@ -91,7 +128,17 @@ function resetSchedule() {
   const scheduleText = groupedSchedule
     .map((group, index, array) => {
       const groupHeader = group.groupTitle ? `# ${group.groupTitle}\n` : "";
-      const groupItems = group.items.map((item) => item.title).join("\n");
+      const groupItems = group.items
+        .map((item) =>
+          [
+            item.title,
+            item.description
+              ?.split("\n")
+              .map((v) => '"' + v + '"')
+              .join("\n"),
+          ].join("\n"),
+        )
+        .join("\n");
 
       const addGroupSeparator =
         group.groupTitle && index < array.length - 1 && !array[index + 1].groupTitle;

@@ -3,6 +3,7 @@ import { defineStore } from "pinia";
 export interface ScheduleItem {
   title: string;
   code: string;
+  description?: string;
   groupTitle?: string;
   locked?: boolean;
 }

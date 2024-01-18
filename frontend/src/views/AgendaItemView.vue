@@ -23,6 +23,7 @@
         </a>
         <span v-else class="item-title">{{ aeriusItemTitle }}</span>
       </h1>
+      <p v-if="scheduleItem?.description" class="description">{{ scheduleItem.description }}</p>
       <a class="anchor-link center-wrap" v-if="isAeriusItem" :href="aeriusItemHref" target="_blank">
         <div class="anchor-style">{{ aeriusItemHref }}</div>
         <span class="no-style">(opens new window)</span></a
@@ -153,6 +154,9 @@ onUnmounted(() => {
   div {
     margin: 0 auto;
   }
+}
+.description {
+  white-space: pre-line;
 }
 .estimate-button {
   margin: 15px auto;
