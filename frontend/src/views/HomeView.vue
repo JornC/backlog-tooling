@@ -2,6 +2,25 @@
   <div class="home-container">
     <h1>AERIUS, for AERIUS</h1>
     <p style="font-weight: bold">Assistant for Efficiently Relaying Information Using Signals</p>
+
+    <h2>Changelog</h2>
+    <section>
+      <article v-for="entry in changelog" :key="entry.version">
+        <header>
+          <h3>
+            {{ entry.version }} -
+            <time :datetime="entry.date.toISOString()">{{ formatDate(entry.date) }}</time>
+          </h3>
+        </header>
+        <ul>
+          <li v-for="change in entry.changes" :key="change.description">
+            <strong>{{ change.type }}:</strong> {{ change.description }}
+          </li>
+        </ul>
+      </article>
+    </section>
+
+    <h2>About</h2>
     <p>Welcome to the AERIUS tool, a tool to help the AERIUS team coordinate.</p>
     <p>
       The AERIUS tool is an innovative solution designed to streamline the backlog meeting process
@@ -36,6 +55,79 @@
 </template>
 
 <script setup lang="ts">
+interface Change {
+  type: string;
+  description: string;
+}
+
+interface ChangelogEntry {
+  version: string;
+  date: Date;
+  changes: Change[];
+}
+
+const changelog = ref<ChangelogEntry[]>([
+  {
+    version: "v0.1",
+    date: new Date("2023-12-03"),
+    changes: [
+      { type: "Added", description: "Signal mechanism" },
+      { type: "Added", description: "Poker mechanism" },
+    ],
+  },
+  {
+    version: "v0.2",
+    date: new Date("2023-12-04"),
+    changes: [
+      { type: "Added", description: "Schedule" },
+      { type: "Added", description: "Moderator panel" },
+    ],
+  },
+  {
+    version: "v1.0",
+    date: new Date("2023-12-05"),
+    changes: [
+      { type: "Updated", description: "Poker split into test/dev" },
+      { type: "Added", description: "Drumroll" },
+    ],
+  },
+  {
+    version: "v1.1",
+    date: new Date("2023-12-10"),
+    changes: [{ type: "Updated", description: "Poker reveal is now a moderator responsibility" }],
+  },
+  {
+    version: "v1.2",
+    date: new Date("2023-12-11"),
+    changes: [
+      { type: "Updated", description: "More organised moderator panel" },
+      { type: "Added", description: "Summary page" },
+    ],
+  },
+  {
+    version: "v1.3",
+    date: new Date("2023-12-12"),
+    changes: [{ type: "Updated", description: "Schedule items can now be organised into groups" }],
+  },
+  {
+    version: "v1.4",
+    date: new Date("2023-12-16"),
+    changes: [
+      { type: "Updated", description: "Usability changes and mobile compatibility/accessibility" },
+    ],
+  },
+  {
+    version: "v1.5",
+    date: new Date("2024-01-18"),
+    changes: [{ type: "Added", description: "Changelog" }],
+  },
+]);
+
+const formatDate = (date: Date): string => {
+  const options: Intl.DateTimeFormatOptions = { year: "numeric", month: "2-digit", day: "2-digit" };
+  return new Intl.DateTimeFormat("en-CA", options).format(date);
+};
+
 fetch("/api/ping");
 </script>
 
@@ -43,7 +135,11 @@ fetch("/api/ping");
 .home-container {
   padding: 0px var(--spacer);
 }
+h2 {
+  text-align: left;
+}
 p {
   max-width: 75ch;
+  font-size: 0.8em;
 }
 </style>
