@@ -140,6 +140,11 @@ const changelog = ref<ChangelogEntry[]>([
       { type: "Added", description: "Optional item descriptions" },
     ],
   },
+  {
+    version: "v1.6",
+    date: new Date("2024-01-23"),
+    changes: [{ type: "Added", description: "User counts per room" }],
+  },
 ]);
 
 const formatDate = (date: Date): string => {

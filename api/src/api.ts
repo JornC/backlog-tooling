@@ -18,6 +18,8 @@ let drumrollType = "/drumroll-1-low.mp3";
 
 const apiNamespace = io.of("/");
 
+const roomTimers = new Map();
+
 apiNamespace.on("connection", (socket: Socket) => {
   const userId = socket.id;
 
@@ -31,7 +33,10 @@ apiNamespace.on("connection", (socket: Socket) => {
 
     const roomState = RoomStateManager.getRoomState(roomName);
     socket.emit("room_state", roomState || []);
+
+    handleBroadcastSchedule(roomName);
   });
+
   socket.on("everyone_to_moderator", () => {
     if (moderatorUserId !== userId) {
       return;
@@ -148,6 +153,8 @@ apiNamespace.on("connection", (socket: Socket) => {
 
   socket.on("leave_room", (roomName) => {
     socket.leave(roomName);
+
+    handleBroadcastSchedule(roomName);
   });
 
   socket.on("user_action", (msg) => {
@@ -182,12 +189,29 @@ apiNamespace.on("connection", (socket: Socket) => {
   });
 });
 
+function handleBroadcastSchedule(roomName: string) {
+  if (!roomTimers.has(roomName)) {
+    broadcastSchedule();
+
+    const timer = setTimeout(() => {
+      broadcastSchedule();
+      roomTimers.delete(roomName);
+    }, 1000);
+
+    roomTimers.set(roomName, timer);
+  }
+}
+
 function isRoomLocked(room: string) {
   return lockedRooms.has(room);
 }
 
 function broadcastSchedule() {
   schedule.forEach((item) => {
+    const room = io.sockets.adapter.rooms.get(item.code);
+    const userCount = room ? room.size : 0;
+    item.size = userCount;
+
     if (lockedRooms.has(item.code)) {
       item.locked = true;
     } else {

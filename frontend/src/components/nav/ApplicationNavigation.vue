@@ -11,7 +11,16 @@
         class="group"
         :class="{ 'active-group': isExpanded(group.groupTitle) }">
         <div @click="toggleGroup(group.groupTitle)" class="group-title" v-if="group.groupTitle">
-          {{ group.groupTitle || "Ungrouped" }}
+          <div class="title-line">
+            <span class="title-text">{{ group.groupTitle || "Ungrouped" }}</span>
+            <span
+              v-if="group.items.map((v) => v.size).reduce((acc: number, v: number) => acc + v, 0)"
+              class="room-count"
+              >({{
+                group.items.map((v) => v.size).reduce((acc: number, v: number) => acc + v, 0)
+              }})</span
+            >
+          </div>
           <span class="toggle-icon material-icons">
             {{ isExpanded(group.groupTitle) ? "expand_less" : "expand_more" }}
           </span>
@@ -25,8 +34,11 @@
               class="item"
               :to="{ name: 'AgendaRoute', params: { code: item.code } }">
               <div class="line">
-                <div>
-                  <div>{{ item.title }}</div>
+                <div class="item-content">
+                  <div class="title-line">
+                    <span class="title-text">{{ item.title }}</span>
+                    <span v-if="item.size" class="room-count">({{ item.size }})</span>
+                  </div>
                   <div v-if="item.description" class="description">
                     {{ item.description?.split("\n")[0] }}
                   </div>
@@ -150,6 +162,20 @@ watch(route, () => {
   }
 }
 
+.title-line {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+
+  .title-text {
+    flex-grow: 1;
+  }
+}
+
+.toggle-icon {
+  margin-left: var(--spacer);
+}
+
 .group-title {
   display: flex;
   align-items: center;
@@ -158,9 +184,17 @@ watch(route, () => {
   font-weight: bold;
   transition: all 0.25s ease-out;
 
+  .title-text {
+    flex-grow: 1;
+  }
+
   &:hover {
     background: var(--brand-color-4);
   }
+}
+
+.room-count {
+  margin-left: var(--spacer);
 }
 
 .description {
@@ -195,6 +229,10 @@ watch(route, () => {
   align-items: center;
   justify-content: space-between;
   gap: var(--spacer);
+
+  .item-content {
+    flex-grow: 1;
+  }
 
   .icon {
     width: 24px;
