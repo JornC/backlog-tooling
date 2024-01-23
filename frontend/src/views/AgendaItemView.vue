@@ -26,8 +26,8 @@
       <div v-if="scheduleItem?.description" class="description" v-html="itemDescription" />
       <a class="anchor-link center-wrap" v-if="isAeriusItem" :href="aeriusItemHref" target="_blank">
         <div class="anchor-style">{{ aeriusItemHref }}</div>
-        <span class="no-style">(opens new window)</span></a
-      >
+        <span class="no-style">(opens new window)</span>
+      </a>
     </section>
 
     <div class="actions" v-if="currentRoomState && socketStore.userId">

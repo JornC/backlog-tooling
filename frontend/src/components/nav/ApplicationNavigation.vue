@@ -20,11 +20,17 @@
           <div v-show="isExpanded(group.groupTitle) || !group.groupTitle" class="item-content">
             <router-link
               v-for="item in group.items"
+              :title="item.title + ': ' + item.description?.split('\n')[0]"
               :key="item.code"
               class="item"
               :to="{ name: 'AgendaRoute', params: { code: item.code } }">
               <div class="line">
-                <div>{{ item.title }}</div>
+                <div>
+                  <div>{{ item.title }}</div>
+                  <div v-if="item.description" class="description">
+                    {{ item.description?.split("\n")[0] }}
+                  </div>
+                </div>
                 <div v-if="item.locked" class="check icon material-icons">check_circle</div>
                 <div v-else-if="isCurrent(item.code)" class="current icon material-icons">
                   forum
@@ -155,6 +161,14 @@ watch(route, () => {
   &:hover {
     background: var(--brand-color-4);
   }
+}
+
+.description {
+  font-size: 0.7em;
+  max-width: 200px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .item-content {
