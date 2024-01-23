@@ -6,7 +6,7 @@ export interface ScheduleItem {
   description?: string;
   groupTitle?: string;
   locked?: boolean;
-  size: number;
+  size?: number;
 }
 
 export const useScheduleStore = defineStore("scheduleStore", {

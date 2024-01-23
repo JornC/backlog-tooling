@@ -14,10 +14,12 @@
           <div class="title-line">
             <span class="title-text">{{ group.groupTitle || "Ungrouped" }}</span>
             <span
-              v-if="group.items.map((v) => v.size).reduce((acc: number, v: number) => acc + v, 0)"
+              v-if="
+                group.items.map((v) => v.size || 0).reduce((acc: number, v: number) => acc + v, 0)
+              "
               class="room-count"
               >({{
-                group.items.map((v) => v.size).reduce((acc: number, v: number) => acc + v, 0)
+                group.items.map((v) => v.size || 0).reduce((acc: number, v: number) => acc + v, 0)
               }})</span
             >
           </div>
