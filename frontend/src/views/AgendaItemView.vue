@@ -37,7 +37,12 @@
         :roomState="currentRoomState"
         @send-action="sendAction($event)" />
       <template v-if="isAeriusItem">
-        <h2>Poker</h2>
+        <h2 class="poker-count-title">
+          <span>Poker</span>
+          <div :class="{ showing: totalPokerCount > 0 }" class="count-badge">
+            {{ totalPokerCount || 1 }}
+          </div>
+        </h2>
         <div class="poker-section center-wrap">
           <h3>Dev</h3>
           <estimation-poker
@@ -118,6 +123,13 @@ function formatDescriptionLine(text: string): string {
   });
 }
 
+const totalPokerCount = computed(
+  () =>
+    currentRoomState.value!.filter(
+      (v) => v.type === ActionType.POKER_DEV_ESTIMATE || v.type === ActionType.POKER_TEST_ESTIMATE,
+    ).length,
+);
+
 const isPlaySounds = computed(() => contextStore.playSounds && socketStore.playSounds);
 
 const currentRoomState = computed(() => {
@@ -183,6 +195,13 @@ h1,
 h2,
 h3 {
   margin: 0px;
+}
+
+.poker-count-title {
+  position: relative;
+  display: inline-block;
+  margin: 0 auto;
+  padding: 0 20px;
 }
 
 main {
@@ -286,6 +305,31 @@ main {
         padding: 0px var(--spacer);
       }
     }
+  }
+}
+
+.count-badge {
+  position: absolute;
+  top: -4px;
+  right: -30px;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  padding: 10px;
+  border-radius: 50%;
+  line-height: 20px;
+  font-weight: bold;
+
+  background-color: var(--brand-color-3);
+  color: black;
+  text-align: center;
+  opacity: 0;
+  transition: all 0.15s ease-out;
+  pointer-events: none;
+  aspect-ratio: 1 / 1;
+
+  &.showing {
+    opacity: 1;
   }
 }
 </style>
