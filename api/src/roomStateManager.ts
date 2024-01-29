@@ -118,9 +118,11 @@ export const removeRoomStateFragment = (
     roomStates.set(roomName, roomState);
   }
 };
-export function purgeUser(userId: string) {
-  roomStates.forEach((roomState) => {
-    delete roomState[userId];
+export function purgeUser(userId: string, lockedRooms: Set<String>) {
+  roomStates.forEach((roomState, roomName) => {
+    if (!lockedRooms.has(roomName)) {
+      delete roomState[userId];
+    }
   });
 }
 

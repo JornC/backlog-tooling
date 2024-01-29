@@ -10,7 +10,7 @@ const io: SocketIOServer = new SocketIOServer(server);
 let moderator: string | undefined = undefined;
 let moderatorUserId: string | undefined = undefined;
 
-let lockedRooms = new Set();
+let lockedRooms = new Set<string>();
 let schedule: any[] = [];
 
 let playSounds = true;
@@ -172,7 +172,7 @@ apiNamespace.on("connection", (socket: Socket) => {
   });
 
   socket.on("disconnecting", () => {
-    RoomStateManager.purgeUser(userId);
+    RoomStateManager.purgeUser(userId, lockedRooms);
 
     const roomName = Array.from(socket.rooms).find((r) => r !== socket.id);
     if (roomName) {

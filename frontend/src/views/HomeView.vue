@@ -143,7 +143,17 @@ const changelog = ref<ChangelogEntry[]>([
   {
     version: "v1.6",
     date: new Date("2024-01-23"),
-    changes: [{ type: "Added", description: "User counts per room" }],
+    changes: [{ type: "Added", description: "User counts per item" }],
+  },
+  {
+    version: "v1.7",
+    date: new Date("2024-01-23"),
+    changes: [
+      {
+        type: "Updated",
+        description: "Locked item states are no longer modified when users disconnect",
+      },
+    ],
   },
 ]);
 
