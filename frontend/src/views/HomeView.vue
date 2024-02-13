@@ -147,7 +147,7 @@ const changelog = ref<ChangelogEntry[]>([
   },
   {
     version: "v1.7",
-    date: new Date("2024-01-23"),
+    date: new Date("2024-01-29"),
     changes: [
       {
         type: "Updated",
@@ -157,7 +157,7 @@ const changelog = ref<ChangelogEntry[]>([
   },
   {
     version: "v1.7",
-    date: new Date("2024-01-23"),
+    date: new Date("2024-02-13"),
     changes: [
       {
         type: "Updated",
