@@ -24,10 +24,10 @@
       </button>
       <hr />
       <select v-model="drumrollSelection">
-        <option value="" hidden selected>Select to change drumroll sound</option>
-        <option value="/drumroll-1-low.mp3">/drumroll-1-low.mp3</option>
-        <option value="/drumroll-2-mid.mp3">/drumroll-2-mid.mp3</option>
-        <option value="/jeopardy-fade.mp3">/jeopardy-fade.mp3</option>
+        <option value="random" selected>Random!</option>
+        <option v-for="drumroll in drumrolls" :key="drumroll" :value="drumroll">
+          {{ drumroll }}
+        </option>
       </select>
       <button @click="drumroll">
         <span class="material-symbols-outlined button-icon">music_note</span>
@@ -52,10 +52,20 @@ import { ActionType } from "@/domain/types";
 import { useScheduleStore } from "@/stores/scheduleStore";
 import { useSocketStore } from "@/ws/socketManager";
 
+const drumrolls = [
+  "/drumroll-1-low.mp3",
+  "/drumroll-2-mid.mp3",
+  "/fx-wait.mp3",
+  "/jeopardy-fade.mp3",
+  "/phone-ringing-marimba.mp3",
+  "/sonido-de-siguiente.mp3",
+  "/tarot-shuffle.mp3",
+];
+
 const socketStore = useSocketStore();
 const scheduleStore = useScheduleStore();
 
-const drumrollSelection = ref<string>("");
+const drumrollSelection = ref<string>("random");
 watch(drumrollSelection, (neww) => {
   socketStore.emitNamed("persist_drumroll", neww);
 });
@@ -103,8 +113,10 @@ function everyoneToModerator() {
 const currentRoomState = computed(() => {
   return socketStore.getRoomState(route.params.code as string);
 });
-const revealed = computed(
-  () => currentRoomState.value!.filter((v) => v.type === ActionType.POKER_REVEAL).length > 0,
+const revealed = computed(() =>
+  currentRoomState.value
+    ? currentRoomState.value.filter((v) => v.type === ActionType.POKER_REVEAL).length > 0
+    : false,
 );
 const revealText = computed(() => (revealed.value ? "Hide estimates" : "Reveal estimates"));
 const totalPokerCount = computed(

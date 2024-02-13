@@ -29,16 +29,20 @@
         </li>
         <li><strong>End of a Group</strong>: The line "-- group" indicates the end of a group.</li>
         <li>
-          <strong>Item description</strong>: Lines surrounded by "quotation marks" indicate a
+          <strong>AER-* Handling</strong>: Items with titles starting with "aer-" (case insensitive)
+          provide the "poker" feature.
+        </li>
+        <li>
+          <strong>Item description 1</strong>: For AER-* items, the text following the AER-* word is
+          a description.
+        </li>
+        <li>
+          <strong>Item description 2</strong>: Lines surrounded by "quotation marks" indicate a
           paragraph of description text for the previous item. Links will be hyperlink-ified.
         </li>
         <li>
           <strong>Normal Items</strong>: Other lines are treated as individual items within the
           current group, or as standalone items if not within a group.
-        </li>
-        <li>
-          <strong>AER-* Handling</strong>: Items with titles starting with "aer-" (case insensitive)
-          provide the "poker" feature.
         </li>
       </ul>
     </template>
@@ -86,23 +90,28 @@ function parseSchedule(
       if (line.startsWith('"') && line.endsWith('"')) {
         currentGroupDescription.push(line.substring(1, line.length - 1));
         if (previousItem) {
-          previousItem.description = currentGroupDescription.join("\n");
+          previousItem.description =
+            (previousItem.description ? previousItem.description + "\n" : "") +
+            currentGroupDescription.join("\n");
         }
         return null;
       }
+
+      let description = line.startsWith("AER-") ? line.substring(line.indexOf(" ") + 1) : undefined;
 
       if (line.trim() === "-- group") {
         currentGroupTitle = undefined;
         return null;
       }
 
-      const title = line.trim();
+      const title = line.startsWith("AER-") ? line.split(" ", 2)[0] : line.trim();
       const normalizedCode = title.toLowerCase().replace(/\s+/g, "-");
 
       const item =
         title !== ""
           ? {
               title,
+              description,
               code: normalizedCode,
               groupTitle: currentGroupTitle,
             }
@@ -131,12 +140,18 @@ function resetSchedule() {
       const groupItems = group.items
         .map((item) =>
           [
-            item.title,
+            item.title +
+              ((item.title.startsWith("AER-") && item.description?.length) || 0 > 0
+                ? " " + item.description?.split("\n")[0]
+                : ""),
             item.description
               ?.split("\n")
+              .slice(item.title.startsWith("AER-") ? 1 : 0)
               .map((v) => '"' + v + '"')
               .join("\n"),
-          ].join("\n"),
+          ]
+            .filter((v) => v !== "")
+            .join("\n"),
         )
         .join("\n");
 

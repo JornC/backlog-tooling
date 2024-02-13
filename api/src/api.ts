@@ -11,10 +11,55 @@ let moderator: string | undefined = undefined;
 let moderatorUserId: string | undefined = undefined;
 
 let lockedRooms = new Set<string>();
-let schedule: any[] = [];
+
+/* Kick off with a sample schedule */
+let schedule: any[] = [
+  {
+    title: "AER-1234",
+    code: "aer-1234",
+    description: "example item 1",
+    groupTitle: "Group 1",
+    locked: false,
+  },
+  {
+    title: "AER-1235",
+    code: "aer-1235",
+    description: "example item 2",
+    groupTitle: "Group 1",
+    locked: false,
+  },
+  {
+    title: "AER-1236",
+    code: "aer-1236",
+    description: "example item 3",
+    groupTitle: "Group 2",
+    locked: false,
+  },
+];
+
+/*
+interface ScheduleItem {
+  title: string;
+  code: string;
+  description?: string;
+  groupTitle?: string;
+  locked?: boolean;
+  size?: number;
+}
+*/
 
 let playSounds = true;
-let drumrollType = "/drumroll-1-low.mp3";
+
+const drumrolls = [
+  "/drumroll-1-low.mp3",
+  "/drumroll-2-mid.mp3",
+  "/fx-wait.mp3",
+  "/jeopardy-fade.mp3",
+  "/phone-ringing-marimba.mp3",
+  "/sonido-de-siguiente.mp3",
+  "/tarot-shuffle.mp3",
+];
+let drumrollType = "random";
 
 const apiNamespace = io.of("/");
 
@@ -113,8 +158,13 @@ apiNamespace.on("connection", (socket: Socket) => {
 
     const roomName = Array.from(socket.rooms).find((r) => r !== socket.id);
     if (roomName) {
-      console.log("Sending drumroll play: ", drumrollType);
-      apiNamespace.to(roomName).emit("drumroll_play", drumrollType);
+      const file =
+        drumrollType === "random"
+          ? drumrolls[Math.floor(Math.random() * drumrolls.length)]
+          : drumrollType;
+
+      console.log("Sending drumroll play: ", drumrollType, file);
+      apiNamespace.to(roomName).emit("drumroll_play", "/drumrolls" + file);
     }
   });
 

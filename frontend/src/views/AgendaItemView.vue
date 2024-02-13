@@ -111,10 +111,12 @@ function sendAction(fragment: RoomStateFragment): void {
   socketStore.emitEvent(fragment);
 }
 
-const itemDescription = computed(
-  () =>
-    scheduleItem.value?.description?.split("\n").map((v) => `<p>${formatDescriptionLine(v)}</p>`),
-);
+const itemDescription = computed(() => {
+  return scheduleItem.value?.description
+    ?.split("\n")
+    .map((v) => `<p>${formatDescriptionLine(v)}</p>`)
+    .join("");
+});
 
 function formatDescriptionLine(text: string): string {
   const urlRegex = /(\b(https?):\/\/[-A-Z0-9+&@#/%?=~_|!:,.;]*[-A-Z0-9+&@#/%=~_|])/gi;

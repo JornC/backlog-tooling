@@ -155,6 +155,20 @@ const changelog = ref<ChangelogEntry[]>([
       },
     ],
   },
+  {
+    version: "v1.7",
+    date: new Date("2024-01-23"),
+    changes: [
+      {
+        type: "Updated",
+        description: "Drumroll sound is now random by default",
+      },
+      {
+        type: "Updated",
+        description: "Item descriptions can now be added more compactly",
+      },
+    ],
+  },
 ]);
 
 const formatDate = (date: Date): string => {
