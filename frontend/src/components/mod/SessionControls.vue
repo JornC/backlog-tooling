@@ -97,7 +97,10 @@ function parseSchedule(
         return null;
       }
 
-      let description = line.startsWith("AER-") ? line.substring(line.indexOf(" ") + 1) : undefined;
+      let description =
+        line.startsWith("AER-") && line.indexOf(" ") > -1
+          ? line.substring(line.indexOf(" ") + 1)
+          : undefined;
 
       if (line.trim() === "-- group") {
         currentGroupTitle = undefined;
