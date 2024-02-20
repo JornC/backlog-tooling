@@ -85,7 +85,7 @@ const scheduleItem = computed(() => scheduleStore.findScheduleItem(route.params.
 const isAeriusItem = computed(() => scheduleItem.value?.code.startsWith("aer-"));
 const aeriusItemTitle = computed(() => scheduleItem.value?.title);
 const aeriusItemHref = computed(
-  () => "https://aerius.atlassian.net/browse/" + scheduleItem.value?.code,
+  () => "https://aerius.atlassian.net/browse/" + String(scheduleItem.value?.code).toUpperCase(),
 );
 const moderator = computed(() => socketStore.moderator);
 
