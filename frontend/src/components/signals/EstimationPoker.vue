@@ -23,7 +23,7 @@ const props = defineProps<{
   revealed: boolean;
 }>();
 
-const cards = [0.5, 1, 2, 3, 5, 8, 13, 20, 40, "inf"];
+const cards = [0.5, 1, 2, 3, 5, 8, 13, 20, 40, "inf", "?"];
 
 const emit = defineEmits<{
   (event: "sendAction", value: RoomStateFragment): void;

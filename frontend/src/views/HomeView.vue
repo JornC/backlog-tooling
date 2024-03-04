@@ -169,6 +169,26 @@ const changelog = ref<ChangelogEntry[]>([
       },
     ],
   },
+  {
+    version: "v1.8",
+    date: new Date("2024-02-20"),
+    changes: [
+      {
+        type: "Updated",
+        description: "Jira links now work on mobile",
+      },
+    ],
+  },
+  {
+    version: "v1.9",
+    date: new Date("2024-03-01"),
+    changes: [
+      {
+        type: "Added",
+        description: "Added ? to the poker options",
+      },
+    ],
+  },
 ]);
 
 const formatDate = (date: Date): string => {
