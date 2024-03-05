@@ -2,24 +2,24 @@
   <section class="control-panel">
     <template v-if="isModerator">
       <button @click="resetSignals">
-        <span class="material-symbols-outlined button-icon">device_reset</span>
+        <span class="material-symbols-rounded button-icon">device_reset</span>
         Reset current item signals
       </button>
       <button @click="resetPoker">
-        <span class="material-symbols-outlined button-icon">reset_image</span>
+        <span class="material-symbols-rounded button-icon">reset_image</span>
         Reset current item estimates
       </button>
       <hr />
       <button @click="everyoneToModerator">
-        <span class="material-symbols-outlined button-icon">groups</span>
+        <span class="material-symbols-rounded button-icon">groups</span>
         Move everyone to current item
       </button>
       <button @click="lockItem">
-        <span class="material-symbols-outlined button-icon">Lock</span>
+        <span class="material-symbols-rounded button-icon">Lock</span>
         Lock/unlock current item
       </button>
       <button @click="finishItemAndNext">
-        <span class="material-symbols-outlined button-icon">start</span>
+        <span class="material-symbols-rounded button-icon">start</span>
         Finish/lock item + next
       </button>
       <hr />
@@ -30,17 +30,17 @@
         </option>
       </select>
       <button @click="drumroll">
-        <span class="material-symbols-outlined button-icon">music_note</span>
+        <span class="material-symbols-rounded button-icon">music_note</span>
         Drum roll
       </button>
       <button @click="reveal">
-        <span class="material-symbols-outlined button-icon">casino</span>
+        <span class="material-symbols-rounded button-icon">casino</span>
         {{ revealText }} ({{ totalPokerCount }})
       </button>
       <hr />
 
       <button @click="muteSounds">
-        <span class="material-symbols-outlined button-icon">volume_mute</span>
+        <span class="material-symbols-rounded button-icon">volume_mute</span>
         Mute/unmute all sounds
       </button>
     </template>
@@ -152,7 +152,6 @@ button {
   width: 24px;
   height: 24px;
   left: var(--spacer);
-  top: 7px;
 }
 
 hr {

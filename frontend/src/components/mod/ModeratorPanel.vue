@@ -16,7 +16,7 @@
 
     <div class="spacer"></div>
     <button @click="closeModeration">
-      <span class="material-symbols-outlined button-icon">close</span>
+      <span class="material-symbols-rounded button-icon">close</span>
       Close panel
     </button>
   </section>
@@ -89,7 +89,6 @@ button {
   width: 24px;
   height: 24px;
   left: var(--spacer);
-  top: 7px;
 }
 .mod-panel {
   overflow-y: auto;

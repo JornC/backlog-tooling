@@ -6,7 +6,7 @@
     tabindex="0"
     :style="{ '--count': count }"
     :class="{ hasCount: count > 0, userHighlight, scale }">
-    <div v-if="icon" class="icon material-icons">{{ icon }}</div>
+    <div v-if="icon" class="icon material-symbols-rounded">{{ icon }}</div>
     <div :class="{ showing: count > 0 }" class="count-badge">{{ count || 1 }}</div>
     <div class="label">{{ value || label }}</div>
   </div>

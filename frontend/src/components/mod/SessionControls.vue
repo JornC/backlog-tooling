@@ -1,17 +1,17 @@
 <template>
   <section class="session-panel">
     <p class="you-are-moderating hero" v-if="isModerator">
-      You are moderating <span class="material-symbols-outlined">social_leaderboard</span>
+      You are moderating <span class="material-symbols-rounded">social_leaderboard</span>
     </p>
     <input type="text" v-model="name" placeholder="name" />
     <p class="error" v-if="showError">Insert a name</p>
     <button @click="claimModeration" v-if="!isModerator">
-      <span class="material-symbols-outlined button-icon">stars</span>
+      <span class="material-symbols-rounded button-icon">stars</span>
       Moderate session
     </button>
     <template v-if="isModerator">
       <button @click="stopModeration">
-        <span class="material-symbols-outlined button-icon">hiking</span>
+        <span class="material-symbols-rounded button-icon">hiking</span>
         Abdicate moderation
       </button>
       <h2>Schedule</h2>
@@ -20,7 +20,7 @@
         v-model="schedule"
         placeholder="Put items/topics here, one per line"></textarea>
       <button @click="updateSchedule">
-        <span class="material-symbols-outlined button-icon">event_note</span>
+        <span class="material-symbols-rounded button-icon">event_note</span>
         Update schedule
       </button>
       <ul>
@@ -216,7 +216,6 @@ button {
   width: 24px;
   height: 24px;
   left: var(--spacer);
-  top: 7px;
 }
 
 .error {

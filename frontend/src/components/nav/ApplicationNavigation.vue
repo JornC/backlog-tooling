@@ -23,7 +23,7 @@
               }})</span
             >
           </div>
-          <span class="toggle-icon material-icons">
+          <span class="toggle-icon material-symbols-rounded">
             {{ isExpanded(group.groupTitle) ? "expand_less" : "expand_more" }}
           </span>
         </div>
@@ -45,11 +45,13 @@
                     {{ item.description?.split("\n")[0] }}
                   </div>
                 </div>
-                <div v-if="item.locked" class="check icon material-icons">check_circle</div>
-                <div v-else-if="isCurrent(item.code)" class="current icon material-icons">
+                <div v-if="item.locked" class="check icon material-symbols-rounded">
+                  check_circle
+                </div>
+                <div v-else-if="isCurrent(item.code)" class="current icon material-symbols-rounded">
                   forum
                 </div>
-                <div v-else class="pending icon material-icons">timer</div>
+                <div v-else class="pending icon material-symbols-rounded">timer</div>
               </div>
             </router-link>
           </div>
@@ -63,13 +65,13 @@
       <div class="bare-item">
         <div class="sound-line local" @click="toggleLocalSound">
           Local:
-          <span class="material-symbols-outlined button-icon">{{
+          <span class="material-symbols-rounded button-icon">{{
             contextStore.playSounds ? "volume_up" : "volume_mute"
           }}</span>
         </div>
         <div class="sound-line">
           Remote:
-          <span class="material-symbols-outlined button-icon">{{
+          <span class="material-symbols-rounded button-icon">{{
             socketStore.playSounds ? "volume_up" : "volume_mute"
           }}</span>
         </div>
