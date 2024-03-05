@@ -8,6 +8,7 @@ export enum ActionType {
   SIGNAL_QUESTIONS = "SIGNAL_QUESTIONS",
   SIGNAL_COFFEE = "SIGNAL_COFFEE",
   SIGNAL_THINKING = "SIGNAL_THINKING",
+  SIGNAL_TAPOUT = "SIGNAL_TAPOUT",
 }
 
 export interface RoomStateFragment {

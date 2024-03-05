@@ -189,6 +189,20 @@ const changelog = ref<ChangelogEntry[]>([
       },
     ],
   },
+  {
+    version: "v1.10",
+    date: new Date("2024-03-01"),
+    changes: [
+      {
+        type: "Updated",
+        description: "Don't play sounds when entering a room",
+      },
+      {
+        type: "Added",
+        description: "Added 'tap out' signal",
+      },
+    ],
+  },
 ]);
 
 const formatDate = (date: Date): string => {

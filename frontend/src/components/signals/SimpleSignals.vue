@@ -28,6 +28,15 @@
       :type="ActionType.SIGNAL_THINKING"
       :count="getEventCount(ActionType.SIGNAL_THINKING)" />
     <signal-button
+      icon="person_cancel"
+      label="Tapping out"
+      sound="/windows-xp-shutdown.mp3"
+      :play-sound="isPlaySounds"
+      :user-highlight="isUserSelection(ActionType.SIGNAL_TAPOUT)"
+      @send-action="sendEvent(ActionType.SIGNAL_TAPOUT)"
+      :type="ActionType.SIGNAL_TAPOUT"
+      :count="getEventCount(ActionType.SIGNAL_TAPOUT)" />
+    <signal-button
       icon="hourglass_bottom"
       label="Wrap up"
       sound="/clock.mp3"

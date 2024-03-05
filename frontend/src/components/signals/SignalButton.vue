@@ -6,7 +6,7 @@
     @click="sendAction(type)"
     @keyup.enter.space="sendAction(type)"
     :class="{ hasCount: count > 0, userHighlight }">
-    <div v-if="icon" class="icon material-icons">{{ icon }}</div>
+    <div v-if="icon" class="icon material-symbols-rounded">{{ icon }}</div>
     <div :class="{ showing: count > 0 }" class="count-badge">{{ count || 1 }}</div>
     <div class="label">{{ label }}</div>
   </div>
@@ -14,6 +14,7 @@
 
 <script setup lang="ts">
 import { ActionType } from "@/domain/types";
+import { useContextStore } from "@/stores/contextStore";
 
 const props = defineProps<{
   icon?: string;
@@ -24,6 +25,8 @@ const props = defineProps<{
   label: string | number;
   count: number;
 }>();
+
+const contextStore = useContextStore();
 
 const emit = defineEmits<{
   (event: "sendAction", value: ActionType): void;
@@ -38,10 +41,15 @@ const audioPlayer = ref<HTMLAudioElement | null>(null);
 watch(
   () => props.count,
   (newCount, oldCount) => {
+    if (contextStore.isSoundEmbargoed) {
+      return;
+    }
+
     if (newCount > oldCount && props.sound && props.playSound) {
       if (!audioPlayer.value) {
         audioPlayer.value = new Audio(props.sound);
       }
+
       audioPlayer.value.play().catch((e) => console.error("Error playing sound:", e));
     }
   },
