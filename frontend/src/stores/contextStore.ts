@@ -3,26 +3,23 @@ import { defineStore } from "pinia";
 export const useContextStore = defineStore("contextStore", {
   state: () => ({
     playSounds: true as boolean,
-    moderating: false as boolean,
+    userPanelActive: false as boolean,
 
     soundEmbargo: false as boolean,
     soundEmbargoTimeout: null as number | null, // Add a timeout reference
   }),
 
   getters: {
-    isModerating: (state) => {
-      const urlParams = new URLSearchParams(window.location.search);
-      const isModerateFlagPresent = urlParams.has("moderate");
-
-      return state.moderating || isModerateFlagPresent;
+    isUserPanelActive: (state) => {
+      return state.userPanelActive;
     },
 
     isSoundEmbargoed: (state) => state.soundEmbargo,
   },
 
   actions: {
-    setModerating(val: boolean) {
-      this.moderating = val;
+    setUserPanelActive(val: boolean) {
+      this.userPanelActive = val;
     },
 
     setSoundEmbargoed() {

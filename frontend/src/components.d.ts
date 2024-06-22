@@ -8,9 +8,10 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     ApplicationNavigation: typeof import('./components/nav/ApplicationNavigation.vue')['default']
-    copy: typeof import('./components/mod/SessionControls copy.vue')['default']
+    copy: typeof import('./components/mod/UserControls copy.vue')['default']
     EstimationPoker: typeof import('./components/signals/EstimationPoker.vue')['default']
     MeetingControls: typeof import('./components/mod/MeetingControls.vue')['default']
+    ModeratorControls: typeof import('./components/mod/ModeratorControls.vue')['default']
     ModeratorPanel: typeof import('./components/mod/ModeratorPanel.vue')['default']
     PokerButton: typeof import('./components/signals/PokerButton.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']

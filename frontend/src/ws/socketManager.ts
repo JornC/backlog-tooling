@@ -27,8 +27,8 @@ export const useSocketStore = defineStore("socket", {
     status: ConnectionStatus.Disconnected,
     currentRoom: undefined as string | undefined,
     rooms: new Map() as Map<string, RoomStateFragment[]>,
+    roster: new Map() as Map<string, string>,
     userId: undefined as string | undefined,
-    moderator: undefined as string | undefined,
     moderatorUserId: undefined as string | undefined,
     numConnected: undefined as number | undefined,
     playSounds: true as boolean | undefined,
@@ -36,6 +36,10 @@ export const useSocketStore = defineStore("socket", {
 
   getters: {
     isModerator: (state) => state.userId !== undefined && state.userId === state.moderatorUserId,
+    isIdentified: (state) => state.userId !== undefined && state.roster.has(state.userId),
+    moderator: (state) =>
+      state.moderatorUserId ? state.roster.get(state.moderatorUserId) ?? undefined : undefined,
+    name: (state) => state.roster.get(state.userId!) ?? undefined,
   },
 
   actions: {
@@ -87,7 +91,9 @@ export const useSocketStore = defineStore("socket", {
       });
 
       socket.get().on("server_status", (serverStatus) => {
-        this.moderator = serverStatus.moderator;
+        const roster = new Map<string, string>(Object.entries(serverStatus.roster));
+
+        this.roster = roster;
         this.moderatorUserId = serverStatus.moderatorUserId;
         this.numConnected = serverStatus.numConnected;
         this.playSounds = serverStatus.playSounds;
@@ -107,8 +113,12 @@ export const useSocketStore = defineStore("socket", {
       });
     },
 
-    claimModeration(name: string) {
-      socket.get().emit("claim_moderation", name);
+    updateName(name: string) {
+      socket.get().emit("update_name", name);
+    },
+
+    claimModeration() {
+      socket.get().emit("claim_moderation");
     },
 
     stopModeration() {

@@ -4,14 +4,14 @@
     <div class="item" :class="{ active: isView(View.Item) }" @click="setView(View.Item)">Item</div>
     <div
       class="item"
-      v-if="contextStore.isModerating"
+      v-if="contextStore.isUserPanelActive"
       :class="{ active: isView(View.Mod) }"
       @click="setView(View.Mod)">
       Mod
     </div>
   </div>
 
-  <div class="app" :class="{ 'moderator-active': contextStore.isModerating }">
+  <div class="app" :class="{ 'moderator-active': contextStore.isUserPanelActive }">
     <application-navigation class="app-navigation" :class="{ hide: !isView(View.Menu) }" />
 
     <main class="app-main" :class="{ hide: !isView(View.Item) }">
@@ -19,7 +19,7 @@
     </main>
 
     <user-panel
-      v-if="contextStore.isModerating"
+      v-if="contextStore.isUserPanelActive"
       class="app-user-panel"
       :class="{ hide: !isView(View.Mod) }" />
   </div>

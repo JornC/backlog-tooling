@@ -1,108 +1,85 @@
 <template>
   <section class="session-panel">
-    <p class="you-are-moderating hero" v-if="isModerator">
-      You are moderating <span class="material-symbols-rounded">social_leaderboard</span>
-    </p>
+    <p>Either</p>
     <input type="text" v-model="name" placeholder="name" />
     <p class="error" v-if="showError">Insert a name</p>
-    <button @click="claimModeration" v-if="!isModerator">
-      <span class="material-symbols-rounded button-icon">stars</span>
-      {{ hasModerator ? "Steal moderation" : "Claim moderation" }}
-    </button>
-    <template v-if="isModerator">
-      <button @click="stopModeration">
-        <span class="material-symbols-rounded button-icon">hiking</span>
-        Abdicate moderation
-      </button>
-    </template>
+    <button @click="updateName">Handshake</button>
+    <p>Or</p>
+    <button @click="setRandomName1">Random name ({{ random1 }})</button>
+    <button @click="setRandomName2">Random name ({{ random2 }})</button>
+    <button @click="setRandomName3">Random name ({{ random3 }})</button>
   </section>
 </template>
 
 <script lang="ts" setup>
 import { useSocketStore } from "@/ws/socketManager";
+import dockerNames from "docker-names";
+import { ref } from "vue";
 
 const socketStore = useSocketStore();
 
-const name = ref("");
+const name = ref(socketStore.name);
 const showError = ref(false);
 
-const isModerator = computed(() => socketStore.isModerator);
-const hasModerator = computed(() => socketStore.moderator);
+const random1 = ref(generateRandomName());
+const random2 = ref(generateRandomName());
+const random3 = ref(generateRandomName());
 
-function claimModeration() {
-  if (name.value.length === 0) {
+function updateName() {
+  if (!name.value) {
     showError.value = true;
     return;
   }
 
-  if (hasModerator.value) {
-    if (
-      !window.confirm(
-        "Are you sure you want to take moderation responsibilities away from " +
-          socketStore.moderator +
-          "?",
-      )
-    ) {
-      return;
-    }
-  }
-
-  showError.value = false;
-  socketStore.claimModeration(name.value);
+  socketStore.updateName(name.value);
 }
-function stopModeration() {
-  socketStore.stopModeration();
+
+function setRandomName1() {
+  name.value = random1.value;
+  updateName();
+}
+
+function setRandomName2() {
+  name.value = random2.value;
+  updateName();
+}
+
+function setRandomName3() {
+  name.value = random3.value;
+  updateName();
+}
+
+function generateRandomName(): string {
+  const randomName = dockerNames.getRandomName();
+  return toPascalCaseWithSpace(randomName);
+}
+
+function toPascalCaseWithSpace(name: string): string {
+  return name
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
 }
 </script>
 
-<style lang="scss" scoped>
-ul {
-  color: white;
-  max-width: 400px;
-  padding: var(--spacer);
-  margin: 0px;
+<style scoped>
+.error {
+  color: red;
 }
+</style>
+
+<style lang="scss" scoped>
 .session-panel {
   display: flex;
   flex-direction: column;
   gap: var(--spacer);
 }
-textarea {
-  min-height: 150px;
-  flex-shrink: 0;
-}
-.hero {
-  display: flex;
-  align-items: center;
-  gap: var(--spacer);
-}
-button {
-  position: relative;
-}
-.button-icon {
-  color: black;
-  position: absolute;
-  width: 24px;
-  height: 24px;
-  left: var(--spacer);
-}
-
-.error {
-  padding: var(--spacer);
-  background: red;
-  color: white;
-}
-.you-are-moderating {
-  padding: var(--spacer);
-  background: var(--brand-color-2);
+hr {
+  min-width: 400px;
 }
 
 p {
   margin: 0px;
-}
-
-h2 {
-  text-align: left;
   color: white;
 }
 </style>

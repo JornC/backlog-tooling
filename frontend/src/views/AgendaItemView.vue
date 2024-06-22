@@ -8,7 +8,12 @@
         <span>No moderator</span>
       </template>
 
-      <button class="moderate-button" @click="openModeration">Scratch board and moderation</button>
+      <button
+        v-if="!contextStore.isUserPanelActive"
+        class="moderate-button"
+        @click="openModeration">
+        Scratch board and moderation
+      </button>
     </section>
     <section class="title">
       <h1 class="center-wrap">
@@ -103,7 +108,7 @@ const revealed = computed(
 );
 
 function openModeration() {
-  contextStore.setModerating(true);
+  contextStore.setUserPanelActive(true);
 }
 
 function sendAction(fragment: RoomStateFragment): void {

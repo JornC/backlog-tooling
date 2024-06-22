@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@vueuse/core": "^10.6.1",
+    "docker-names": "^1.2.1",
     "pinia": "^2.1.7",
     "socket.io-client": "^4.7.2",
     "vue": "^3.3.4",

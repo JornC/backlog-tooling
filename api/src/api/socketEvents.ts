@@ -59,6 +59,7 @@ export function setupSocketEvents(io: SocketIOServer) {
   const roomTimers = new Map();
 
   const roomStateManager = new RoomStateManager();
+  const roster = new Map();
 
   const path = "/";
   const apiNamespace = io.of(path);
@@ -90,8 +91,12 @@ export function setupSocketEvents(io: SocketIOServer) {
       apiNamespace.emit("move_room", moderatorRoomName);
     });
 
-    socket.on("claim_moderation", (name) => {
-      moderator = name;
+    socket.on("update_name", (name) => {
+      roster.set(userId, name);
+      broadcastServerStatus();
+    });
+
+    socket.on("claim_moderation", () => {
       moderatorUserId = userId;
       broadcastServerStatus();
     });
@@ -281,12 +286,16 @@ export function setupSocketEvents(io: SocketIOServer) {
   }
 
   function getServerStatus() {
-    return {
-      moderator: moderator,
+    const rosterSerialized = Object.fromEntries(roster);
+
+    const ret = {
       moderatorUserId: moderatorUserId,
+      roster: rosterSerialized,
       numConnected: apiNamespace.sockets.size,
       playSounds: playSounds,
     };
+    console.log(ret);
+    return ret;
   }
 
   function broadcastRoom(roomName: string) {

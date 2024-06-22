@@ -1,8 +1,18 @@
 <template>
   <section class="mod-panel">
+    <p class="you-are-moderating hero" v-if="isModerator">
+      You are moderating <span class="material-symbols-rounded">social_leaderboard</span>
+    </p>
     <section class="nav">
       <div :class="{ active: isActive('user') }" @click="setActive('user')" class="nav-item">
         User
+      </div>
+      <div
+        v-if="isIdentified"
+        :class="{ active: isActive('moderator') }"
+        @click="setActive('moderator')"
+        class="nav-item">
+        Moderator
       </div>
       <div
         v-if="isModerator"
@@ -20,6 +30,7 @@
       </div>
     </section>
     <user-controls v-if="isActive('user')" />
+    <moderator-controls v-if="isActive('moderator')" />
     <session-controls v-if="isActive('session')" />
     <meeting-controls v-if="isActive('controls')" />
 
@@ -39,6 +50,7 @@ const socketStore = useSocketStore();
 const contextStore = useContextStore();
 
 const isModerator = computed(() => socketStore.isModerator);
+const isIdentified = computed(() => socketStore.isIdentified);
 
 const drumrollSelection = ref<string>("");
 watch(drumrollSelection, (neww) => {
@@ -56,11 +68,16 @@ function setActive(str: string) {
 }
 
 function closeModeration() {
-  contextStore.setModerating(false);
+  contextStore.setUserPanelActive(false);
 }
 </script>
 
 <style lang="scss" scoped>
+.hero {
+  display: flex;
+  align-items: center;
+  gap: var(--spacer);
+}
 .nav {
   display: flex;
   gap: var(--spacer);
@@ -109,6 +126,8 @@ button {
 
   padding: var(--spacer);
   gap: var(--spacer);
+
+  min-width: 400px;
 }
 
 .error {
