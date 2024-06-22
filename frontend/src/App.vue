@@ -18,9 +18,9 @@
       <RouterView />
     </main>
 
-    <moderator-panel
+    <user-panel
       v-if="contextStore.isModerating"
-      class="app-moderator-panel"
+      class="app-user-panel"
       :class="{ hide: !isView(View.Mod) }" />
   </div>
 </template>
@@ -54,7 +54,7 @@ function isView(view: View): boolean {
   min-height: 100vh;
 
   &.moderator-active {
-    grid-template-areas: "nav main mod";
+    grid-template-areas: "nav main user";
     grid-template-columns: minmax(auto, auto) 1fr minmax(auto, auto);
   }
 }
@@ -98,7 +98,7 @@ function isView(view: View): boolean {
       grid-template-areas:
         "nav"
         "main"
-        "mod";
+        "user";
       grid-template-columns: 1fr;
       grid-template-rows: auto auto 1fr;
     }
@@ -115,7 +115,7 @@ function isView(view: View): boolean {
   flex-grow: 1;
 }
 
-.app-moderator-panel {
-  grid-area: mod;
+.app-user-panel {
+  grid-area: user;
 }
 </style>

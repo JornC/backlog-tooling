@@ -1,16 +1,25 @@
 <template>
   <section class="mod-panel">
-    <section class="nav" v-if="isModerator">
-      <div :class="{ active: isActive('session') }" @click="setActive('session')" class="nav-item">
-        Session
+    <section class="nav">
+      <div :class="{ active: isActive('user') }" @click="setActive('user')" class="nav-item">
+        User
       </div>
       <div
+        v-if="isModerator"
+        :class="{ active: isActive('session') }"
+        @click="setActive('session')"
+        class="nav-item">
+        Schedule
+      </div>
+      <div
+        v-if="isModerator"
         :class="{ active: isActive('controls') }"
         @click="setActive('controls')"
         class="nav-item">
         Controls
       </div>
     </section>
+    <user-controls v-if="isActive('user')" />
     <session-controls v-if="isActive('session')" />
     <meeting-controls v-if="isActive('controls')" />
 
@@ -36,7 +45,7 @@ watch(drumrollSelection, (neww) => {
   socketStore.emitNamed("persist_drumroll", neww);
 });
 
-const activeTab = ref("session");
+const activeTab = ref("user");
 
 function isActive(str: string) {
   return activeTab.value === str;

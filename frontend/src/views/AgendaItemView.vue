@@ -3,17 +3,12 @@
     <section class="moderator">
       <template v-if="moderator">
         <span class="name">{{ moderator }}</span> is moderating
-        <button
-          class="moderate-button"
-          v-if="socketStore.isModerator && !contextStore.isModerating"
-          @click="openModeration">
-          Mod panel
-        </button>
       </template>
       <template v-else>
         <span>No moderator</span>
-        <button class="moderate-button" @click="openModeration">Volunteer</button>
       </template>
+
+      <button class="moderate-button" @click="openModeration">Scratch board and moderation</button>
     </section>
     <section class="title">
       <h1 class="center-wrap">
@@ -85,7 +80,11 @@ const scheduleItem = computed(() => scheduleStore.findScheduleItem(route.params.
 const isAeriusItem = computed(() => scheduleItem.value?.code.startsWith("aer-"));
 const aeriusItemTitle = computed(() => scheduleItem.value?.title);
 const aeriusItemHref = computed(
-  () => "https://aerius.atlassian.net/browse/" + String(scheduleItem.value?.code).toUpperCase(),
+  () =>
+    "https://aerius.atlassian.net/browse/" +
+    String(scheduleItem.value?.code)
+      .replace(":", "")
+      .toUpperCase(),
 );
 const moderator = computed(() => socketStore.moderator);
 

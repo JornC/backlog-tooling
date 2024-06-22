@@ -1,51 +1,35 @@
 <template>
   <section class="session-panel">
-    <p class="you-are-moderating hero" v-if="isModerator">
-      You are moderating <span class="material-symbols-rounded">social_leaderboard</span>
-    </p>
-    <input type="text" v-model="name" placeholder="name" />
-    <p class="error" v-if="showError">Insert a name</p>
-    <button @click="claimModeration" v-if="!isModerator">
-      <span class="material-symbols-rounded button-icon">stars</span>
-      Moderate session
+    <textarea
+      rows="10"
+      v-model="schedule"
+      placeholder="Put items/topics here, one per line"></textarea>
+    <button @click="updateSchedule">
+      <span class="material-symbols-rounded button-icon">event_note</span>
+      Update schedule
     </button>
-    <template v-if="isModerator">
-      <button @click="stopModeration">
-        <span class="material-symbols-rounded button-icon">hiking</span>
-        Abdicate moderation
-      </button>
-      <h2>Schedule</h2>
-      <textarea
-        rows="10"
-        v-model="schedule"
-        placeholder="Put items/topics here, one per line"></textarea>
-      <button @click="updateSchedule">
-        <span class="material-symbols-rounded button-icon">event_note</span>
-        Update schedule
-      </button>
-      <ul>
-        <li>
-          <strong>Group Titles</strong>: Lines starting with "# " mark the beginning of a new group.
-        </li>
-        <li><strong>End of a Group</strong>: The line "-- group" indicates the end of a group.</li>
-        <li>
-          <strong>AER-* Handling</strong>: Items with titles starting with "aer-" (case insensitive)
-          provide the "poker" feature.
-        </li>
-        <li>
-          <strong>Item description 1</strong>: For AER-* items, the text following the AER-* word is
-          a description.
-        </li>
-        <li>
-          <strong>Item description 2</strong>: Lines surrounded by "quotation marks" indicate a
-          paragraph of description text for the previous item. Links will be hyperlink-ified.
-        </li>
-        <li>
-          <strong>Normal Items</strong>: Other lines are treated as individual items within the
-          current group, or as standalone items if not within a group.
-        </li>
-      </ul>
-    </template>
+    <ul>
+      <li>
+        <strong>Group Titles</strong>: Lines starting with "# " mark the beginning of a new group.
+      </li>
+      <li><strong>End of a Group</strong>: The line "-- group" indicates the end of a group.</li>
+      <li>
+        <strong>AER-* Handling</strong>: Items with titles starting with "aer-" (case insensitive)
+        provide the "poker" feature.
+      </li>
+      <li>
+        <strong>Item description 1</strong>: For AER-* items, the text following the AER-* word is a
+        description.
+      </li>
+      <li>
+        <strong>Item description 2</strong>: Lines surrounded by "quotation marks" indicate a
+        paragraph of description text for the previous item. Links will be hyperlink-ified.
+      </li>
+      <li>
+        <strong>Normal Items</strong>: Other lines are treated as individual items within the
+        current group, or as standalone items if not within a group.
+      </li>
+    </ul>
   </section>
 </template>
 
@@ -56,11 +40,7 @@ import { useSocketStore } from "@/ws/socketManager";
 const socketStore = useSocketStore();
 const scheduleStore = useScheduleStore();
 
-const name = ref("");
-const showError = ref(false);
 const schedule = ref("");
-
-const isModerator = computed(() => socketStore.isModerator);
 
 function updateSchedule() {
   const scheduleArr = parseSchedule(schedule.value);
@@ -168,19 +148,6 @@ function resetSchedule() {
   schedule.value = scheduleText;
 }
 
-function claimModeration() {
-  if (name.value.length === 0) {
-    showError.value = true;
-    return;
-  }
-
-  showError.value = false;
-  socketStore.claimModeration(name.value);
-}
-function stopModeration() {
-  socketStore.stopModeration();
-}
-
 onMounted(() => {
   resetSchedule();
 });
@@ -202,11 +169,6 @@ textarea {
   min-height: 150px;
   flex-shrink: 0;
 }
-.hero {
-  display: flex;
-  align-items: center;
-  gap: var(--spacer);
-}
 button {
   position: relative;
 }
@@ -222,10 +184,6 @@ button {
   padding: var(--spacer);
   background: red;
   color: white;
-}
-.you-are-moderating {
-  padding: var(--spacer);
-  background: var(--brand-color-2);
 }
 
 p {

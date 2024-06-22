@@ -1,71 +1,70 @@
 import { Socket, Server as SocketIOServer } from "socket.io";
 import { RoomStateFragment, RoomStateManager } from "../data/roomStateManager";
 
-let moderator: string | undefined = undefined;
-let moderatorUserId: string | undefined = undefined;
-
-let lockedRooms = new Set<string>();
-
-/* Kick off with a sample schedule */
-let schedule: any[] = [
-  {
-    title: "AER-1234",
-    code: "aer-1234",
-    description: "example item 1",
-    groupTitle: "Group 1",
-    locked: false,
-  },
-  {
-    title: "AER-1235",
-    code: "aer-1235",
-    description: "example item 2",
-    groupTitle: "Group 1",
-    locked: false,
-  },
-  {
-    title: "AER-1236",
-    code: "aer-1236",
-    description: "example item 3",
-    groupTitle: "Group 2",
-    locked: false,
-  },
-];
-
-/*
-interface ScheduleItem {
-  title: string;
-  code: string;
-  description?: string;
-  groupTitle?: string;
-  locked?: boolean;
-  size?: number;
-}
-*/
-
-let playSounds = true;
-
-const drumrolls = [
-  "/drumroll-1-low.mp3",
-  "/drumroll-2-mid.mp3",
-  "/fx-wait.mp3",
-  "/jeopardy-fade.mp3",
-  "/phone-ringing-marimba.mp3",
-  "/sonido-de-siguiente.mp3",
-  "/tarot-shuffle.mp3",
-];
-let drumrollType = "random";
-
 export function setupSocketEvents(io: SocketIOServer) {
-  const path = "/";
-  console.log(`Setting up socket on ${path}`);
+  let moderator: string | undefined = undefined;
+  let moderatorUserId: string | undefined = undefined;
 
-  const apiNamespace = io.of(path);
+  let lockedRooms = new Set<string>();
+
+  /* Kick off with a sample schedule */
+  let schedule: any[] = [
+    {
+      title: "AER-1234",
+      code: "aer-1234",
+      description: "example item 1",
+      groupTitle: "Group 1",
+      locked: false,
+    },
+    {
+      title: "AER-1235",
+      code: "aer-1235",
+      description: "example item 2",
+      groupTitle: "Group 1",
+      locked: false,
+    },
+    {
+      title: "AER-1236",
+      code: "aer-1236",
+      description: "example item 3",
+      groupTitle: "Group 2",
+      locked: false,
+    },
+  ];
+
+  /*
+  interface ScheduleItem {
+    title: string;
+    code: string;
+    description?: string;
+    groupTitle?: string;
+    locked?: boolean;
+    size?: number;
+  }
+  */
+
+  let playSounds = true;
+
+  const drumrolls = [
+    "/drumroll-1-low.mp3",
+    "/drumroll-2-mid.mp3",
+    // "/fx-wait.mp3",
+    "/jeopardy-fade.mp3",
+    // "/phone-ringing-marimba.mp3",
+    // "/sonido-de-siguiente.mp3",
+    // "/tarot-shuffle.mp3",
+  ];
+  let drumrollType = "random";
 
   const roomTimers = new Map();
 
   const roomStateManager = new RoomStateManager();
 
+  const path = "/";
+  const apiNamespace = io.of(path);
+
   apiNamespace.on("connection", (socket: Socket) => {
+    console.log("Connection.");
     const userId = socket.id;
 
     socket.emit("user_socket_id", socket.id);

@@ -8,6 +8,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     ApplicationNavigation: typeof import('./components/nav/ApplicationNavigation.vue')['default']
+    copy: typeof import('./components/mod/SessionControls copy.vue')['default']
     EstimationPoker: typeof import('./components/signals/EstimationPoker.vue')['default']
     MeetingControls: typeof import('./components/mod/MeetingControls.vue')['default']
     ModeratorPanel: typeof import('./components/mod/ModeratorPanel.vue')['default']
@@ -17,5 +18,7 @@ declare module 'vue' {
     SessionControls: typeof import('./components/mod/SessionControls.vue')['default']
     SignalButton: typeof import('./components/signals/SignalButton.vue')['default']
     SimpleSignals: typeof import('./components/signals/SimpleSignals.vue')['default']
+    UserControls: typeof import('./components/mod/UserControls.vue')['default']
+    UserPanel: typeof import('./components/mod/UserPanel.vue')['default']
   }
 }

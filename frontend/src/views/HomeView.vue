@@ -203,6 +203,21 @@ const changelog = ref<ChangelogEntry[]>([
       },
     ],
   },
+  {
+    version: "v1.11",
+    date: new Date("2024-06-22"),
+    changes: [
+      {
+        type: "Updated",
+        description:
+          "Change the way that user and moderation controls work - users can now always claim moderation",
+      },
+      {
+        type: "Updated",
+        description: "Remove double colons from aer-* items",
+      },
+    ],
+  },
 ]);
 
 const formatDate = (date: Date): string => {
