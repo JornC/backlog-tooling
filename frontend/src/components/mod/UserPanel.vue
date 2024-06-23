@@ -8,13 +8,6 @@
         User
       </div>
       <div
-        v-if="isIdentified"
-        :class="{ active: isActive('moderator') }"
-        @click="setActive('moderator')"
-        class="nav-item">
-        Moderator
-      </div>
-      <div
         v-if="isModerator"
         :class="{ active: isActive('session') }"
         @click="setActive('session')"
@@ -30,7 +23,6 @@
       </div>
     </section>
     <user-controls v-if="isActive('user')" />
-    <moderator-controls v-if="isActive('moderator')" />
     <session-controls v-if="isActive('session')" />
     <meeting-controls v-if="isActive('controls')" />
 

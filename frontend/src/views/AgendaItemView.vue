@@ -19,15 +19,15 @@
       <h1 class="center-wrap">
         Current topic
         <a :href="aeriusItemHref" v-if="isAeriusItem" target="_blank" class="item-title">
-          {{ aeriusItemTitle }}
+          <span>{{ aeriusItemTitle }}</span>
+          <span class="mini-text" v-if="isAeriusItem" :href="aeriusItemHref" target="_blank">
+            <div>{{ aeriusItemHref }}</div>
+            <span>(opens new window)</span>
+          </span>
         </a>
         <span v-else class="item-title">{{ aeriusItemTitle }}</span>
       </h1>
       <div v-if="scheduleItem?.description" class="description" v-html="itemDescription" />
-      <a class="anchor-link center-wrap" v-if="isAeriusItem" :href="aeriusItemHref" target="_blank">
-        <div class="anchor-style">{{ aeriusItemHref }}</div>
-        <span class="no-style">(opens new window)</span>
-      </a>
     </section>
 
     <div class="actions" v-if="currentRoomState && socketStore.userId">
@@ -174,6 +174,13 @@ onUnmounted(() => {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
+  text-align: center;
+
+  .mini-text {
+    font-size: 0.25em;
+    display: flex;
+    flex-direction: column;
+  }
 }
 .actions {
   display: flex;

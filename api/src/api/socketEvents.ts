@@ -2,7 +2,6 @@ import { Socket, Server as SocketIOServer } from "socket.io";
 import { RoomStateFragment, RoomStateManager } from "../data/roomStateManager";
 
 export function setupSocketEvents(io: SocketIOServer) {
-  let moderator: string | undefined = undefined;
   let moderatorUserId: string | undefined = undefined;
 
   let lockedRooms = new Set<string>();
@@ -92,7 +91,15 @@ export function setupSocketEvents(io: SocketIOServer) {
     });
 
     socket.on("update_name", (name) => {
-      roster.set(userId, name);
+      if (!name && moderatorUserId === userId) {
+        clearModerator(false);
+      }
+
+      if (name) {
+        roster.set(userId, name);
+      } else {
+        roster.delete(userId);
+      }
       broadcastServerStatus();
     });
 
@@ -279,10 +286,11 @@ export function setupSocketEvents(io: SocketIOServer) {
     apiNamespace.emit("server_status", getServerStatus());
   }
 
-  function clearModerator() {
+  function clearModerator(broadcast: boolean = true) {
     moderatorUserId = undefined;
-    moderator = undefined;
-    broadcastServerStatus();
+    if (broadcast) {
+      broadcastServerStatus();
+    }
   }
 
   function getServerStatus() {

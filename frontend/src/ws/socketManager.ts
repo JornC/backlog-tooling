@@ -113,7 +113,7 @@ export const useSocketStore = defineStore("socket", {
       });
     },
 
-    updateName(name: string) {
+    updateName(name: string | undefined) {
       socket.get().emit("update_name", name);
     },
 
