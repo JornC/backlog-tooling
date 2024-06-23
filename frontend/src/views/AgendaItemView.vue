@@ -91,7 +91,6 @@ const aeriusItemHref = computed(
       .replace(":", "")
       .toUpperCase(),
 );
-const moderator = computed(() => socketStore.moderator);
 
 watch(
   () => route.params.code,
@@ -221,10 +220,10 @@ main {
   display: flex;
   flex-direction: column;
   gap: var(--spacer);
-  padding-bottom: var(--spacer);
+  padding: var(--spacer);
 
   .moderator {
-    margin: var(--spacer);
+    display: none;
     padding: var(--spacer);
     background: var(--brand-color-2);
     text-align: center;
@@ -250,7 +249,6 @@ main {
   }
 
   .title {
-    margin: 0px var(--spacer);
     display: flex;
     align-items: center;
     flex-direction: column;
@@ -308,6 +306,7 @@ main {
   main {
     .moderator {
       margin: 0px var(--spacer);
+      display: block;
     }
 
     .title {

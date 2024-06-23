@@ -7,13 +7,13 @@
 
     <section class="expandable" @click="gripRevealed = !gripRevealed">
       <h2>
-        Introducing the <b>GRIP</b> update
+        Introducing the <b>GRIP</b> expansion
         <span class="reveal">({{ gripRevealed ? "-" : "+" }})</span>
       </h2>
       <template v-if="gripRevealed">
-        <p style="font-weight: bold; margin: 0">Generalized Real-time Interaction Panel</p>
+        <p style="font-weight: bold; margin: 0">Generalized Real-time Interaction Plaza</p>
         <p>
-          The AERIUS tool now includes the GRIP update, an enhancement designed to further
+          The AERIUS tool now includes the GRIP expansion, an enhancement designed to further
           streamline and elevate team coordination and communication.
         </p>
 
@@ -21,8 +21,8 @@
           <li>
             <p>
               <b>Enhanced User Controls</b>: The GRIP update introduces advanced capabilities that
-              empower all team members to actively participate and manage discussions. The panel is
-              now accessible to everyone, allowing users to set their own names or randomly
+              empower all team members to actively participate and manage discussions. The user
+              panel is now accessible to everyone, allowing users to set their own names or randomly
               generated pseudonyms for better identification. Moderation can be easily transferred,
               enabling seamless transitions between different moderators. These enhancements ensure
               smoother discussions and more effective task management during backlog meetings,

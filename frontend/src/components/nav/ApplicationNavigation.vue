@@ -1,10 +1,22 @@
 <template>
   <div>
+    <section class="moderator">
+      <template v-if="socketStore.moderator">
+        Moderator: <span class="name">{{ socketStore.moderator }}</span>
+      </template>
+      <template v-else>
+        <span>No moderator</span>
+      </template>
+    </section>
+
+    <button v-if="!contextStore.isUserPanelActive" class="moderate-button" @click="openModeration">
+      Open user plaza
+    </button>
+
+    <hr />
+
     <nav class="nav-menu">
       <router-link class="item" :to="{ name: 'home' }">Home</router-link>
-      <div v-if="scheduleStore.schedule.length === 0" @click="moderate" class="item moderate">
-        Start a session
-      </div>
       <div
         v-for="group in scheduleStore.groupedSchedule"
         :key="group.groupTitle"
@@ -98,6 +110,10 @@ const route = useRoute();
 const expandedGroup = ref<string | undefined>(undefined);
 const selectedItemCode = ref<string | undefined>(undefined);
 
+function openModeration() {
+  contextStore.setUserPanelActive(true);
+}
+
 const wsStatus = computed(() => {
   return `${socketStore.status} (${numConnected.value || "?"})`;
 });
@@ -125,9 +141,6 @@ function isExpanded(groupTitle: string) {
   return expandedGroup.value === groupTitle && groupTitle;
 }
 
-function moderate() {
-  contextStore.setModerating(true);
-}
 function toggleLocalSound() {
   contextStore.setPlaySounds(!contextStore.playSounds);
 }
@@ -149,6 +162,32 @@ watch(route, () => {
 </script>
 
 <style lang="scss" scoped>
+.moderator {
+  display: flex;
+  flex-direction: column;
+  padding: var(--spacer);
+  background: var(--brand-color-2);
+  text-align: center;
+  font-size: 2em;
+
+  .name {
+    font-weight: bold;
+
+    text-shadow:
+      0 0 5px white,
+      0 0 15px white,
+      0 0 20px white,
+      0 0 40px white,
+      0 0 60px red,
+      0 0 10px white,
+      0 0 98px red;
+  }
+}
+
+.moderate-button {
+  clear: all;
+}
+
 .group {
   display: flex;
   flex-direction: column;
@@ -256,10 +295,9 @@ watch(route, () => {
 }
 
 .nav-menu {
-  margin: var(--spacer);
-
   display: flex;
   flex-direction: column;
+  flex-grow: 1;
 
   .connection {
     background: var(--brand-color-2);
@@ -324,5 +362,8 @@ watch(route, () => {
 
 .item-content {
   overflow: hidden;
+}
+button {
+  width: 100%;
 }
 </style>

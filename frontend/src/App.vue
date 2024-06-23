@@ -107,6 +107,9 @@ function isView(view: View): boolean {
 
 .app-navigation {
   grid-area: nav;
+
+  display: flex;
+  flex-direction: column;
 }
 
 .app-main {
