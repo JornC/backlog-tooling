@@ -110,7 +110,6 @@ button {
 }
 .mod-panel {
   overflow-y: auto;
-  margin: var(--spacer);
   background: var(--brand-color-6);
 
   display: flex;
