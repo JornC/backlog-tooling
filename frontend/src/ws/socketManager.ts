@@ -1,4 +1,4 @@
-import { ConnectionStatus, type RoomStateFragment } from "@/domain/types";
+import { ConnectionStatus, type RoomStateFragment, type ScratchboardState } from "@/domain/types";
 import router from "@/router";
 import { useScheduleStore, type ScheduleItem } from "@/stores/scheduleStore";
 import { defineStore } from "pinia";
@@ -26,6 +26,7 @@ export const useSocketStore = defineStore("socket", {
   state: () => ({
     status: ConnectionStatus.Disconnected,
     currentRoom: undefined as string | undefined,
+    scratchboard: new Map() as Map<string, ScratchboardState>,
     rooms: new Map() as Map<string, RoomStateFragment[]>,
     roster: new Map() as Map<string, string>,
     userId: undefined as string | undefined,
@@ -132,6 +133,7 @@ export const useSocketStore = defineStore("socket", {
     emitNamed(name: string, value?: any) {
       socket.get().emit(name, value);
     },
+    scratchboardUpdate(roomId: string, text: string) {},
 
     joinRoom(roomName: string) {
       if (this.currentRoom) {

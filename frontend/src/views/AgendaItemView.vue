@@ -64,6 +64,11 @@
             @send-action="sendAction($event)" />
         </div>
       </template>
+
+      <template v-if="scheduleItem">
+        <h2>Scratchboard</h2>
+        <scratchboard :user-id="socketStore.userId" :room-id="scheduleItem.code" />
+      </template>
     </div>
   </main>
 </template>

@@ -17,6 +17,11 @@ export interface RoomStateFragment {
   value?: string | number;
 }
 
+export interface ScratchboardState {
+  typingUserId: string;
+  text: string;
+}
+
 export enum ConnectionStatus {
   Connecting = "Connecting",
   Connected = "Connected",
