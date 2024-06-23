@@ -1,8 +1,8 @@
 <template>
-  <div>
+  <div class="nav-section">
     <section class="moderator">
       <template v-if="socketStore.moderator">
-        Moderator: <span class="name">{{ socketStore.moderator }}</span>
+        <span class="name">{{ socketStore.moderator }}</span> is moderating
       </template>
       <template v-else>
         <span>No moderator</span>
@@ -74,19 +74,32 @@
         Summary
       </router-link>
       <div class="spacer"></div>
-      <div class="bare-item">
-        <div class="sound-line local" @click="toggleLocalSound">
-          Local:
+      <div class="bare-item sound-line local" title="(WIP) ">
+        <div class="line">
+          <span>Silent signals:</span>
           <span class="material-symbols-rounded button-icon">{{
             contextStore.playSounds ? "volume_up" : "volume_mute"
           }}</span>
         </div>
-        <div class="sound-line">
-          Remote:
+        <span class="explain">Mute your signals for others.</span>
+      </div>
+      <div class="bare-item sound-line local" @click="toggleLocalSound">
+        <div class="line">
+          <span>Personal mute:</span>
+          <span class="material-symbols-rounded button-icon">{{
+            contextStore.playSounds ? "volume_up" : "volume_mute"
+          }}</span>
+        </div>
+        <span class="explain">Mute all sounds for yourself.</span>
+      </div>
+      <div class="bare-item sound-line">
+        <div class="line">
+          <span>Global mute:</span>
           <span class="material-symbols-rounded button-icon">{{
             socketStore.playSounds ? "volume_up" : "volume_mute"
           }}</span>
         </div>
+        <span class="explain">Mod action: Mute all sounds for everyone</span>
       </div>
       <div class="bare-item connection center" :class="{ highlight: !isConnected }">
         {{ wsStatus }}
@@ -162,6 +175,9 @@ watch(route, () => {
 </script>
 
 <style lang="scss" scoped>
+.nav-section {
+  max-width: 400px;
+}
 .moderator {
   display: flex;
   flex-direction: column;
@@ -255,8 +271,17 @@ watch(route, () => {
 
 .sound-line {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
+
+  .line {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .explain {
+    font-size: 0.8em;
+  }
 
   &.local {
     cursor: pointer;

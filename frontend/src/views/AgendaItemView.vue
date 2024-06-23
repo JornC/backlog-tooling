@@ -91,6 +91,7 @@ const aeriusItemHref = computed(
       .replace(":", "")
       .toUpperCase(),
 );
+const moderator = computed(() => socketStore.moderator);
 
 watch(
   () => route.params.code,
