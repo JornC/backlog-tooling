@@ -74,6 +74,7 @@
         Summary
       </router-link>
       <div class="spacer"></div>
+      <!--
       <div class="bare-item sound-line local" title="(WIP) ">
         <div class="line">
           <span>Silent signals:</span>
@@ -83,6 +84,7 @@
         </div>
         <span class="explain">Mute your signals for others.</span>
       </div>
+      -->
       <div class="bare-item sound-line local" @click="toggleLocalSound">
         <div class="line">
           <span>Personal mute:</span>

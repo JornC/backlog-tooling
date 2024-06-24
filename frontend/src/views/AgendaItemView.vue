@@ -26,6 +26,12 @@
           </span>
         </a>
         <span v-else class="item-title">{{ aeriusItemTitle }}</span>
+        <span
+          title="Item is locked"
+          :class="{ visible: scheduleItem?.locked }"
+          class="lock material-symbols-rounded button-icon"
+          >lock</span
+        >
       </h1>
       <div v-if="scheduleItem?.description" class="description" v-html="itemDescription" />
     </section>
@@ -39,7 +45,10 @@
 
       <template v-if="scheduleItem">
         <h2>Scratchboard</h2>
-        <scratchboard :user-id="socketStore.userId" :room-id="scheduleItem.code" />
+        <scratchboard
+          :user-id="socketStore.userId"
+          :room-id="scheduleItem.code"
+          :locked="scheduleItem?.locked || false" />
       </template>
 
       <template v-if="isAeriusItem">
@@ -199,7 +208,7 @@ onUnmounted(() => {
   }
 }
 .description {
-  background: var(--brand-color-3);
+  background: var(--brand-color-2);
   padding: var(--spacer);
 }
 .estimate-button {
@@ -208,6 +217,19 @@ onUnmounted(() => {
 
 .panel {
   margin: var(--spacer) auto;
+}
+
+.lock {
+  width: 0px;
+  font-size: 4em;
+  margin: 0px;
+  opacity: 0;
+  color: crimson;
+  transition: opacity 0.15s ease-out;
+
+  &.visible {
+    opacity: 1;
+  }
 }
 
 h1,

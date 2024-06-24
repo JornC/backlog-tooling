@@ -151,8 +151,12 @@ export function setupSocketEvents(io: SocketIOServer) {
       if (!scratchboard.has(roomId)) {
         scratchboard.set(roomId, {} as ScratchboardState);
       }
+
+      if (lockedRooms.has(roomId)) {
+        return;
+      }
+
       const scratchboardState: ScratchboardState = scratchboard.get(roomId);
-      console.log(scratchboardState);
       if (!scratchboardState.typingUserId) {
         scratchboardState.typingUserId = userId;
       }

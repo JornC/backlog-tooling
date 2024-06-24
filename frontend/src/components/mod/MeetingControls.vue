@@ -100,9 +100,11 @@ function finishItemAndNext() {
   const nextIdx = idx + 1;
   if (nextIdx < schedule.length) {
     const nextRoomCode = schedule[nextIdx].code;
-    router.push({ name: "AgendaRoute", params: { code: nextRoomCode } }).then(() => {
-      everyoneToModerator();
-    });
+    setTimeout(() => {
+      router.push({ name: "AgendaRoute", params: { code: nextRoomCode } }).then(() => {
+        everyoneToModerator();
+      });
+    }, 250);
   }
 }
 

@@ -1,19 +1,24 @@
 <template>
-  <h1>Session summary</h1>
-  <section v-for="itemWithRoom in itemsWithRooms" :key="itemWithRoom.item.code">
-    <h3>{{ itemWithRoom.item.title }}</h3>
-    <p v-if="!itemWithRoom.item.locked">Discussion on the item remains incomplete.</p>
-    <template v-else>
-      <p>Dev: {{ formatDevEstimates(itemWithRoom.room) }}</p>
-      <p>Test: {{ formatTestEstimates(itemWithRoom.room) }}</p>
-    </template>
-  </section>
-  <button @click="refresh">Refresh</button>
+  <div class="summary-container">
+    <h1>Session summary</h1>
+    <section v-for="itemWithRoom in itemsWithRooms" :key="itemWithRoom.item.code">
+      <h3>{{ itemWithRoom.item.title }}</h3>
+      <p v-if="!itemWithRoom.item.locked">Discussion on the item remains incomplete.</p>
+      <template v-else>
+        <p>Dev: {{ formatDevEstimates(itemWithRoom.room) }}</p>
+        <p>Test: {{ formatTestEstimates(itemWithRoom.room) }}</p>
+      </template>
+      <p v-if="hawScratchboard(itemWithRoom.item)">
+        Scratch text: {{ getScratchboardText(itemWithRoom.item) }}
+      </p>
+    </section>
+    <button @click="refresh">Refresh</button>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { ActionType, type RoomStateFragment } from "@/domain/types";
-import { useScheduleStore } from "@/stores/scheduleStore";
+import { useScheduleStore, type ScheduleItem } from "@/stores/scheduleStore";
 import { useSocketStore } from "@/ws/socketManager";
 import { computed } from "vue";
 
@@ -57,6 +62,12 @@ const itemsWithRooms = computed(() =>
       room: getRoom(item.code),
     })),
 );
+function hawScratchboard(item: ScheduleItem) {
+  return socketStore.scratchboard.has(item.code);
+}
+function getScratchboardText(item: ScheduleItem) {
+  return socketStore.scratchboard.get(item.code)?.text ?? "";
+}
 
 function refresh() {
   socketStore.emitNamed("fetch_all_room_state");
@@ -72,5 +83,9 @@ onMounted(() => refresh());
 <style lang="scss" scoped>
 p {
   max-width: 75ch;
+}
+
+.summary-container {
+  padding: var(--spacer);
 }
 </style>

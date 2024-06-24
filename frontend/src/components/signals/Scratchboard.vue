@@ -22,6 +22,7 @@ import { useSocketStore } from "@/ws/socketManager";
 
 const props = defineProps<{
   roomId: string;
+  locked: boolean;
 }>();
 
 const contextStore = useContextStore();
@@ -58,7 +59,7 @@ const typeText = computed(() =>
 
 const isUnlocked = computed(() => {
   const state = scratchboardState.value;
-  return (isNamedUser.value && !state?.typingUserId) || isHandlingInput();
+  return ((isNamedUser.value && !state?.typingUserId) || isHandlingInput()) && !props.locked;
 });
 
 function isHandlingInput() {

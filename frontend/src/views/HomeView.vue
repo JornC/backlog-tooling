@@ -260,6 +260,19 @@ const changelog = ref<ChangelogEntry[]>([
     changes: [
       {
         type: "Updated",
+        description: "Changed the way that locked rooms are visualised and moved to/from etc.",
+      },
+      {
+        type: "Added",
+        description:
+          "A scratchboard which users can use when they have registered a name to create a common text for each item",
+      },
+      {
+        type: "Updated",
+        description: "Made the design slightly more compact",
+      },
+      {
+        type: "Updated",
         description:
           "Change the way that user and moderation controls work - users can now always claim moderation",
       },
