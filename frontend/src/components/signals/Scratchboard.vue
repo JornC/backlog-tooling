@@ -34,7 +34,6 @@ const remoteText = computed(() => scratchboardState.value?.text);
 watch(
   remoteText,
   (newValue, _oldValue) => {
-    console.log(newValue);
     if (!isHandlingInput()) {
       textInput.value = newValue ?? "";
     }
