@@ -1,5 +1,6 @@
 import { Socket, Server as SocketIOServer } from "socket.io";
 import { RoomStateFragment, RoomStateManager } from "../data/roomStateManager";
+import { ScratchboardState } from "../data/scratchboardmanager";
 
 export function setupSocketEvents(io: SocketIOServer) {
   let moderatorUserId: string | undefined = undefined;
@@ -59,6 +60,7 @@ export function setupSocketEvents(io: SocketIOServer) {
 
   const roomStateManager = new RoomStateManager();
   const roster = new Map();
+  const scratchboard = new Map();
 
   const path = "/";
   const apiNamespace = io.of(path);
@@ -70,6 +72,7 @@ export function setupSocketEvents(io: SocketIOServer) {
     socket.emit("user_socket_id", socket.id);
     broadcastSchedule();
     broadcastServerStatus();
+    broadcastScratchboard();
 
     socket.on("join_room", (roomName) => {
       socket.join(roomName);
@@ -142,6 +145,39 @@ export function setupSocketEvents(io: SocketIOServer) {
         roomStateManager.purgePoker(roomName);
         broadcastRoom(roomName);
       }
+    });
+
+    socket.on("update_scratchboard", (roomId, text) => {
+      if (!scratchboard.has(roomId)) {
+        scratchboard.set(roomId, {} as ScratchboardState);
+      }
+      const scratchboardState: ScratchboardState = scratchboard.get(roomId);
+      console.log(scratchboardState);
+      if (!scratchboardState.typingUserId) {
+        scratchboardState.typingUserId = userId;
+      }
+
+      if (scratchboardState.typingUserId === userId) {
+        scratchboardState.text = text;
+      }
+
+      if (text === "") {
+        scratchboardState.typingUserId = undefined;
+      }
+
+      // Reset the timer
+      if (scratchboardState.timer) {
+        clearTimeout(scratchboardState.timer);
+      }
+
+      scratchboardState.timer = setTimeout(() => {
+        if (scratchboardState.typingUserId === userId) {
+          scratchboardState.typingUserId = undefined;
+          broadcastScratchboard();
+        }
+      }, 1200);
+
+      broadcastScratchboard();
     });
 
     socket.on("update_schedule", (arr) => {
@@ -267,6 +303,17 @@ export function setupSocketEvents(io: SocketIOServer) {
     return lockedRooms.has(room);
   }
 
+  function broadcastScratchboard() {
+    const scratchboardSerialized = Array.from(scratchboard.entries()).map(([key, value]) => [
+      key,
+      {
+        typingUserId: value.typingUserId,
+        text: value.text,
+      },
+    ]);
+    apiNamespace.emit("scratchboard_update", scratchboardSerialized);
+  }
+
   function broadcastSchedule() {
     schedule.forEach((item) => {
       const room = io.sockets.adapter.rooms.get(item.code);
@@ -295,15 +342,12 @@ export function setupSocketEvents(io: SocketIOServer) {
 
   function getServerStatus() {
     const rosterSerialized = Object.fromEntries(roster);
-
-    const ret = {
+    return {
       moderatorUserId: moderatorUserId,
       roster: rosterSerialized,
       numConnected: apiNamespace.sockets.size,
       playSounds: playSounds,
     };
-    console.log(ret);
-    return ret;
   }
 
   function broadcastRoom(roomName: string) {

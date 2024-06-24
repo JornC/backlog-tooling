@@ -112,6 +112,11 @@ export const useSocketStore = defineStore("socket", {
 
         this.rooms.set(this.currentRoom, roomState);
       });
+
+      socket.get().on("scratchboard_update", (scratchboard) => {
+        this.scratchboard = new Map<string, ScratchboardState>(scratchboard);
+        console.log("scratchboard_update", this.scratchboard);
+      });
     },
 
     updateName(name: string | undefined) {
@@ -133,7 +138,10 @@ export const useSocketStore = defineStore("socket", {
     emitNamed(name: string, value?: any) {
       socket.get().emit(name, value);
     },
-    scratchboardUpdate(roomId: string, text: string) {},
+
+    scratchboardUpdate(roomId: string, text: string) {
+      socket.get().emit("update_scratchboard", roomId, text);
+    },
 
     joinRoom(roomName: string) {
       if (this.currentRoom) {

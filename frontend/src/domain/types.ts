@@ -18,7 +18,7 @@ export interface RoomStateFragment {
 }
 
 export interface ScratchboardState {
-  typingUserId: string;
+  typingUserId: string | undefined;
   text: string;
 }
 
