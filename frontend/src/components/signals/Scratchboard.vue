@@ -82,12 +82,14 @@ function openUserPanel() {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  min-width: 600px;
+  min-width: 350px;
+  width: 100%;
+  max-width: 650px;
   gap: var(--spacer);
 }
 
 .scratchboard-textarea {
-  width: 100%;
+  flex-grow: 1;
   height: 200px;
   resize: none;
   border: 2px solid #ccc;
@@ -97,7 +99,8 @@ function openUserPanel() {
 
 .text-area {
   position: relative;
-  width: 100%;
+  display: flex;
+  align-self: stretch;
 }
 
 .user-notify {

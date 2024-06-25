@@ -16,8 +16,8 @@
       </button>
     </section>
     <section class="title">
-      <h1 class="center-wrap">
-        Current topic
+      <h1 class="center-wrap current-topic">
+        <span class="label">Current topic</span>
         <a :href="aeriusItemHref" v-if="isAeriusItem" target="_blank" class="item-title">
           <span>{{ aeriusItemTitle }}</span>
           <span class="mini-text" v-if="isAeriusItem" :href="aeriusItemHref" target="_blank">
@@ -179,10 +179,24 @@ onUnmounted(() => {
 </script>
 
 <style lang="scss" scoped>
+.current-topic {
+  position: relative;
+
+  .label {
+    position: absolute;
+    left: -160px;
+  }
+}
 .poker-section {
   display: flex;
   align-items: center;
   gap: var(--spacer);
+  position: relative;
+
+  h3 {
+    position: absolute;
+    right: 100%;
+  }
 }
 
 .center-wrap {
@@ -287,7 +301,6 @@ main {
     h1 {
       display: flex;
       align-items: center;
-      gap: var(--spacer);
     }
 
     .item-title {

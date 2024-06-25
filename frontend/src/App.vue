@@ -51,6 +51,7 @@ function isView(view: View): boolean {
   display: grid;
   grid-template-areas: "nav main";
   grid-template-columns: minmax(auto, auto) 1fr;
+  grid-template-rows: 100vh;
   min-height: 100vh;
 
   &.moderator-active {
