@@ -1,101 +1,5 @@
 <template>
   <div class="home-container">
-    <h1 style="margin-bottom: 0">AERIUS, for AERIUS</h1>
-    <p style="font-weight: bold; margin: 0">
-      Assistant for Efficiently Relaying Information Using Signals
-    </p>
-
-    <section class="expandable" @click="gripRevealed = !gripRevealed">
-      <h2>
-        Introducing the <b>GRIP</b> expansion
-        <span class="reveal">({{ gripRevealed ? "-" : "+" }})</span>
-      </h2>
-      <template v-if="gripRevealed">
-        <p style="font-weight: bold; margin: 0">Generalized Real-time Interaction Plaza</p>
-        <p>
-          The AERIUS tool now includes the GRIP expansion, an enhancement designed to further
-          streamline and elevate team coordination and communication.
-        </p>
-
-        <ul>
-          <li>
-            <p>
-              <b>Enhanced User Controls</b>: The GRIP update introduces advanced capabilities that
-              empower all team members to actively participate and manage discussions. The user
-              panel is now accessible to everyone, allowing users to set their own names or randomly
-              generated pseudonyms for better identification. Moderation can be easily transferred,
-              enabling seamless transitions between different moderators. These enhancements ensure
-              smoother discussions and more effective task management during backlog meetings,
-              fostering a more organized and productive workflow.
-            </p>
-          </li>
-          <li>
-            <p>
-              <b>Dynamic Scratchboard</b>: GRIP introduces a versatile scratchboard feature,
-              available both for general use and for specific backlog items. This interactive space
-              allows team members to jot down notes, ideas, and comments in real-time, promoting
-              spontaneous collaboration and idea-sharing. Whether capturing fleeting thoughts or
-              detailing complex strategies, the scratchboard is a valuable tool for maintaining a
-              continuous flow of information.
-            </p>
-          </li>
-        </ul>
-        <p>
-          The GRIP update reaffirms AERIUS's commitment to innovation and user-centric design. By
-          integrating these new features, AERIUS enhances its role as a comprehensive coordination
-          system, tailored to meet the evolving needs of agile teams.
-        </p>
-
-        <p>
-          With GRIP, AERIUS continues to offer a robust platform for efficient backlog management
-          and scrum poker estimations, now with greater control and collaborative capabilities.
-          Experience a new level of team synergy and productivity with the AERIUS tool's latest
-          update.
-        </p>
-      </template>
-    </section>
-
-    <section class="expandable" @click="aboutRevealed = !aboutRevealed">
-      <h2>
-        About
-        <span class="reveal">({{ aboutRevealed ? "-" : "+" }})</span>
-      </h2>
-      <template v-if="aboutRevealed">
-        <p>Welcome to the AERIUS tool, a tool to help the AERIUS team coordinate.</p>
-        <p>
-          The AERIUS tool is an innovative solution designed to streamline the backlog meeting
-          process and enhance team communication. At its core, AERIUS offers a dynamic scheduling
-          system for managing backlog items, ensuring that every task is addressed efficiently and
-          on time.
-        </p>
-
-        <p>
-          One of the standout features of AERIUS is its unique signaling system. Team members can
-          send specific "signals" related to each backlog item. These signals include but are not
-          limited to "question" for seeking clarification, "estimate" for providing time or resource
-          assessments, "thinking" to indicate contemplation or ongoing analysis, and "coffee break"
-          for suggesting a pause in the meeting. This system facilitates a seamless flow of
-          communication, ensuring that all team members are constantly in sync and aware of each
-          other's thoughts and queries.
-        </p>
-
-        <p>
-          Moreover, AERIUS significantly enhances the scrum poker estimation process. It provides an
-          intuitive and interactive platform for team members to cast their votes on task
-          complexities and time requirements. The tool's real-time response capability allows for
-          immediate feedback and discussion, fostering a collaborative environment for accurate and
-          consensus-based estimation.
-        </p>
-
-        <p>
-          Overall, AERIUS is more than just a communication tool; it's a comprehensive system
-          designed to bring efficiency, transparency, and harmony to the team's workflow. With its
-          user-friendly interface and powerful features, AERIUS is set to revolutionize the way
-          backlog meetings and scrum poker estimations are conducted.
-        </p>
-      </template>
-    </section>
-
     <section class="expandable" @click="changelogRevealed = !changelogRevealed">
       <h2>
         Changelog <span class="reveal">({{ changelogRevealed ? "-" : "+" }})</span>
@@ -129,8 +33,6 @@ interface ChangelogEntry {
   changes: Change[];
 }
 
-const aboutRevealed = ref(false);
-const gripRevealed = ref(true);
 const changelogRevealed = ref(false);
 
 const changelog = ref<ChangelogEntry[]>([
