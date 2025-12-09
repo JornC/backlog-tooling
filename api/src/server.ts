@@ -3,7 +3,7 @@ import { createServer, Server as HTTPServer } from "http";
 import { Server as SocketIOServer } from "socket.io";
 import { setupSocketEvents } from "./api/socketEvents";
 
-const app: express.Application = express();
+const app = express();
 
 app.use((_req, res, next) => {
   res.setHeader("X-Robots-Tag", "noindex, nofollow, noarchive, nosnippet");
