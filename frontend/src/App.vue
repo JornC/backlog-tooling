@@ -120,16 +120,18 @@ watch(
     }
   }
   .app {
-    grid-template-areas: "main";
-    grid-template-columns: 1fr;
-    grid-template-rows: 1fr;
+    display: block;
     min-height: auto;
 
     &.moderator-active {
-      grid-template-areas: "main";
-      grid-template-columns: 1fr;
-      grid-template-rows: 1fr;
+      display: block;
     }
+  }
+
+  .app-navigation,
+  .app-main,
+  .app-user-panel {
+    width: 100%;
   }
 
   .app-navigation {
