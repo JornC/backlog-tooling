@@ -1,21 +1,19 @@
 <template>
-  <div class="mobile-nav">
+  <div class="mobile-nav" v-if="!isView(View.Item)">
     <div class="item" :class="{ active: isView(View.Menu) }" @click="setView(View.Menu)">
-      <span class="material-symbols-rounded">menu</span>
-      <span>Agenda</span>
-    </div>
-    <div class="item" :class="{ active: isView(View.Item) }" @click="setView(View.Item)">
-      <span class="material-symbols-rounded">forum</span>
-      <span>Item</span>
+      Agenda
     </div>
     <div
       class="item"
       v-if="contextStore.isUserPanelActive"
       :class="{ active: isView(View.Mod) }"
       @click="setView(View.Mod)">
-      <span class="material-symbols-rounded">settings</span>
-      <span>Mod</span>
+      Moderation
     </div>
+  </div>
+  <div class="mobile-back" v-if="isView(View.Item)" @click="setView(View.Menu)">
+    <span class="material-symbols-rounded">arrow_back</span>
+    <span>Agenda</span>
   </div>
 
   <div class="app" :class="{ 'moderator-active': contextStore.isUserPanelActive }">
@@ -77,7 +75,8 @@ watch(
   }
 }
 
-.mobile-nav {
+.mobile-nav,
+.mobile-back {
   display: none;
 }
 
@@ -92,31 +91,39 @@ watch(
     position: sticky;
     top: 0;
     z-index: 100;
-    background: var(--brand-color-1);
 
     .item {
       flex: 1;
       cursor: pointer;
-      padding: 8px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 2px;
-      font-size: 0.75em;
-      color: white;
-      border-bottom: 3px solid transparent;
+      padding: 12px;
+      text-align: center;
+      font-size: 1em;
+      font-weight: bold;
+      background: var(--brand-color-3);
+      color: black;
 
-      .material-symbols-rounded {
-        font-size: 20px;
-      }
-
-      &:hover {
-        background: var(--brand-color-4);
-      }
       &.active {
-        border-bottom-color: white;
-        background: var(--brand-color-2);
+        background: var(--brand-color-1);
+        color: white;
       }
+    }
+  }
+
+  .mobile-back {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    background: var(--brand-color-1);
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+
+    .material-symbols-rounded {
+      font-size: 20px;
     }
   }
   .app {
