@@ -74,58 +74,84 @@
         Summary
       </router-link>
       <div class="spacer"></div>
-      <div class="bare-item theme-switcher">
-        <div class="theme-options">
-          <button
-            class="theme-dot modern"
-            :class="{ active: contextStore.theme === 'modern' }"
-            title="Modern theme"
-            @click="setTheme('modern')">
-            <span class="dot"></span>
-          </button>
-          <button
-            class="theme-dot fun"
-            :class="{ active: contextStore.theme === 'fun' }"
-            title="Fun theme"
-            @click="setTheme('fun')">
-            <span class="dot"></span>
-          </button>
-          <button
-            class="theme-dot funner"
-            :class="{ active: contextStore.theme === 'funner' }"
-            title="Funner theme"
-            @click="setTheme('funner')">
-            🤡
-          </button>
-        </div>
-      </div>
-      <div class="bare-item sound-line local" @click="toggleLocalSound">
+      <div class="bare-item settings-toggle" @click="settingsExpanded = !settingsExpanded">
         <div class="line">
-          <span>Personal mute:</span>
+          <span>Settings</span>
           <span class="material-symbols-rounded sound-icon">{{
-            contextStore.playSounds ? "volume_up" : "volume_mute"
+            settingsExpanded ? "expand_more" : "expand_less"
           }}</span>
         </div>
-        <span class="explain">Mute all sounds for yourself.</span>
       </div>
-      <div class="bare-item sound-line local" @click="toggleSilentSignals">
-        <div class="line">
-          <span>Shy mode:</span>
-          <span class="material-symbols-rounded sound-icon">{{
-            contextStore.silentSignals ? "notifications_off" : "notifications_active"
-          }}</span>
+      <template v-if="settingsExpanded">
+        <div class="bare-item toggle-line" @click="toggleSignals">
+          <div class="line">
+            <span><span v-if="hasSignals && !contextStore.showSignals" class="activity-indicator">!</span>Signals:</span>
+            <span class="material-symbols-rounded sound-icon">{{
+              contextStore.showSignals ? "visibility" : "visibility_off"
+            }}</span>
+          </div>
         </div>
-        <span class="explain">Your signals won't make sound for others.</span>
-      </div>
-      <div class="bare-item sound-line">
-        <div class="line">
-          <span>Global mute:</span>
-          <span class="material-symbols-rounded sound-icon">{{
-            socketStore.playSounds ? "volume_up" : "volume_mute"
-          }}</span>
+        <div class="bare-item toggle-line" @click="toggleScratchboard">
+          <div class="line">
+            <span><span v-if="hasScratchboard && !contextStore.showScratchboard" class="activity-indicator">!</span>Scratchboard:</span>
+            <span class="material-symbols-rounded sound-icon">{{
+              contextStore.showScratchboard ? "visibility" : "visibility_off"
+            }}</span>
+          </div>
         </div>
-        <span class="explain">Mod action: Mute all sounds for everyone</span>
-      </div>
+        <div class="bare-item theme-switcher">
+          <div class="theme-options">
+            <button
+              class="theme-dot modern"
+              :class="{ active: contextStore.theme === 'modern' }"
+              title="Modern theme"
+              @click="setTheme('modern')">
+              <span class="dot"></span>
+            </button>
+            <button
+              class="theme-dot fun"
+              :class="{ active: contextStore.theme === 'fun' }"
+              title="Fun theme"
+              @click="setTheme('fun')">
+              <span class="dot"></span>
+            </button>
+            <button
+              class="theme-dot funner"
+              :class="{ active: contextStore.theme === 'funner' }"
+              title="Funner theme"
+              @click="setTheme('funner')">
+              🤡
+            </button>
+          </div>
+        </div>
+        <div class="bare-item sound-line local" @click="toggleLocalSound">
+          <div class="line">
+            <span>Personal mute:</span>
+            <span class="material-symbols-rounded sound-icon">{{
+              contextStore.playSounds ? "volume_up" : "volume_mute"
+            }}</span>
+          </div>
+          <span class="explain">Mute all sounds for yourself.</span>
+        </div>
+        <div class="bare-item sound-line local" @click="toggleSilentSignals">
+          <div class="line">
+            <span>Shy mode:</span>
+            <span class="material-symbols-rounded sound-icon">{{
+              contextStore.silentSignals ? "notifications_off" : "notifications_active"
+            }}</span>
+          </div>
+          <span class="explain">Your signals won't make sound for others.</span>
+        </div>
+        <div class="bare-item sound-line">
+          <div class="line">
+            <span>Global mute:</span>
+            <span class="material-symbols-rounded sound-icon">{{
+              socketStore.playSounds ? "volume_up" : "volume_mute"
+            }}</span>
+          </div>
+          <span class="explain">Mod action: Mute all sounds for everyone</span>
+        </div>
+      </template>
       <div class="bare-item connection center" :class="{ highlight: !isConnected }">
         {{ wsStatus }}
       </div>
@@ -134,7 +160,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ConnectionStatus } from "@/domain/types";
+import { ActionType, ConnectionStatus } from "@/domain/types";
 import router from "@/router";
 import { useContextStore, type Theme } from "@/stores/contextStore";
 import { useScheduleStore } from "@/stores/scheduleStore";
@@ -147,6 +173,7 @@ const route = useRoute();
 
 const expandedGroup = ref<string | undefined>(undefined);
 const selectedItemCode = ref<string | undefined>(undefined);
+const settingsExpanded = ref(false);
 
 function openModeration() {
   contextStore.setUserPanelActive(true);
@@ -187,6 +214,14 @@ function toggleSilentSignals() {
   contextStore.setSilentSignals(!contextStore.silentSignals);
 }
 
+function toggleSignals() {
+  contextStore.setShowSignals(!contextStore.showSignals);
+}
+
+function toggleScratchboard() {
+  contextStore.setShowScratchboard(!contextStore.showScratchboard);
+}
+
 function setTheme(theme: Theme) {
   contextStore.setTheme(theme);
 }
@@ -194,6 +229,31 @@ function setTheme(theme: Theme) {
 const isConnected = computed(() => socketStore.status === ConnectionStatus.Connected);
 
 const numConnected = computed(() => socketStore.numConnected);
+
+const signalTypes = new Set([
+  ActionType.SIGNAL_ESTIMATE,
+  ActionType.SIGNAL_QUESTIONS,
+  ActionType.SIGNAL_THINKING,
+  ActionType.SIGNAL_TAPOUT,
+  ActionType.SIGNAL_SNOOZE,
+  ActionType.SIGNAL_COFFEE,
+]);
+
+const currentRoomState = computed(() => {
+  const code = route.params.code as string;
+  return code ? socketStore.getRoomState(code) : undefined;
+});
+
+const hasSignals = computed(
+  () => currentRoomState.value?.some((v) => signalTypes.has(v.type)) ?? false,
+);
+
+const hasScratchboard = computed(() => {
+  const code = route.params.code as string;
+  if (!code) return false;
+  const state = socketStore.scratchboard.get(code);
+  return !!state?.text;
+});
 
 watch(route, () => {
   const itemCode = route.params.code;
@@ -209,7 +269,7 @@ watch(route, () => {
 
 <style lang="scss" scoped>
 .nav-section {
-  max-width: 400px;
+  width: 300px;
 }
 .moderator {
   display: flex;
@@ -228,8 +288,30 @@ watch(route, () => {
 }
 
 .moderate-button {
-  clear: all;
+  display: block;
+  width: auto;
   margin: var(--nav-gap);
+  border-radius: var(--radius);
+}
+
+.settings-toggle {
+  cursor: pointer;
+  font-weight: bold;
+
+  .line {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .sound-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  &:hover {
+    background: var(--brand-color-4);
+  }
 }
 
 .group {
@@ -352,6 +434,39 @@ watch(route, () => {
 
   &.funner {
     font-size: 16px;
+  }
+}
+
+.activity-indicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--brand-color-4);
+  color: white;
+  font-weight: bold;
+  font-size: 12px;
+  margin-right: 6px;
+}
+
+.toggle-line {
+  cursor: pointer;
+
+  .line {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .sound-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  &:hover {
+    background: var(--brand-color-4);
   }
 }
 

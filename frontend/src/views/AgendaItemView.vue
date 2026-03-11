@@ -37,13 +37,15 @@
     </section>
 
     <div class="actions" v-if="currentRoomState && socketStore.userId">
-      <h2>Signals</h2>
-      <simple-signals
-        :user-id="socketStore.userId"
-        :roomState="currentRoomState"
-        @send-action="sendAction($event)" />
+      <template v-if="contextStore.showSignals">
+        <h2>Signals</h2>
+        <simple-signals
+          :user-id="socketStore.userId"
+          :roomState="currentRoomState"
+          @send-action="sendAction($event)" />
+      </template>
 
-      <template v-if="scheduleItem">
+      <template v-if="contextStore.showScratchboard && scheduleItem">
         <h2>Scratchboard</h2>
         <scratchboard
           :user-id="socketStore.userId"
@@ -53,7 +55,7 @@
 
       <template v-if="isAeriusItem">
         <h2 class="poker-count-title">
-          <span>Poker</span>
+          <span>Estimates</span>
           <div :class="{ showing: totalPokerCount > 0 }" class="count-badge">
             {{ totalPokerCount || 1 }}
           </div>
@@ -219,6 +221,7 @@ onUnmounted(() => {
 .description {
   background: var(--brand-color-2);
   padding: var(--spacer);
+  border-radius: var(--radius);
 }
 .estimate-button {
   margin: 15px auto;
@@ -297,6 +300,7 @@ main {
       text-decoration: none;
       font-size: 2em;
       display: inline-block;
+      border-radius: var(--radius);
     }
 
     a {

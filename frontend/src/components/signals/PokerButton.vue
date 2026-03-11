@@ -43,6 +43,11 @@ function sendAction(): void {
   border-radius: var(--radius);
   padding: 10px;
   user-select: none;
+  transition: all 0.15s ease-out;
+
+  * {
+    transition: all 0.15s ease-out;
+  }
 
   &.scale {
     font-size: min(calc(16px + var(--count) * 12px), 64px);
@@ -52,7 +57,7 @@ function sendAction(): void {
     font-size: 96px;
     min-width: 96px;
     min-height: 96px;
-    transition: all 0.1s ease-out;
+    transition: font-size 0.15s ease-out;
   }
 
   &.hasCount {
@@ -96,7 +101,7 @@ function sendAction(): void {
     color: black;
     text-align: center;
     opacity: 0;
-    transition: all 0.15s ease-out;
+    transition: opacity 0.15s ease-out;
     pointer-events: none;
     aspect-ratio: 1 / 1;
 

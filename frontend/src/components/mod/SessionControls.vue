@@ -15,7 +15,7 @@
       <li><strong>End of a Group</strong>: The line "-- group" indicates the end of a group.</li>
       <li>
         <strong>AER-* Handling</strong>: Items with titles starting with "aer-" (case insensitive)
-        provide the "poker" feature.
+        provide the estimates feature.
       </li>
       <li>
         <strong>Item description 1</strong>: For AER-* items, the text following the AER-* word is a

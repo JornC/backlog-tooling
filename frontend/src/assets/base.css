@@ -76,7 +76,7 @@ body {
 
 * {
   font-family: var(--font-family);
-  transition: all 0.5s 0.15s ease;
+  transition: all var(--transition-speed, 0.15s) ease;
 }
 
 h2 {

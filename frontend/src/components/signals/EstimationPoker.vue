@@ -73,6 +73,7 @@ function sendEvent(eventType: ActionType, value?: string | number): void {
   padding: 25px;
   border: var(--signal-border-width) var(--signal-border-style) #ddd;
   border-radius: var(--radius);
+  transition: all 0.15s ease-out;
 
   &.revealed {
     border: var(--signal-border-width) var(--signal-border-style) var(--brand-color-1);

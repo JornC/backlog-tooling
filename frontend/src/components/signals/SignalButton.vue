@@ -66,6 +66,11 @@ watch(
   border-radius: var(--radius);
   padding: 10px;
   user-select: none;
+  transition: all 0.15s ease-out;
+
+  * {
+    transition: all 0.15s ease-out;
+  }
 
   &.userHighlight {
     background: var(--brand-color-2);
@@ -114,7 +119,7 @@ watch(
     color: black;
     text-align: center;
     opacity: 0;
-    transition: all 0.15s ease-out;
+    transition: opacity 0.15s ease-out;
     pointer-events: none;
     aspect-ratio: 1 / 1;
 

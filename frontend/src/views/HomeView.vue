@@ -41,7 +41,7 @@ const changelog = ref<ChangelogEntry[]>([
     date: new Date("2023-12-03"),
     changes: [
       { type: "Added", description: "Signal mechanism" },
-      { type: "Added", description: "Poker mechanism" },
+      { type: "Added", description: "Estimation mechanism" },
     ],
   },
   {
@@ -56,14 +56,14 @@ const changelog = ref<ChangelogEntry[]>([
     version: "v1.0",
     date: new Date("2023-12-05"),
     changes: [
-      { type: "Updated", description: "Poker split into test/dev" },
+      { type: "Updated", description: "Estimates split into test/dev" },
       { type: "Added", description: "Drumroll" },
     ],
   },
   {
     version: "v1.1",
     date: new Date("2023-12-10"),
-    changes: [{ type: "Updated", description: "Poker reveal is now a moderator responsibility" }],
+    changes: [{ type: "Updated", description: "Estimate reveal is now a moderator responsibility" }],
   },
   {
     version: "v1.2",
@@ -138,7 +138,7 @@ const changelog = ref<ChangelogEntry[]>([
     changes: [
       {
         type: "Added",
-        description: "Added ? to the poker options",
+        description: "Added ? to the estimate options",
       },
     ],
   },
