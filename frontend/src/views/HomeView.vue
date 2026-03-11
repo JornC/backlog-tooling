@@ -184,6 +184,22 @@ const changelog = ref<ChangelogEntry[]>([
       },
     ],
   },
+  {
+    version: "v2.0",
+    date: new Date("2026-03-11"),
+    changes: [
+      { type: "Added", description: "Theme system: modern, fun, and funner (clown) themes" },
+      { type: "Added", description: "Shy mode: your signals don't make sound for others" },
+      { type: "Added", description: "Collapsible settings panel with persisted preferences" },
+      { type: "Added", description: "Toggle visibility of signals and scratchboard sections" },
+      { type: "Added", description: "Mobile-friendly two-tab layout (Agenda / Item)" },
+      { type: "Updated", description: "Smooth CSS transitions when switching themes" },
+      { type: "Updated", description: "All user preferences persisted to local storage" },
+      { type: "Updated", description: "Renamed poker to estimates" },
+      { type: "Updated", description: "Modernised dependency stack (Vite 6, Vue 3.5, ESLint 9)" },
+      { type: "Updated", description: "Combined API and frontend into a single service" },
+    ],
+  },
 ]);
 
 const formatDate = (date: Date): string => {
