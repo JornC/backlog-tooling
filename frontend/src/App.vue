@@ -73,7 +73,7 @@ watch(
 
 @media (max-width: 1024px) {
   .hide {
-    display: none;
+    display: none !important;
   }
 
   .mobile-nav {
