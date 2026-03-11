@@ -110,4 +110,28 @@ function sendAction(): void {
     }
   }
 }
+
+@media (max-width: 1024px) {
+  .action-icon {
+    padding: 6px;
+
+    &.scale {
+      font-size: min(calc(12px + var(--count) * 8px), 36px);
+    }
+
+    .label {
+      font-size: 0.8em;
+    }
+
+    .count-badge {
+      top: -10px;
+      right: -10px;
+      font-size: 12px;
+      width: 12px;
+      height: 12px;
+      padding: 5px;
+      line-height: 12px;
+    }
+  }
+}
 </style>

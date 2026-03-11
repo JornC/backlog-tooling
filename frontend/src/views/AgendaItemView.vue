@@ -330,25 +330,36 @@ main {
 }
 
 @media (max-width: 1024px) {
-  h1,
-  h2,
-  h3 {
-    display: none;
-  }
-
   main {
+    padding: 8px !important;
+    gap: 8px !important;
+
     .moderator {
-      margin: 0px var(--spacer);
+      margin: 0;
       display: block;
+      font-size: 1em;
     }
 
     .title {
-      .anchor-link {
+      .item-title {
+        font-size: 1.2em !important;
+        padding: 8px !important;
+      }
+
+      .mini-text {
         display: none;
       }
-      .item-title {
-        padding: 0px var(--spacer);
-      }
+    }
+  }
+
+  h2 {
+    font-size: 1em;
+  }
+
+  .poker-section {
+    h3 {
+      position: static !important;
+      font-size: 0.9em;
     }
   }
 }

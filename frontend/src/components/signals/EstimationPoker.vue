@@ -79,4 +79,11 @@ function sendEvent(eventType: ActionType, value?: string | number): void {
     border: var(--signal-border-width) var(--signal-border-style) var(--brand-color-1);
   }
 }
+
+@media (max-width: 1024px) {
+  .buttons {
+    padding: 8px;
+    gap: 6px;
+  }
+}
 </style>

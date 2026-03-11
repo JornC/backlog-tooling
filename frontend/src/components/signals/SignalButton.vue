@@ -128,4 +128,34 @@ watch(
     }
   }
 }
+
+@media (max-width: 1024px) {
+  .action-icon {
+    padding: 6px;
+
+    .icon {
+      font-size: 40px;
+      min-width: 40px;
+      min-height: 40px;
+    }
+
+    &.hasCount .icon {
+      font-size: min(calc(48px + var(--count) * 4px), 64px);
+    }
+
+    .label {
+      font-size: 0.75em;
+    }
+
+    .count-badge {
+      top: -12px;
+      right: -12px;
+      font-size: 12px;
+      width: 12px;
+      height: 12px;
+      padding: 6px;
+      line-height: 12px;
+    }
+  }
+}
 </style>
