@@ -25,7 +25,6 @@
 <script setup lang="ts">
 import { useContextStore } from "./stores/contextStore";
 const contextStore = useContextStore();
-const route = useRoute();
 
 enum View {
   Menu,
@@ -43,14 +42,7 @@ function isView(view: View): boolean {
   return activeView.value === view;
 }
 
-watch(
-  () => route.params.code,
-  (code, oldCode) => {
-    if (code && code !== oldCode) {
-      activeView.value = View.Item;
-    }
-  },
-);
+
 </script>
 
 <style lang="scss" scoped>
