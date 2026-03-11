@@ -10,7 +10,7 @@ features:
 name: backlog-tooling
 region: ams
 services:
-  - build_command: cd ../frontend && npm ci && npm run build && cd ../api && npm ci && npm run build
+  - build_command: cd frontend && npm ci && npm run build && cd ../api && npm ci && npm run build
     environment_slug: node-js
     github:
       branch: main
@@ -20,5 +20,4 @@ services:
     instance_count: 1
     instance_size_slug: basic-xxs
     name: app
-    run_command: node dist/server.js
-    source_dir: api
+    run_command: node api/dist/server.js
