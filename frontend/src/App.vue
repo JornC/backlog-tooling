@@ -45,8 +45,8 @@ function isView(view: View): boolean {
 
 watch(
   () => route.params.code,
-  (code) => {
-    if (code) {
+  (code, oldCode) => {
+    if (code && code !== oldCode) {
       activeView.value = View.Item;
     }
   },
