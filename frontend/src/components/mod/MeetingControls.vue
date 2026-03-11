@@ -145,17 +145,6 @@ function reveal() {
 select {
   padding: 20px;
 }
-button {
-  position: relative;
-}
-.button-icon {
-  color: black;
-  position: absolute;
-  width: 24px;
-  height: 24px;
-  left: var(--spacer);
-}
-
 hr {
   min-width: 400px;
 }

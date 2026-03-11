@@ -110,7 +110,6 @@ function parseSchedule(
     description?: string;
     groupTitle?: string;
   }>;
-  console.log(items);
   return items;
 }
 
@@ -169,17 +168,6 @@ textarea {
   min-height: 150px;
   flex-shrink: 0;
 }
-button {
-  position: relative;
-}
-.button-icon {
-  color: black;
-  position: absolute;
-  width: 24px;
-  height: 24px;
-  left: var(--spacer);
-}
-
 .error {
   padding: var(--spacer);
   background: red;

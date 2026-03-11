@@ -8,15 +8,15 @@
       Handshake
     </button>
     <p>Or</p>
-    <button @click="setRandomName1">
+    <button @click="setRandomName(random1)">
       <span class="material-symbols-rounded button-icon">shuffle</span>
       Random name ({{ random1 }})
     </button>
-    <button @click="setRandomName2">
+    <button @click="setRandomName(random2)">
       <span class="material-symbols-rounded button-icon">shuffle</span>
       Random name ({{ random2 }})
     </button>
-    <button @click="setRandomName3">
+    <button @click="setRandomName(random3)">
       <span class="material-symbols-rounded button-icon">shuffle</span>
       Random name ({{ random3 }})
     </button>
@@ -74,18 +74,8 @@ function forget() {
   socketStore.updateName(undefined);
 }
 
-function setRandomName1() {
-  name.value = random1.value;
-  updateName();
-}
-
-function setRandomName2() {
-  name.value = random2.value;
-  updateName();
-}
-
-function setRandomName3() {
-  name.value = random3.value;
+function setRandomName(randomName: string) {
+  name.value = randomName;
   updateName();
 }
 
@@ -141,16 +131,5 @@ hr {
 p {
   margin: 0px;
   color: white;
-}
-
-button {
-  position: relative;
-}
-.button-icon {
-  color: black;
-  position: absolute;
-  width: 24px;
-  height: 24px;
-  left: var(--spacer);
 }
 </style>

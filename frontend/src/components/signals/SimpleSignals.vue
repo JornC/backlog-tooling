@@ -8,7 +8,8 @@
       :user-highlight="isUserSelection(ActionType.SIGNAL_ESTIMATE)"
       @send-action="sendEvent(ActionType.SIGNAL_ESTIMATE)"
       :type="ActionType.SIGNAL_ESTIMATE"
-      :count="getEventCount(ActionType.SIGNAL_ESTIMATE)" />
+      :count="getEventCount(ActionType.SIGNAL_ESTIMATE)"
+      :sound-count="getSoundCount(ActionType.SIGNAL_ESTIMATE)" />
     <signal-button
       icon="contact_support"
       label="Question"
@@ -17,7 +18,8 @@
       :user-highlight="isUserSelection(ActionType.SIGNAL_QUESTIONS)"
       @send-action="sendEvent(ActionType.SIGNAL_QUESTIONS)"
       :type="ActionType.SIGNAL_QUESTIONS"
-      :count="getEventCount(ActionType.SIGNAL_QUESTIONS)" />
+      :count="getEventCount(ActionType.SIGNAL_QUESTIONS)"
+      :sound-count="getSoundCount(ActionType.SIGNAL_QUESTIONS)" />
     <signal-button
       icon="psychology"
       label="Thinking"
@@ -26,7 +28,8 @@
       :user-highlight="isUserSelection(ActionType.SIGNAL_THINKING)"
       @send-action="sendEvent(ActionType.SIGNAL_THINKING)"
       :type="ActionType.SIGNAL_THINKING"
-      :count="getEventCount(ActionType.SIGNAL_THINKING)" />
+      :count="getEventCount(ActionType.SIGNAL_THINKING)"
+      :sound-count="getSoundCount(ActionType.SIGNAL_THINKING)" />
     <signal-button
       icon="person_cancel"
       label="Tapping out"
@@ -35,7 +38,8 @@
       :user-highlight="isUserSelection(ActionType.SIGNAL_TAPOUT)"
       @send-action="sendEvent(ActionType.SIGNAL_TAPOUT)"
       :type="ActionType.SIGNAL_TAPOUT"
-      :count="getEventCount(ActionType.SIGNAL_TAPOUT)" />
+      :count="getEventCount(ActionType.SIGNAL_TAPOUT)"
+      :sound-count="getSoundCount(ActionType.SIGNAL_TAPOUT)" />
     <signal-button
       icon="hourglass_bottom"
       label="Wrap up"
@@ -44,7 +48,8 @@
       :user-highlight="isUserSelection(ActionType.SIGNAL_SNOOZE)"
       @send-action="sendEvent(ActionType.SIGNAL_SNOOZE)"
       :type="ActionType.SIGNAL_SNOOZE"
-      :count="getEventCount(ActionType.SIGNAL_SNOOZE)" />
+      :count="getEventCount(ActionType.SIGNAL_SNOOZE)"
+      :sound-count="getSoundCount(ActionType.SIGNAL_SNOOZE)" />
     <signal-button
       icon="coffee"
       label="Coffee!"
@@ -53,7 +58,8 @@
       :user-highlight="isUserSelection(ActionType.SIGNAL_COFFEE)"
       @send-action="sendEvent(ActionType.SIGNAL_COFFEE)"
       :type="ActionType.SIGNAL_COFFEE"
-      :count="getEventCount(ActionType.SIGNAL_COFFEE)" />
+      :count="getEventCount(ActionType.SIGNAL_COFFEE)"
+      :sound-count="getSoundCount(ActionType.SIGNAL_COFFEE)" />
   </div>
 </template>
 
@@ -84,6 +90,10 @@ function isUserSelection(type: ActionType) {
 
 function getEventCount(eventType: ActionType) {
   return props.roomState.filter((v) => v.type === eventType).length;
+}
+
+function getSoundCount(eventType: ActionType) {
+  return props.roomState.filter((v) => v.type === eventType && !v.silent).length;
 }
 
 function sendEvent(eventType: ActionType): void {

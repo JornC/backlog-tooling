@@ -16,8 +16,8 @@
       </button>
     </section>
     <section class="title">
+      <span class="label">Current topic</span>
       <h1 class="center-wrap current-topic">
-        <span class="label">Current topic</span>
         <a :href="aeriusItemHref" v-if="isAeriusItem" target="_blank" class="item-title">
           <span>{{ aeriusItemTitle }}</span>
           <span class="mini-text" v-if="isAeriusItem" :href="aeriusItemHref" target="_blank">
@@ -160,9 +160,8 @@ watch(
   () => currentRoomState.value,
   (neww, old) => {
     if (
-      (old?.filter((v) => v.type === ActionType.POKER_REVEAL).length === 0 &&
-        neww?.filter((v) => v.type === ActionType.POKER_REVEAL).length) ||
-      0 > 0
+      old?.filter((v) => v.type === ActionType.POKER_REVEAL).length === 0 &&
+      (neww?.filter((v) => v.type === ActionType.POKER_REVEAL).length ?? 0) > 0
     ) {
       if (isPlaySounds.value) {
         const audioPlayer = new Audio("/angelic.mp3");
@@ -179,13 +178,9 @@ onUnmounted(() => {
 </script>
 
 <style lang="scss" scoped>
-.current-topic {
-  position: relative;
-
-  .label {
-    position: absolute;
-    left: -160px;
-  }
+.label {
+  font-size: 0.9em;
+  color: gray;
 }
 .poker-section {
   display: flex;
@@ -279,15 +274,7 @@ main {
 
     .name {
       font-weight: bold;
-
-      text-shadow:
-        0 0 5px white,
-        0 0 15px white,
-        0 0 20px white,
-        0 0 40px white,
-        0 0 60px red,
-        0 0 10px white,
-        0 0 98px red;
+      text-shadow: var(--moderator-glow);
     }
   }
 

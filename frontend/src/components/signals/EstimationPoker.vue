@@ -71,11 +71,11 @@ function sendEvent(eventType: ActionType, value?: string | number): void {
   margin: 0 auto;
   gap: var(--spacer);
   padding: 25px;
-  border: 10px solid #ddd;
-  transition: all 0.15s ease-out;
+  border: var(--signal-border-width) var(--signal-border-style) #ddd;
+  border-radius: var(--radius);
 
   &.revealed {
-    border: 10px solid var(--brand-color-1);
+    border: var(--signal-border-width) var(--signal-border-style) var(--brand-color-1);
   }
 }
 </style>

@@ -74,30 +74,53 @@
         Summary
       </router-link>
       <div class="spacer"></div>
-      <!--
-      <div class="bare-item sound-line local" title="(WIP) ">
-        <div class="line">
-          <span>Silent signals:</span>
-          <span class="material-symbols-rounded button-icon">{{
-            contextStore.playSounds ? "volume_up" : "volume_mute"
-          }}</span>
+      <div class="bare-item theme-switcher">
+        <div class="theme-options">
+          <button
+            class="theme-dot modern"
+            :class="{ active: contextStore.theme === 'modern' }"
+            title="Modern theme"
+            @click="setTheme('modern')">
+            <span class="dot"></span>
+          </button>
+          <button
+            class="theme-dot fun"
+            :class="{ active: contextStore.theme === 'fun' }"
+            title="Fun theme"
+            @click="setTheme('fun')">
+            <span class="dot"></span>
+          </button>
+          <button
+            class="theme-dot funner"
+            :class="{ active: contextStore.theme === 'funner' }"
+            title="Funner theme"
+            @click="setTheme('funner')">
+            🤡
+          </button>
         </div>
-        <span class="explain">Mute your signals for others.</span>
       </div>
-      -->
       <div class="bare-item sound-line local" @click="toggleLocalSound">
         <div class="line">
           <span>Personal mute:</span>
-          <span class="material-symbols-rounded button-icon">{{
+          <span class="material-symbols-rounded sound-icon">{{
             contextStore.playSounds ? "volume_up" : "volume_mute"
           }}</span>
         </div>
         <span class="explain">Mute all sounds for yourself.</span>
       </div>
+      <div class="bare-item sound-line local" @click="toggleSilentSignals">
+        <div class="line">
+          <span>Shy mode:</span>
+          <span class="material-symbols-rounded sound-icon">{{
+            contextStore.silentSignals ? "notifications_off" : "notifications_active"
+          }}</span>
+        </div>
+        <span class="explain">Your signals won't make sound for others.</span>
+      </div>
       <div class="bare-item sound-line">
         <div class="line">
           <span>Global mute:</span>
-          <span class="material-symbols-rounded button-icon">{{
+          <span class="material-symbols-rounded sound-icon">{{
             socketStore.playSounds ? "volume_up" : "volume_mute"
           }}</span>
         </div>
@@ -113,7 +136,7 @@
 <script lang="ts" setup>
 import { ConnectionStatus } from "@/domain/types";
 import router from "@/router";
-import { useContextStore } from "@/stores/contextStore";
+import { useContextStore, type Theme } from "@/stores/contextStore";
 import { useScheduleStore } from "@/stores/scheduleStore";
 import { useSocketStore } from "@/ws/socketManager";
 
@@ -160,6 +183,14 @@ function toggleLocalSound() {
   contextStore.setPlaySounds(!contextStore.playSounds);
 }
 
+function toggleSilentSignals() {
+  contextStore.setSilentSignals(!contextStore.silentSignals);
+}
+
+function setTheme(theme: Theme) {
+  contextStore.setTheme(theme);
+}
+
 const isConnected = computed(() => socketStore.status === ConnectionStatus.Connected);
 
 const numConnected = computed(() => socketStore.numConnected);
@@ -184,38 +215,33 @@ watch(route, () => {
   display: flex;
   flex-direction: column;
   padding: var(--spacer);
+  margin: var(--nav-gap);
+  border-radius: var(--radius);
   background: var(--brand-color-2);
   text-align: center;
   font-size: 2em;
 
   .name {
     font-weight: bold;
-
-    text-shadow:
-      0 0 5px white,
-      0 0 15px white,
-      0 0 20px white,
-      0 0 40px white,
-      0 0 60px red,
-      0 0 10px white,
-      0 0 98px red;
+    text-shadow: var(--moderator-glow);
   }
 }
 
 .moderate-button {
   clear: all;
+  margin: var(--nav-gap);
 }
 
 .group {
   display: flex;
   flex-direction: column;
-  border-right: 15px solid transparent;
+  border-right: var(--group-border-width) solid transparent;
   border-bottom: 0px solid transparent;
-  transition: all 0.25s ease-out;
+  transition: all 0.25s var(--transition-timing);
 
   &.active-group {
     border-color: var(--brand-color-5);
-    border-bottom: 15px solid var(--brand-color-5);
+    border-bottom: var(--group-border-width) solid var(--brand-color-5);
 
     .group-title {
       background: var(--brand-color-5);
@@ -241,9 +267,11 @@ watch(route, () => {
   display: flex;
   align-items: center;
   padding: var(--spacer);
+  margin: var(--nav-gap);
   cursor: pointer;
   font-weight: bold;
-  transition: all 0.25s ease-out;
+  border-radius: var(--radius);
+  transition: all 0.25s var(--transition-timing);
 
   .title-text {
     flex-grow: 1;
@@ -271,6 +299,62 @@ watch(route, () => {
   flex-direction: column;
 }
 
+.theme-switcher {
+  display: flex;
+  justify-content: center;
+}
+
+.theme-options {
+  display: flex;
+  gap: calc(var(--spacer) / 2);
+  align-items: center;
+}
+
+.theme-dot {
+  all: unset;
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid transparent;
+  transition: all var(--anim);
+
+  &.active {
+    border-color: black;
+    transform: scale(1.2);
+  }
+
+  &:hover {
+    transform: scale(1.15);
+  }
+
+  &.active:hover {
+    transform: scale(1.2);
+  }
+
+  .dot {
+    display: block;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+  }
+
+  &.modern .dot {
+    background: #94a3b8;
+  }
+
+  &.fun .dot {
+    background: conic-gradient(#ff595e, #ffca3a, #8ac926, #1982c4, #6a4c93, #ff595e);
+  }
+
+  &.funner {
+    font-size: 16px;
+  }
+}
+
 .sound-line {
   display: flex;
   flex-direction: column;
@@ -279,6 +363,11 @@ watch(route, () => {
     display: flex;
     align-items: center;
     justify-content: space-between;
+  }
+
+  .sound-icon {
+    font-size: 20px;
+    flex-shrink: 0;
   }
 
   .explain {
@@ -325,6 +414,8 @@ watch(route, () => {
   display: flex;
   flex-direction: column;
   flex-grow: 1;
+  gap: var(--nav-gap);
+  padding: var(--nav-gap);
 
   .connection {
     background: var(--brand-color-2);
@@ -333,8 +424,10 @@ watch(route, () => {
   .item,
   .bare-item {
     padding: var(--spacer);
+    margin: var(--nav-gap);
     text-decoration: none;
     color: currentColor;
+    border-radius: var(--radius);
 
     &.highlight {
       background: red;

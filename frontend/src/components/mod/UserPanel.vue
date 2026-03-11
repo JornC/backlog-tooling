@@ -42,12 +42,6 @@ const socketStore = useSocketStore();
 const contextStore = useContextStore();
 
 const isModerator = computed(() => socketStore.isModerator);
-const isIdentified = computed(() => socketStore.isIdentified);
-
-const drumrollSelection = ref<string>("");
-watch(drumrollSelection, (neww) => {
-  socketStore.emitNamed("persist_drumroll", neww);
-});
 
 const activeTab = ref("user");
 
@@ -65,11 +59,6 @@ function closeModeration() {
 </script>
 
 <style lang="scss" scoped>
-.hero {
-  display: flex;
-  align-items: center;
-  gap: var(--spacer);
-}
 .nav {
   display: flex;
   gap: var(--spacer);
@@ -97,16 +86,6 @@ textarea {
 }
 select {
   padding: 20px;
-}
-button {
-  position: relative;
-}
-.button-icon {
-  color: black;
-  position: absolute;
-  width: 24px;
-  height: 24px;
-  left: var(--spacer);
 }
 .mod-panel {
   overflow-y: auto;

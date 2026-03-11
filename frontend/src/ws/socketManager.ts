@@ -1,26 +1,11 @@
 import { ConnectionStatus, type RoomStateFragment, type ScratchboardState } from "@/domain/types";
 import router from "@/router";
+import { useContextStore } from "@/stores/contextStore";
 import { useScheduleStore, type ScheduleItem } from "@/stores/scheduleStore";
 import { defineStore } from "pinia";
 import { Socket, io } from "socket.io-client";
 
-class SocketService {
-  private socket: Socket;
-
-  constructor() {
-    this.socket = null as unknown as Socket;
-  }
-
-  initialize() {
-    this.socket = io("/", { path: "/api/socket.io" });
-  }
-
-  get() {
-    return this.socket;
-  }
-}
-
-const socket = new SocketService();
+let socket: Socket;
 
 export const useSocketStore = defineStore("socket", {
   state: () => ({
@@ -45,16 +30,16 @@ export const useSocketStore = defineStore("socket", {
 
   actions: {
     initializeSocket() {
-      socket.initialize();
-      socket.get().on("connect", () => {
+      socket = io("/", { path: "/api/socket.io" });
+      socket.on("connect", () => {
         this.status = ConnectionStatus.Connected;
       });
 
-      socket.get().on("user_socket_id", (userId) => {
+      socket.on("user_socket_id", (userId) => {
         this.userId = userId;
       });
 
-      socket.get().on("move_room", (roomName) => {
+      socket.on("move_room", (roomName) => {
         if (
           router.currentRoute.value.name !== "AgendaRoute" ||
           router.currentRoute.value.params.code !== roomName
@@ -66,32 +51,32 @@ export const useSocketStore = defineStore("socket", {
         router.push({ name: "AgendaRoute", params: { code: roomName } });
       });
 
-      socket.get().on("all_room_state", (allRooms) => {
+      socket.on("all_room_state", (allRooms) => {
         allRooms.forEach((v: any) => this.rooms.set(v[0], v[1]));
       });
 
-      socket.get().on("drumroll_play", (file) => {
+      socket.on("drumroll_play", (file) => {
         const audioPlayer = new Audio(file);
         audioPlayer.volume = 0.5;
         audioPlayer.play();
       });
 
-      socket.get().on("disconnect", () => {
+      socket.on("disconnect", () => {
         this.status = ConnectionStatus.Disconnected;
         this.numConnected = undefined;
       });
 
-      socket.get().on("reconnect_attempt", () => {
+      socket.on("reconnect_attempt", () => {
         this.status = ConnectionStatus.Reconnecting;
         this.numConnected = undefined;
       });
 
-      socket.get().on("connect_error", () => {
+      socket.on("connect_error", () => {
         this.status = ConnectionStatus.Error;
         this.numConnected = undefined;
       });
 
-      socket.get().on("server_status", (serverStatus) => {
+      socket.on("server_status", (serverStatus) => {
         const roster = new Map<string, string>(Object.entries(serverStatus.roster));
 
         this.roster = roster;
@@ -100,12 +85,12 @@ export const useSocketStore = defineStore("socket", {
         this.playSounds = serverStatus.playSounds;
       });
 
-      socket.get().on("schedule_update", (schedule) => {
+      socket.on("schedule_update", (schedule) => {
         const scheduleStore = useScheduleStore();
         scheduleStore.setSchedule(schedule);
       });
 
-      socket.get().on("room_state", (roomState) => {
+      socket.on("room_state", (roomState) => {
         if (!this.currentRoom) {
           return;
         }
@@ -113,53 +98,56 @@ export const useSocketStore = defineStore("socket", {
         this.rooms.set(this.currentRoom, roomState);
       });
 
-      socket.get().on("scratchboard_update", (scratchboard) => {
+      socket.on("scratchboard_update", (scratchboard) => {
         this.scratchboard = new Map<string, ScratchboardState>(scratchboard);
-        console.log("scratchboard_update", this.scratchboard);
       });
     },
 
     updateName(name: string | undefined) {
-      socket.get().emit("update_name", name);
+      socket.emit("update_name", name);
     },
 
     claimModeration() {
-      socket.get().emit("claim_moderation");
+      socket.emit("claim_moderation");
     },
 
     stopModeration() {
-      socket.get().emit("stop_moderation", name);
+      socket.emit("stop_moderation", name);
     },
 
     updateSchedule(schedule: ScheduleItem[]) {
-      socket.get().emit("update_schedule", schedule);
+      socket.emit("update_schedule", schedule);
     },
 
     emitNamed(name: string, value?: any) {
-      socket.get().emit(name, value);
+      socket.emit(name, value);
     },
 
     scratchboardUpdate(roomId: string, text: string) {
-      socket.get().emit("update_scratchboard", roomId, text);
+      socket.emit("update_scratchboard", roomId, text);
     },
 
     joinRoom(roomName: string) {
       if (this.currentRoom) {
-        socket.get().emit("leave_room", this.currentRoom);
+        socket.emit("leave_room", this.currentRoom);
       }
       this.currentRoom = roomName;
-      socket.get().emit("join_room", roomName);
+      socket.emit("join_room", roomName);
     },
 
     leaveRoom() {
       if (this.currentRoom) {
-        socket.get().emit("leave_room", this.currentRoom);
+        socket.emit("leave_room", this.currentRoom);
         this.currentRoom = undefined;
       }
     },
 
     emitEvent(event: RoomStateFragment) {
-      socket.get().emit("user_action", event);
+      const contextStore = useContextStore();
+      if (contextStore.silentSignals) {
+        event.silent = true;
+      }
+      socket.emit("user_action", event);
     },
 
     getRoomState(room: string) {

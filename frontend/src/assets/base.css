@@ -1,22 +1,82 @@
+@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:FILL@1");
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700&display=swap");
+
 :root {
   --spacer: 1rem;
+  --anim: 0.15s ease-out;
+  --font-family: "Noto Sans", sans-serif;
+  --transition-timing: ease-out;
+  --hover-scale: 1;
+  --hover-rotate: 0deg;
+  --active-scale: 1;
+  --active-rotate: 0deg;
+  --moderator-glow: 0 0 5px white, 0 0 15px white, 0 0 20px white, 0 0 40px white, 0 0 60px red,
+    0 0 10px white, 0 0 98px red;
+  --signal-border-width: 5px;
+  --signal-border-style: solid;
+  --group-border-width: 15px;
+  --radius: 0px;
+  --nav-gap: 0px;
+}
 
+/* Fun theme (default) */
+:root,
+[data-theme="fun"] {
   --brand-color: #1982c4;
   --brand-color-1: #1982c4;
-
   --brand-color-2: #8ac926;
   --brand-color-3: #ffca3a;
   --brand-color-4: #ff595e;
   --brand-color-5: #66b2b2;
   --brand-color-6: #6a4c93;
+}
 
-  --anim: 0.15s ease-out;
+/* Modern theme - single blue-grey hue */
+[data-theme="modern"] {
+  --brand-color: #4a6fa5;
+  --brand-color-1: #4a6fa5;
+  --brand-color-2: #7b9fc7;
+  --brand-color-3: #d4e1ed;
+  --brand-color-4: #b8ccde;
+  --brand-color-5: #8fabc4;
+  --brand-color-6: #2e4a6e;
+  --moderator-glow: none;
+  --signal-border-width: 2px;
+  --group-border-width: 4px;
+}
+
+/* Funner theme */
+[data-theme="funner"] {
+  --brand-color: #0f6daf;
+  --brand-color-1: #0f6daf;
+  --brand-color-2: #6fbf15;
+  --brand-color-3: #ffc000;
+  --brand-color-4: #ff3338;
+  --brand-color-5: #44d4d4;
+  --brand-color-6: #5a3d82;
+  --transition-timing: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --hover-scale: 1.03;
+  --hover-rotate: -0.5deg;
+  --active-scale: 0.97;
+  --active-rotate: 0.5deg;
+  --moderator-glow: 0 0 5px white, 0 0 15px yellow, 0 0 25px orange, 0 0 40px white,
+    0 0 60px hotpink, 0 0 80px cyan, 0 0 100px hotpink;
+  --signal-border-width: 6px;
+  --signal-border-style: dashed;
+  --group-border-width: 20px;
+  --radius: 12px;
+  --nav-gap: 4px;
 }
 
 html,
 body {
   margin: 0px;
   padding: 0px;
+}
+
+* {
+  font-family: var(--font-family);
+  transition: all 0.5s 0.15s ease;
 }
 
 h2 {
@@ -39,9 +99,14 @@ button {
   display: inline-block;
   font-size: 16px;
   cursor: pointer;
-  transition: all 0.1s ease-out;
+  transition: all 0.15s var(--transition-timing);
 }
 
 button:hover {
   background-color: var(--brand-color-4);
+  transform: scale(var(--hover-scale)) rotate(var(--hover-rotate));
+}
+
+button:active {
+  transform: scale(var(--active-scale)) rotate(var(--active-rotate));
 }

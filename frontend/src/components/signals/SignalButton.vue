@@ -24,6 +24,7 @@ const props = defineProps<{
   type: ActionType;
   label: string | number;
   count: number;
+  soundCount: number;
 }>();
 
 const contextStore = useContextStore();
@@ -39,7 +40,7 @@ function sendAction(eventType: ActionType): void {
 const audioPlayer = ref<HTMLAudioElement | null>(null);
 
 watch(
-  () => props.count,
+  () => props.soundCount,
   (newCount, oldCount) => {
     if (contextStore.isSoundEmbargoed) {
       return;
@@ -61,7 +62,8 @@ watch(
   position: relative;
   cursor: pointer;
   color: var(--brand-color-1);
-  border: 5px solid #ddd;
+  border: var(--signal-border-width) var(--signal-border-style) #ddd;
+  border-radius: var(--radius);
   padding: 10px;
   user-select: none;
 
@@ -74,11 +76,10 @@ watch(
     font-size: 96px;
     min-width: 96px;
     min-height: 96px;
-    transition: all 0.1s ease-out;
   }
 
   &.hasCount {
-    border: 5px solid var(--brand-color) !important;
+    border: var(--signal-border-width) var(--signal-border-style) var(--brand-color) !important;
 
     .icon {
       font-size: min(calc(128px + var(--count) * 8px), 168px);
@@ -89,6 +90,7 @@ watch(
     background: var(--brand-color-2);
     border-color: var(--brand-color-2);
     color: white;
+    transform: scale(var(--hover-scale)) rotate(var(--hover-rotate));
   }
 
   .label {

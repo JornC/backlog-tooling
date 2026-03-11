@@ -14,6 +14,7 @@ app.use(createPinia());
 app.use(router);
 
 const contextStore = useContextStore();
+document.documentElement.setAttribute("data-theme", contextStore.theme);
 router.beforeEach(() => contextStore.setSoundEmbargoed());
 
 const socketStore = useSocketStore();

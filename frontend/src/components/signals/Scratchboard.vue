@@ -64,7 +64,7 @@ const isUnlocked = computed(() => {
 
 function isHandlingInput() {
   const state = scratchboardState.value;
-  return state?.typingUserId == socketStore.userId;
+  return state?.typingUserId === socketStore.userId;
 }
 
 function handleInput() {

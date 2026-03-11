@@ -48,11 +48,11 @@ export function setupSocketEvents(io: SocketIOServer) {
   const drumrolls = [
     "/drumroll-1-low.mp3",
     "/drumroll-2-mid.mp3",
-    // "/fx-wait.mp3",
+    "/fx-wait.mp3",
     "/jeopardy-fade.mp3",
-    // "/phone-ringing-marimba.mp3",
-    // "/sonido-de-siguiente.mp3",
-    // "/tarot-shuffle.mp3",
+    "/phone-ringing-marimba.mp3",
+    "/sonido-de-siguiente.mp3",
+    "/tarot-shuffle.mp3",
   ];
   let drumrollType = "random";
 
@@ -61,6 +61,10 @@ export function setupSocketEvents(io: SocketIOServer) {
   const roomStateManager = new RoomStateManager();
   const roster = new Map();
   const scratchboard = new Map();
+
+  function getUserRoom(socket: Socket): string | undefined {
+    return Array.from(socket.rooms).find((r) => r !== socket.id);
+  }
 
   const path = "/";
   const apiNamespace = io.of(path);
@@ -89,8 +93,7 @@ export function setupSocketEvents(io: SocketIOServer) {
         return;
       }
 
-      const moderatorRoomName = Array.from(socket.rooms).find((r) => r !== moderatorUserId);
-      apiNamespace.emit("move_room", moderatorRoomName);
+      apiNamespace.emit("move_room", getUserRoom(socket));
     });
 
     socket.on("update_name", (name) => {
@@ -122,7 +125,7 @@ export function setupSocketEvents(io: SocketIOServer) {
         return;
       }
 
-      const roomName = Array.from(socket.rooms).find((r) => r !== socket.id);
+      const roomName = getUserRoom(socket);
       if (roomName) {
         roomStateManager.purgeSignal(roomName);
         broadcastRoom(roomName);
@@ -140,7 +143,7 @@ export function setupSocketEvents(io: SocketIOServer) {
         return;
       }
 
-      const roomName = Array.from(socket.rooms).find((r) => r !== socket.id);
+      const roomName = getUserRoom(socket);
       if (roomName) {
         roomStateManager.purgePoker(roomName);
         broadcastRoom(roomName);
@@ -207,7 +210,7 @@ export function setupSocketEvents(io: SocketIOServer) {
         return;
       }
 
-      const roomName = Array.from(socket.rooms).find((r) => r !== socket.id);
+      const roomName = getUserRoom(socket);
       if (roomName) {
         const file =
           drumrollType === "random"
@@ -224,7 +227,7 @@ export function setupSocketEvents(io: SocketIOServer) {
         return;
       }
 
-      const roomName = Array.from(socket.rooms).find((r) => r !== socket.id);
+      const roomName = getUserRoom(socket);
       if (roomName) {
         lockedRooms.add(roomName);
         broadcastSchedule();
@@ -236,7 +239,7 @@ export function setupSocketEvents(io: SocketIOServer) {
         return;
       }
 
-      const roomName = Array.from(socket.rooms).find((r) => r !== socket.id);
+      const roomName = getUserRoom(socket);
       if (roomName) {
         if (lockedRooms.has(roomName)) {
           lockedRooms.delete(roomName);
@@ -259,7 +262,7 @@ export function setupSocketEvents(io: SocketIOServer) {
     });
 
     socket.on("user_action", (msg) => {
-      const roomName = Array.from(socket.rooms).find((r) => r !== socket.id);
+      const roomName = getUserRoom(socket);
       if (roomName && isRoomLocked(roomName)) {
         return;
       }
@@ -275,7 +278,7 @@ export function setupSocketEvents(io: SocketIOServer) {
     socket.on("disconnecting", () => {
       roomStateManager.purgeUser(userId, lockedRooms);
 
-      const roomName = Array.from(socket.rooms).find((r) => r !== socket.id);
+      const roomName = getUserRoom(socket);
       if (roomName) {
         broadcastRoom(roomName);
       }

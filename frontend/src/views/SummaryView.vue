@@ -8,7 +8,7 @@
         <p>Dev: {{ formatDevEstimates(itemWithRoom.room) }}</p>
         <p>Test: {{ formatTestEstimates(itemWithRoom.room) }}</p>
       </template>
-      <p v-if="hawScratchboard(itemWithRoom.item)">
+      <p v-if="hasScratchboard(itemWithRoom.item)">
         Scratch text: {{ getScratchboardText(itemWithRoom.item) }}
       </p>
     </section>
@@ -62,7 +62,7 @@ const itemsWithRooms = computed(() =>
       room: getRoom(item.code),
     })),
 );
-function hawScratchboard(item: ScheduleItem) {
+function hasScratchboard(item: ScheduleItem) {
   return socketStore.scratchboard.has(item.code);
 }
 function getScratchboardText(item: ScheduleItem) {

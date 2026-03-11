@@ -1,8 +1,13 @@
 @import "./base.css";
-@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:FILL@1");
-@import url("https://fonts.googleapis.com/css2?family=Noto+Sans&display=swap");
 
-/* Set Noto Sans as the default font */
-* {
-  font-family: "Noto Sans", sans-serif;
+button {
+  position: relative;
+}
+
+.button-icon {
+  color: black;
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  left: var(--spacer);
 }
