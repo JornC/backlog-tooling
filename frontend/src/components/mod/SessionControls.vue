@@ -58,7 +58,7 @@ function parseSchedule(
     groupTitle: string | undefined;
   } | null;
   let currentGroupTitle: string | undefined;
-  let currentGroupDescription: Array<String> = new Array();
+  let currentGroupDescription: Array<string> = [];
 
   const items = lines
     .map((line) => {
@@ -71,13 +71,13 @@ function parseSchedule(
         currentGroupDescription.push(line.substring(1, line.length - 1));
         if (previousItem) {
           previousItem.description =
-            (previousItem.description ? previousItem.description + "\n" : "") +
+            (previousItem.description ? `${previousItem.description  }\n` : "") +
             currentGroupDescription.join("\n");
         }
         return null;
       }
 
-      let description =
+      const description =
         line.startsWith("AER-") && line.indexOf(" ") > -1
           ? line.substring(line.indexOf(" ") + 1)
           : undefined;
@@ -101,7 +101,7 @@ function parseSchedule(
           : null;
 
       previousItem = item;
-      currentGroupDescription = new Array();
+      currentGroupDescription = [];
       return item;
     })
     .filter((item) => item !== null) as Array<{
@@ -124,12 +124,12 @@ function resetSchedule() {
           [
             item.title +
               ((item.title.startsWith("AER-") && item.description?.length) || 0 > 0
-                ? " " + item.description?.split("\n")[0]
+                ? ` ${  item.description?.split("\n")[0]}`
                 : ""),
             item.description
               ?.split("\n")
               .slice(item.title.startsWith("AER-") ? 1 : 0)
-              .map((v) => '"' + v + '"')
+              .map((v) => `"${  v  }"`)
               .join("\n"),
           ]
             .filter((v) => v !== "")

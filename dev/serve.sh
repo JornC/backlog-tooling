@@ -16,7 +16,7 @@ tmux kill-session -t backlog-serve && { echo "Waiting for existing session to cl
 
 # Check if 'lsof' is available, and if so do port checks
 lsof -i:5173 2>&1 | grep "(LISTEN)" && { echo "Need port 5173 to be free. (perhaps another tmux session is hogging it? Try 'tmux kill-server'.)"; exit 1; }
-lsof -i:3000 2>&1 | grep "(LISTEN)" && { echo "Need port 3000 to be free. (perhaps another tmux session is hogging it? Try 'tmux kill-server'.)"; exit 1; }
+lsof -i:8080 2>&1 | grep "(LISTEN)" && { echo "Need port 8080 to be free. (perhaps another tmux session is hogging it? Try 'tmux kill-server'.)"; exit 1; }
 cd "${SCRIPT_DIR}/misc"
 
 # Launch a tmux session

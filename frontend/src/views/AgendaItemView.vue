@@ -33,7 +33,7 @@
           >lock</span
         >
       </h1>
-      <div v-if="scheduleItem?.description" class="description" v-html="itemDescription" />
+      <div v-if="scheduleItem?.description" class="description" v-html="itemDescription" ></div>
     </section>
 
     <div class="actions" v-if="currentRoomState && socketStore.userId">
@@ -103,10 +103,10 @@ const isAeriusItem = computed(() => scheduleItem.value?.code.startsWith("aer-"))
 const aeriusItemTitle = computed(() => scheduleItem.value?.title);
 const aeriusItemHref = computed(
   () =>
-    "https://aerius.atlassian.net/browse/" +
+    `https://aerius.atlassian.net/browse/${ 
     String(scheduleItem.value?.code)
       .replace(":", "")
-      .toUpperCase(),
+      .toUpperCase()}`,
 );
 const moderator = computed(() => socketStore.moderator);
 

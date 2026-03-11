@@ -250,7 +250,7 @@ const hasSignals = computed(
 
 const hasScratchboard = computed(() => {
   const code = route.params.code as string;
-  if (!code) return false;
+  if (!code) {return false;}
   const state = socketStore.scratchboard.get(code);
   return !!state?.text;
 });

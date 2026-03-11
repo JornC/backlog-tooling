@@ -95,9 +95,9 @@ function claimModeration() {
   if (hasModerator.value) {
     if (
       !window.confirm(
-        "Are you sure you want to take moderation responsibilities away from " +
-          socketStore.moderator +
-          "?",
+        `Are you sure you want to take moderation responsibilities away from ${ 
+          socketStore.moderator 
+          }?`,
       )
     ) {
       return;

@@ -18,8 +18,8 @@ function loadTheme(): Theme {
 
 function loadBool(key: string, defaultValue: boolean): boolean {
   const stored = localStorage.getItem(key);
-  if (stored === "true") return true;
-  if (stored === "false") return false;
+  if (stored === "true") {return true;}
+  if (stored === "false") {return false;}
   return defaultValue;
 }
 

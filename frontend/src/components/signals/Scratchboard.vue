@@ -54,7 +54,7 @@ const typeText = computed(() =>
     ? " "
     : scratchboardState.value?.typingUserId === socketStore.userId
       ? "You are typing"
-      : typingUserName.value + " is typing",
+      : `${typingUserName.value  } is typing`,
 );
 
 const isUnlocked = computed(() => {
