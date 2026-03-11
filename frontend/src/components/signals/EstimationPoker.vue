@@ -80,10 +80,4 @@ function sendEvent(eventType: ActionType, value?: string | number): void {
   }
 }
 
-@media (max-width: 1024px) {
-  .buttons {
-    padding: 8px;
-    gap: 6px;
-  }
-}
 </style>

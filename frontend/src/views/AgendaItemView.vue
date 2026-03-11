@@ -331,36 +331,19 @@ main {
 
 @media (max-width: 1024px) {
   main {
-    padding: 8px !important;
-    gap: 8px !important;
-
     .moderator {
       margin: 0;
       display: block;
       font-size: 1em;
     }
 
-    .title {
-      .item-title {
-        font-size: 1.2em !important;
-        padding: 8px !important;
-      }
-
-      .mini-text {
-        display: none;
-      }
+    .title .mini-text {
+      display: none;
     }
   }
 
-  h2 {
-    font-size: 1em;
-  }
-
-  .poker-section {
-    h3 {
-      position: static !important;
-      font-size: 0.9em;
-    }
+  .poker-section h3 {
+    position: static !important;
   }
 }
 

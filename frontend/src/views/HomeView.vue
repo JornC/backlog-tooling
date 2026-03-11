@@ -214,4 +214,10 @@ p {
   max-width: 75ch;
   font-size: 0.8em;
 }
+
+@media (max-width: 1024px) {
+  .home-container {
+    display: none;
+  }
+}
 </style>
