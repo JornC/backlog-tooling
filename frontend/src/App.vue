@@ -1,19 +1,11 @@
 <template>
-  <div class="mobile-nav" v-if="!isView(View.Item)">
+  <div class="mobile-nav">
     <div class="item" :class="{ active: isView(View.Menu) }" @click="setView(View.Menu)">
       Agenda
     </div>
-    <div
-      class="item"
-      v-if="contextStore.isUserPanelActive"
-      :class="{ active: isView(View.Mod) }"
-      @click="setView(View.Mod)">
-      Moderation
+    <div class="item" :class="{ active: isView(View.Item) }" @click="setView(View.Item)">
+      Item
     </div>
-  </div>
-  <div class="mobile-back" v-if="isView(View.Item)" @click="setView(View.Menu)">
-    <span class="material-symbols-rounded">arrow_back</span>
-    <span>Agenda</span>
   </div>
 
   <div class="app" :class="{ 'moderator-active': contextStore.isUserPanelActive }">
@@ -75,8 +67,7 @@ watch(
   }
 }
 
-.mobile-nav,
-.mobile-back {
+.mobile-nav {
   display: none;
 }
 
@@ -109,23 +100,6 @@ watch(
     }
   }
 
-  .mobile-back {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 12px;
-    background: var(--brand-color-1);
-    color: white;
-    cursor: pointer;
-    font-weight: bold;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-
-    .material-symbols-rounded {
-      font-size: 20px;
-    }
-  }
   .app {
     display: block;
     min-height: auto;
