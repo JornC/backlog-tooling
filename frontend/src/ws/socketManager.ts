@@ -20,7 +20,7 @@ export const useSocketStore = defineStore("socket", {
     playSounds: true as boolean | undefined,
     sessionPin: null as string | null,
     hasPin: false,
-    emailNotification: undefined as string | undefined,
+    sessionEmails: [] as string[],
   }),
 
   getters: {
@@ -78,7 +78,7 @@ export const useSocketStore = defineStore("socket", {
         this.rooms = new Map();
         this.roster = new Map();
         this.moderatorUserId = undefined;
-        this.emailNotification = undefined;
+        this.sessionEmails = [];
         const scheduleStore = useScheduleStore();
         scheduleStore.setSchedule([]);
       });
@@ -111,16 +111,9 @@ export const useSocketStore = defineStore("socket", {
         sessionStorage.setItem("sessionPin", pin);
       });
 
-      socket.on("session_email_count", (totalCount: number) => {
-        const myEmail = localStorage.getItem("moderatorEmail");
-        if (!myEmail) {
-          return;
-        }
-        const otherCount = totalCount - 1;
-        this.emailNotification =
-          otherCount > 0
-            ? `Session summary will be sent to ${myEmail} and ${otherCount} other${otherCount > 1 ? "s" : ""}`
-            : `Session summary will be sent to ${myEmail}`;
+      socket.on("session_emails", (emails: string[]) => {
+        this.sessionEmails = emails;
+        localStorage.setItem("sessionEmails", JSON.stringify(emails));
       });
 
       socket.on("server_status", (serverStatus) => {
@@ -161,8 +154,8 @@ export const useSocketStore = defineStore("socket", {
     },
 
     claimModeration() {
-      const email = localStorage.getItem("moderatorEmail") || undefined;
-      socket.emit("claim_moderation", email);
+      const emails = this.getStoredSessionEmails();
+      socket.emit("claim_moderation", emails.length > 0 ? emails : undefined);
       const drumroll = localStorage.getItem("drumrollSelection");
       if (drumroll) {
         socket.emit("persist_drumroll", drumroll);
@@ -233,6 +226,25 @@ export const useSocketStore = defineStore("socket", {
 
     clearPin() {
       socket.emit("clear_pin");
+    },
+
+    updateSessionEmails(emails: string[]) {
+      socket.emit("update_session_emails", emails);
+    },
+
+    getStoredSessionEmails(): string[] {
+      const stored = localStorage.getItem("sessionEmails");
+      if (stored) {
+        return JSON.parse(stored);
+      }
+      // Migration: seed from old moderatorEmail key
+      const legacy = localStorage.getItem("moderatorEmail");
+      if (legacy) {
+        const emails = [legacy];
+        localStorage.setItem("sessionEmails", JSON.stringify(emails));
+        return emails;
+      }
+      return [];
     },
 
     resetSession() {

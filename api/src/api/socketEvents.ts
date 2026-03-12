@@ -210,27 +210,26 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
       broadcastServerStatus();
     });
 
-    socket.on("claim_moderation", (email?: string) => {
+    socket.on("claim_moderation", (emails?: string[]) => {
       moderatorUserId = userId;
-      if (email) {
-        sessionEmails.add(email);
+      if (emails) {
+        for (const email of emails) {
+          sessionEmails.add(email);
+        }
       }
-      apiNamespace.emit("session_email_count", sessionEmails.size);
+      socket.emit("session_emails", Array.from(sessionEmails));
       broadcastServerStatus();
     });
 
-    socket.on("register_email", (email: string) => {
-      if (email) {
+    socket.on("update_session_emails", (emails: string[]) => {
+      if (moderatorUserId !== userId) {
+        return;
+      }
+      sessionEmails.clear();
+      for (const email of emails) {
         sessionEmails.add(email);
-        apiNamespace.emit("session_email_count", sessionEmails.size);
       }
-    });
-
-    socket.on("deregister_email", (email: string) => {
-      if (email) {
-        sessionEmails.delete(email);
-        apiNamespace.emit("session_email_count", sessionEmails.size);
-      }
+      socket.emit("session_emails", Array.from(sessionEmails));
     });
 
     socket.on("stop_moderation", () => {

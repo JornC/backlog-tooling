@@ -16,12 +16,42 @@
       </button>
     </template>
 
+    <hr />
+
+    <div class="email-section">
+      <label class="section-label">Email recipients</label>
+      <p class="hint">
+        These addresses receive the session summary on finish.
+        Server-configured recipients are always included separately.
+        The full list is shared with and preserved by all future moderators.
+      </p>
+      <ul v-if="socketStore.sessionEmails.length" class="email-list">
+        <li v-for="(email, index) in socketStore.sessionEmails" :key="email">
+          <span class="email-text">{{ email }}</span>
+          <button class="icon-only remove" @click="removeEmail(index)">
+            <span class="material-symbols-rounded">close</span>
+          </button>
+        </li>
+      </ul>
+      <div class="row">
+        <input
+          type="email"
+          v-model="newEmail"
+          placeholder="you@example.com"
+          @keyup.enter="addEmail"
+        />
+        <button class="icon-only" @click="addEmail">
+          <span class="material-symbols-rounded">add</span>
+        </button>
+      </div>
+    </div>
+
     <template v-if="socketStore.hasPin">
       <hr />
       <p class="finish-explanation">
         Finishing the session posts consensus estimates to JIRA (ties and
         existing values are skipped, never overwritten), sends a summary email
-        to all moderators who provided their address, then resets everything:
+        to the recipients above, then resets everything:
         schedule, estimates, emails, scratchboard, and PIN are all cleared.
         Everyone is disconnected.
       </p>
@@ -35,8 +65,24 @@
 
 <script lang="ts" setup>
 import { useSocketStore } from "@/ws/socketManager";
+import { ref } from "vue";
 
 const socketStore = useSocketStore();
+const newEmail = ref("");
+
+function addEmail() {
+  const email = newEmail.value.trim();
+  if (!email || socketStore.sessionEmails.includes(email)) {
+    return;
+  }
+  socketStore.updateSessionEmails([...socketStore.sessionEmails, email]);
+  newEmail.value = "";
+}
+
+function removeEmail(index: number) {
+  const filtered = socketStore.sessionEmails.filter((_, i) => i !== index);
+  socketStore.updateSessionEmails(filtered);
+}
 
 function setPin() {
   if (
@@ -82,6 +128,76 @@ function flash(event: MouseEvent, action: () => void) {
   letter-spacing: 0.5em;
   text-align: center;
   padding: 1rem;
+}
+
+.email-section {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacer) * 0.5);
+}
+
+.section-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  opacity: 0.6;
+  color: white;
+}
+
+.hint {
+  font-size: 0.85rem;
+  opacity: 0.8;
+  line-height: 1.4;
+}
+
+.email-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacer) * 0.25);
+
+  li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: calc(var(--spacer) * 0.5) calc(var(--spacer) * 0.75);
+    background: var(--brand-color-4);
+    border-radius: 4px;
+  }
+}
+
+.email-text {
+  font-size: 0.9rem;
+  word-break: break-all;
+}
+
+.row {
+  display: flex;
+  gap: calc(var(--spacer) * 0.5);
+
+  input {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+button.icon-only {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+}
+
+button.remove {
+  background: transparent;
+  padding: 4px;
+  opacity: 0.7;
+
+  &:hover {
+    opacity: 1;
+  }
 }
 
 .finish-explanation {
