@@ -159,7 +159,7 @@ export async function sendSessionSummary(
   lockedRooms: Set<string>,
   lockedBy: Map<string, string>,
   jiraResults?: JiraItemResult[],
-  moderatorEmail?: string,
+  sessionEmails?: Set<string>,
 ): Promise<void> {
   const smtpUser = process.env.SMTP_USER;
   const smtpPass = process.env.SMTP_PASS;
@@ -200,14 +200,16 @@ export async function sendSessionSummary(
       },
     });
 
-    const recipients = [smtpTo];
-    if (moderatorEmail && !recipients.includes(moderatorEmail)) {
-      recipients.push(moderatorEmail);
+    const recipients = new Set(smtpTo.split(",").map((e) => e.trim()));
+    if (sessionEmails) {
+      for (const email of sessionEmails) {
+        recipients.add(email);
+      }
     }
 
     await transport.sendMail({
       from: smtpUser,
-      to: recipients.join(", "),
+      to: Array.from(recipients).join(", "),
       subject: `Backlog session summary - ${date}`,
       text: body,
     });

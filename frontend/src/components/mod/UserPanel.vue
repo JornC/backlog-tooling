@@ -15,7 +15,7 @@
         :class="{ active: isActive('pin') }"
         @click="setActive('pin')"
         class="nav-item">
-        PIN
+        Session
       </div>
       <div
         v-if="isModerator && socketStore.hasPin"

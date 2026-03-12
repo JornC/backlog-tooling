@@ -54,7 +54,7 @@ import { ref } from "vue";
 
 const socketStore = useSocketStore();
 
-const name = ref(socketStore.name);
+const name = ref(socketStore.name || localStorage.getItem("moderatorName") || "");
 const email = ref(localStorage.getItem("moderatorEmail") || "");
 const showError = ref(false);
 
@@ -71,17 +71,20 @@ function updateName() {
     return;
   }
 
+  localStorage.setItem("moderatorName", name.value);
   socketStore.updateName(name.value);
 }
 
 function forget() {
   name.value = "";
+  localStorage.removeItem("moderatorName");
   socketStore.updateName(undefined);
 }
 
 function setRandomName(randomName: string) {
   name.value = randomName;
-  updateName();
+  localStorage.removeItem("moderatorName");
+  socketStore.updateName(randomName);
 }
 
 function generateRandomName(): string {

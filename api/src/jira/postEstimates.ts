@@ -194,8 +194,8 @@ export async function postEstimatesToJira(
 
       const fieldsToUpdate: Record<string, number> = {};
 
-      // Story Point Estimate = test SP
-      if (testSp !== null) {
+      // Story Point Estimate = test SP (don't post 0, but 0 is used in composite SP)
+      if (testSp !== null && testSp > 0) {
         if (existingSpEstimate !== null && existingSpEstimate !== undefined) {
           result.skippedReasons.push("sp_estimate_field_exists");
         } else {

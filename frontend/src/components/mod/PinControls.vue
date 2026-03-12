@@ -3,10 +3,6 @@
     <template v-if="socketStore.hasPin">
       <p>Session PIN active. Share it verbally.</p>
       <div class="pin-display">{{ socketStore.sessionPin }}</div>
-      <button @click="flash($event, resetSession)">
-        <span class="material-symbols-rounded button-icon">restart_alt</span>
-        Clear PIN and reset session
-      </button>
       <button @click="flash($event, setPin)">
         <span class="material-symbols-rounded button-icon">refresh</span>
         Generate new PIN
@@ -17,6 +13,21 @@
       <button @click="flash($event, setPin)">
         <span class="material-symbols-rounded button-icon">lock</span>
         Set session PIN
+      </button>
+    </template>
+
+    <template v-if="socketStore.hasPin">
+      <hr />
+      <p class="finish-explanation">
+        Finishing the session will send a summary email to all moderators who
+        provided their email. Story point estimates are posted to JIRA for
+        locked items with a clear majority vote (ties are skipped, existing
+        values are never overwritten). Items without test estimates get 0sp
+        test. Everyone is disconnected afterwards.
+      </p>
+      <button class="finish-button" @click="flash($event, finishSession)">
+        <span class="material-symbols-rounded button-icon">stop_circle</span>
+        Finish session
       </button>
     </template>
   </section>
@@ -37,10 +48,10 @@ function setPin() {
   socketStore.setPin();
 }
 
-function resetSession() {
+function finishSession() {
   if (
     !window.confirm(
-      "This will wipe everything: PIN, schedule, all signals, estimates, scratchboard notes, and disconnect everyone (including you). Are you sure?",
+      "This will finish the session: post estimates to JIRA, send the summary email, and disconnect everyone. Are you sure?",
     )
   ) {
     return;
@@ -73,9 +84,23 @@ function flash(event: MouseEvent, action: () => void) {
   padding: 1rem;
 }
 
+.finish-explanation {
+  font-size: 0.85rem;
+  opacity: 0.8;
+  line-height: 1.4;
+}
+
+.finish-button {
+  background: var(--brand-color-2);
+}
+
 p {
   margin: 0;
   color: white;
+}
+
+hr {
+  min-width: 400px;
 }
 
 button.flashed {
