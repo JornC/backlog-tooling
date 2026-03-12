@@ -320,6 +320,16 @@ const changelog = ref<ChangelogEntry[]>([
       },
     ],
   },
+  {
+    version: "v2.2",
+    date: new Date("2026-03-12"),
+    changes: [
+      { type: "Updated", description: "Clean, stateful home page: name input, claim moderation, and contextual guidance" },
+      { type: "Updated", description: "Navigation hides schedule items when no session is active" },
+      { type: "Updated", description: "Controls tab shows hint when not on an agenda item" },
+      { type: "Added", description: "Auto-reset notice: idle sessions are finished after 24 hours" },
+    ],
+  },
 ]);
 
 const formatDate = (date: Date): string => {

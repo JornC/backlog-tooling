@@ -38,6 +38,12 @@ p {
   font-size: 0.9rem;
 }
 
+button {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--spacer) * 0.5);
+}
+
 .icon {
   font-size: 3rem;
   color: var(--brand-color-2);

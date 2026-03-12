@@ -1,5 +1,7 @@
 <template>
   <section class="control-panel" v-if="isModerator">
+    <p v-if="!route.params.code" class="no-item-hint">Navigate to an agenda item to access controls.</p>
+    <template v-else>
     <div class="group">
       <label class="group-label">Reveal</label>
       <div class="row">
@@ -60,6 +62,7 @@
         </button>
       </div>
     </div>
+    </template>
   </section>
 </template>
 
@@ -140,9 +143,9 @@ const revealed = computed(() =>
 const revealText = computed(() => (revealed.value ? "Hide" : "Reveal"));
 const totalPokerCount = computed(
   () =>
-    currentRoomState.value!.filter(
+    currentRoomState.value?.filter(
       (v) => v.type === ActionType.POKER_DEV_ESTIMATE || v.type === ActionType.POKER_TEST_ESTIMATE,
-    ).length,
+    ).length ?? 0,
 );
 
 function reveal() {
@@ -214,6 +217,13 @@ button.subtle {
 button.small {
   font-size: 0.8rem;
   padding: 8px;
+}
+
+.no-item-hint {
+  color: white;
+  opacity: 0.6;
+  font-size: 0.85rem;
+  margin: 0;
 }
 
 button.flashed {
