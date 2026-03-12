@@ -4,9 +4,8 @@
       <label class="group-label">Name</label>
       <div class="row">
         <input type="text" v-model="name" placeholder="Your name" @keyup.enter="updateName" />
-        <button @click="updateName">
-          <span class="material-symbols-rounded button-icon">badge</span>
-          Set
+        <button class="icon-only" @click="updateName">
+          <span class="material-symbols-rounded">badge</span>
         </button>
       </div>
       <p class="error" v-if="showError">Enter a name first</p>
@@ -176,6 +175,13 @@ button.subtle {
 button.small {
   font-size: 0.8rem;
   padding: 8px;
+}
+
+button.icon-only {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
 }
 
 p {
