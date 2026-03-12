@@ -68,8 +68,16 @@ export const useSocketStore = defineStore("socket", {
         audioPlayer.play();
       });
 
+      socket.on("session_ended", () => {
+        this.status = ConnectionStatus.SessionEnded;
+        sessionStorage.removeItem("sessionPin");
+      });
+
       socket.on("disconnect", () => {
-        if (this.status !== ConnectionStatus.PinRequired) {
+        if (
+          this.status !== ConnectionStatus.PinRequired &&
+          this.status !== ConnectionStatus.SessionEnded
+        ) {
           this.status = ConnectionStatus.Disconnected;
         }
         this.numConnected = undefined;

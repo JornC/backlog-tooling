@@ -429,8 +429,9 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
       roster.clear();
       scratchboard.clear();
 
-      // Disconnect everyone (including moderator)
+      // Notify then disconnect everyone (including moderator)
       for (const [, s] of apiNamespace.sockets) {
+        s.emit("session_ended");
         s.disconnect(true);
       }
     });

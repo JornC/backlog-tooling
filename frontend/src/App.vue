@@ -1,5 +1,7 @@
 <template>
-  <pin-gate v-if="isPinRequired" />
+  <session-ended v-if="isSessionEnded" />
+  <pin-gate v-else-if="isPinRequired" />
+  <template v-else>
   <div class="mobile-nav">
     <div class="item" :class="{ active: isView(View.Menu) }" @click="setView(View.Menu)">
       Agenda
@@ -24,6 +26,7 @@
       class="app-user-panel"
       :class="{ hide: !isView(View.Mod) }" />
   </div>
+  </template>
 </template>
 
 <script setup lang="ts">
@@ -33,6 +36,7 @@ import { useSocketStore } from "./ws/socketManager";
 
 const contextStore = useContextStore();
 const socketStore = useSocketStore();
+const isSessionEnded = computed(() => socketStore.status === ConnectionStatus.SessionEnded);
 const isPinRequired = computed(() => socketStore.status === ConnectionStatus.PinRequired);
 
 enum View {
