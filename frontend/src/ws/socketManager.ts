@@ -73,6 +73,14 @@ export const useSocketStore = defineStore("socket", {
           this.status = ConnectionStatus.Disconnected;
         }
         this.numConnected = undefined;
+        this.currentRoom = undefined;
+        this.scratchboard = new Map();
+        this.rooms = new Map();
+        this.roster = new Map();
+        this.moderatorUserId = undefined;
+        this.emailNotification = undefined;
+        const scheduleStore = useScheduleStore();
+        scheduleStore.setSchedule([]);
       });
 
       socket.on("reconnect_attempt", () => {

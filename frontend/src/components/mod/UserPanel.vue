@@ -113,8 +113,12 @@ select {
 
   padding: var(--spacer);
   gap: var(--spacer);
+}
 
-  min-width: 400px;
+@media (min-width: 1025px) {
+  .mod-panel {
+    width: 440px;
+  }
 }
 
 .error {
@@ -138,10 +142,6 @@ select {
 
 p {
   margin: 0px;
-}
-
-hr {
-  min-width: 400px;
 }
 
 h2 {

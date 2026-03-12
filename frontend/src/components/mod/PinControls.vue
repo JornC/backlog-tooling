@@ -19,11 +19,11 @@
     <template v-if="socketStore.hasPin">
       <hr />
       <p class="finish-explanation">
-        Finishing the session will send a summary email to all moderators who
-        provided their email. Story point estimates are posted to JIRA for
-        locked items with a clear majority vote (ties are skipped, existing
-        values are never overwritten). Items without test estimates get 0sp
-        test. Everyone is disconnected afterwards.
+        Finishing the session posts consensus estimates to JIRA (ties and
+        existing values are skipped, never overwritten), sends a summary email
+        to all moderators who provided their address, then resets everything:
+        schedule, estimates, emails, scratchboard, and PIN are all cleared.
+        Everyone is disconnected.
       </p>
       <button class="finish-button" @click="flash($event, finishSession)">
         <span class="material-symbols-rounded button-icon">stop_circle</span>

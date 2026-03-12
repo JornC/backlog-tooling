@@ -208,6 +208,30 @@ const changelog = ref<ChangelogEntry[]>([
       { type: "Updated", description: "Combined API and frontend into a single service" },
     ],
   },
+  {
+    version: "v2.1",
+    date: new Date("2026-03-12"),
+    changes: [
+      { type: "Added", description: "PIN-based sessions with email summary on reset" },
+      {
+        type: "Added",
+        description:
+          "JIRA integration: consensus story point estimates are posted on session finish",
+      },
+      {
+        type: "Added",
+        description: "Moderators can provide their email to receive the session summary",
+      },
+      { type: "Added", description: "Tracks which moderator locked each item" },
+      { type: "Added", description: "Summary view shows locked-by and estimates per item" },
+      { type: "Updated", description: "Session tab replaces PIN tab with finish session workflow" },
+      { type: "Updated", description: "Name and email are remembered across sessions" },
+      {
+        type: "Updated",
+        description: "Client state is fully reset when disconnected by session finish",
+      },
+    ],
+  },
 ]);
 
 const formatDate = (date: Date): string => {
