@@ -226,6 +226,13 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
       }
     });
 
+    socket.on("deregister_email", (email: string) => {
+      if (email) {
+        sessionEmails.delete(email);
+        apiNamespace.emit("session_email_count", sessionEmails.size);
+      }
+    });
+
     socket.on("stop_moderation", () => {
       if (moderatorUserId === userId) {
         clearModerator();

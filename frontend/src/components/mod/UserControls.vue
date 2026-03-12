@@ -20,7 +20,15 @@
         <label class="group-label">Session</label>
         <label class="field-label">
           Email (for session summary)
-          <input type="email" v-model="email" placeholder="you@example.com" @input="saveEmail" @blur="registerEmail" />
+          <div class="row">
+            <input type="email" v-model="email" placeholder="you@example.com" @input="saveEmail" />
+            <button class="icon-only" @click="registerEmail">
+              <span class="material-symbols-rounded">mail</span>
+            </button>
+            <button class="icon-only" @click="clearEmail" v-if="email">
+              <span class="material-symbols-rounded">mail_off</span>
+            </button>
+          </div>
         </label>
         <button class="primary" @click="claimModeration" v-if="!isModerator">
           <span class="material-symbols-rounded button-icon">stars</span>
@@ -98,8 +106,18 @@ function saveEmail() {
 }
 
 function registerEmail() {
-  if (isModerator.value && email.value) {
+  if (email.value) {
+    localStorage.setItem("moderatorEmail", email.value);
     socketStore.emitNamed("register_email", email.value);
+  }
+}
+
+function clearEmail() {
+  const old = email.value;
+  email.value = "";
+  localStorage.removeItem("moderatorEmail");
+  if (old) {
+    socketStore.emitNamed("deregister_email", old);
   }
 }
 
