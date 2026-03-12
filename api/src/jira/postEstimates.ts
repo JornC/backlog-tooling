@@ -90,6 +90,7 @@ async function discoverFieldIds(): Promise<FieldIds | null> {
     }
 
     console.log(`JIRA field discovery: ${fields.length} fields returned`);
+    console.log("JIRA all field names:", JSON.stringify(fields.map((f) => f.name)));
     const storyFields = fields.filter(
       (f) => f.name && (f.name.toLowerCase().includes("story") || f.name.toLowerCase().includes("point")),
     );
