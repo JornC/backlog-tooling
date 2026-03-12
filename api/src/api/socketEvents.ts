@@ -1,36 +1,37 @@
+import { Express } from "express";
 import { Socket, Server as SocketIOServer } from "socket.io";
 import { RoomStateFragment, RoomStateManager } from "../data/roomStateManager";
 import { ScratchboardState } from "../data/scratchboardmanager";
+import { sendSessionSummary } from "../email/sessionSummary";
 
-export function setupSocketEvents(io: SocketIOServer) {
+export function setupSocketEvents(io: SocketIOServer, app: Express) {
   let moderatorUserId: string | undefined = undefined;
 
   let lockedRooms = new Set<string>();
 
-  /* Kick off with a sample schedule */
-  let schedule: any[] = [
-    {
-      title: "AER-1234",
-      code: "aer-1234",
-      description: "example item 1",
-      groupTitle: "Group 1",
-      locked: false,
-    },
-    {
-      title: "AER-1235",
-      code: "aer-1235",
-      description: "example item 2",
-      groupTitle: "Group 1",
-      locked: false,
-    },
-    {
-      title: "AER-1236",
-      code: "aer-1236",
-      description: "example item 3",
-      groupTitle: "Group 2",
-      locked: false,
-    },
-  ];
+  let sessionPin: string | undefined = undefined;
+  let pinClearTimer: ReturnType<typeof setTimeout> | undefined = undefined;
+
+  function getDefaultSchedule() {
+    return [
+      {
+        title: "AER-1234",
+        code: "aer-1234",
+        description: "This is a sample item. The moderator can replace this schedule.",
+        groupTitle: "Example group",
+        locked: false,
+      },
+      {
+        title: "AER-1235",
+        code: "aer-1235",
+        description: "Another sample item to demonstrate the agenda.",
+        groupTitle: "Example group",
+        locked: false,
+      },
+    ];
+  }
+
+  let schedule: any[] = getDefaultSchedule();
 
   /*
   interface ScheduleItem {
@@ -69,7 +70,98 @@ export function setupSocketEvents(io: SocketIOServer) {
   const path = "/";
   const apiNamespace = io.of(path);
 
+  // HTTP endpoint for PIN verification
+  app.use("/api/verify-pin", (req, _res, next) => {
+    // Parse JSON body manually since express.json() may not be registered
+    let body = "";
+    req.on("data", (chunk: Buffer) => {
+      body += chunk.toString();
+    });
+    req.on("end", () => {
+      try {
+        (req as any).body = JSON.parse(body);
+      } catch {
+        (req as any).body = {};
+      }
+      next();
+    });
+  });
+
+  app.post("/api/verify-pin", (req, res) => {
+    const pin = (req as any).body?.pin;
+    if (!sessionPin || pin === sessionPin) {
+      res.status(200).json({ ok: true });
+    } else {
+      res.status(401).json({ error: "Invalid PIN" });
+    }
+  });
+
+  // PIN middleware - reject connections with wrong/missing PIN
+  apiNamespace.use((socket, next) => {
+    if (!sessionPin) {
+      return next();
+    }
+    const pin = socket.handshake.auth?.pin;
+    if (pin === sessionPin) {
+      return next();
+    }
+    return next(new Error("PIN_REQUIRED"));
+  });
+
+  function clearPinTimer() {
+    if (pinClearTimer) {
+      clearTimeout(pinClearTimer);
+      pinClearTimer = undefined;
+    }
+  }
+
+  function getDefaultScheduleCodes() {
+    return getDefaultSchedule().map((item) => item.code);
+  }
+
+  function startPinClearTimerIfNeeded() {
+    if (!sessionPin) {
+      return;
+    }
+    if (apiNamespace.sockets.size === 0) {
+      console.log("All clients disconnected. Session auto-reset in 24h.");
+      pinClearTimer = setTimeout(async () => {
+        console.log("Session auto-reset triggered (no connections for 24h)");
+        await sendSessionSummary(
+          schedule,
+          getDefaultScheduleCodes(),
+          roomStateManager,
+          scratchboard,
+          roster,
+          lockedRooms,
+        );
+        sessionPin = undefined;
+        pinClearTimer = undefined;
+        moderatorUserId = undefined;
+        lockedRooms = new Set<string>();
+        schedule = getDefaultSchedule();
+        playSounds = true;
+        drumrollType = "random";
+        Array.from(roomStateManager.roomKeys()).forEach((key: string) => {
+          roomStateManager.purgeSignal(key);
+          roomStateManager.purgePoker(key);
+        });
+        roster.clear();
+        scratchboard.clear();
+      }, 24 * 60 * 60_000);
+    }
+  }
+
+  function disconnectNonModerator() {
+    for (const [id, s] of apiNamespace.sockets) {
+      if (id !== moderatorUserId) {
+        s.emit("pin_changed");
+      }
+    }
+  }
+
   apiNamespace.on("connection", (socket: Socket) => {
+    clearPinTimer();
     console.log("Connection.");
     const userId = socket.id;
 
@@ -188,7 +280,7 @@ export function setupSocketEvents(io: SocketIOServer) {
     });
 
     socket.on("update_schedule", (arr) => {
-      if (moderatorUserId !== userId) {
+      if (moderatorUserId !== userId || !sessionPin) {
         return;
       }
 
@@ -255,6 +347,59 @@ export function setupSocketEvents(io: SocketIOServer) {
       broadcastServerStatus();
     });
 
+    socket.on("set_pin", () => {
+      if (moderatorUserId !== userId) {
+        return;
+      }
+      sessionPin = String(Math.floor(1000 + Math.random() * 9000));
+      socket.emit("session_pin", sessionPin);
+      broadcastServerStatus();
+      disconnectNonModerator();
+    });
+
+    socket.on("clear_pin", () => {
+      if (moderatorUserId !== userId) {
+        return;
+      }
+      sessionPin = undefined;
+      clearPinTimer();
+      broadcastServerStatus();
+    });
+
+    socket.on("reset_session", async () => {
+      if (moderatorUserId !== userId) {
+        return;
+      }
+
+      await sendSessionSummary(
+        schedule,
+        getDefaultScheduleCodes(),
+        roomStateManager,
+        scratchboard,
+        roster,
+        lockedRooms,
+      );
+
+      sessionPin = undefined;
+      clearPinTimer();
+      moderatorUserId = undefined;
+      lockedRooms = new Set<string>();
+      schedule = getDefaultSchedule();
+      playSounds = true;
+      drumrollType = "random";
+      Array.from(roomStateManager.roomKeys()).forEach((key: string) => {
+        roomStateManager.purgeSignal(key);
+        roomStateManager.purgePoker(key);
+      });
+      roster.clear();
+      scratchboard.clear();
+
+      // Disconnect everyone (including moderator)
+      for (const [, s] of apiNamespace.sockets) {
+        s.disconnect(true);
+      }
+    });
+
     socket.on("leave_room", (roomName) => {
       socket.leave(roomName);
 
@@ -290,6 +435,7 @@ export function setupSocketEvents(io: SocketIOServer) {
 
     socket.on("disconnect", () => {
       broadcastServerStatus();
+      startPinClearTimerIfNeeded();
     });
   });
 
@@ -354,6 +500,7 @@ export function setupSocketEvents(io: SocketIOServer) {
       roster: rosterSerialized,
       numConnected: apiNamespace.sockets.size,
       playSounds: playSounds,
+      hasPin: !!sessionPin,
     };
   }
 

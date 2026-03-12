@@ -9,13 +9,20 @@
       </div>
       <div
         v-if="isModerator"
+        :class="{ active: isActive('pin') }"
+        @click="setActive('pin')"
+        class="nav-item">
+        PIN
+      </div>
+      <div
+        v-if="isModerator && socketStore.hasPin"
         :class="{ active: isActive('session') }"
         @click="setActive('session')"
         class="nav-item">
         Schedule
       </div>
       <div
-        v-if="isModerator"
+        v-if="isModerator && socketStore.hasPin"
         :class="{ active: isActive('controls') }"
         @click="setActive('controls')"
         class="nav-item">
@@ -23,6 +30,7 @@
       </div>
     </section>
     <user-controls v-if="isActive('user')" />
+    <pin-controls v-if="isActive('pin')" />
     <session-controls v-if="isActive('session')" />
     <meeting-controls v-if="isActive('controls')" />
 
@@ -44,6 +52,12 @@ const contextStore = useContextStore();
 const isModerator = computed(() => socketStore.isModerator);
 
 const activeTab = ref("user");
+
+watch(isModerator, (newVal) => {
+  if (newVal && !socketStore.hasPin) {
+    activeTab.value = "pin";
+  }
+});
 
 function isActive(str: string) {
   return activeTab.value === str;

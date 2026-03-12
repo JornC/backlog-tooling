@@ -28,4 +28,5 @@ export enum ConnectionStatus {
   Disconnected = "Disconnected",
   Reconnecting = "Reconnecting",
   Error = "Error",
+  PinRequired = "PinRequired",
 }

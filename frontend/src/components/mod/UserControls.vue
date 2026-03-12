@@ -4,8 +4,8 @@
     <input type="text" v-model="name" placeholder="name" />
     <p class="error" v-if="showError">Insert a name</p>
     <button @click="updateName">
-      <span class="material-symbols-rounded button-icon">handshake</span>
-      Handshake
+      <span class="material-symbols-rounded button-icon">badge</span>
+      Set name
     </button>
     <p>Or</p>
     <button @click="setRandomName(random1)">

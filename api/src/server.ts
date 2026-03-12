@@ -29,7 +29,7 @@ const io: SocketIOServer = new SocketIOServer(server, {
   path: "/api/socket.io",
 });
 
-setupSocketEvents(io);
+setupSocketEvents(io, app);
 
 const port = process.env.PORT || 8080;
 server.listen(port, () => {

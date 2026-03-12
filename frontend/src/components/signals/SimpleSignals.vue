@@ -32,7 +32,7 @@
       :sound-count="getSoundCount(ActionType.SIGNAL_THINKING)" />
     <signal-button
       icon="person_cancel"
-      label="Tapping out"
+      label="Pass"
       sound="/windows-xp-shutdown.mp3"
       :play-sound="isPlaySounds"
       :user-highlight="isUserSelection(ActionType.SIGNAL_TAPOUT)"

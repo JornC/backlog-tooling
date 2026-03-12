@@ -1,24 +1,24 @@
 <template>
   <section class="control-panel">
     <template v-if="isModerator">
-      <button @click="resetSignals">
+      <button @click="flash($event, resetSignals)">
         <span class="material-symbols-rounded button-icon">device_reset</span>
         Reset current item signals
       </button>
-      <button @click="resetPoker">
+      <button @click="flash($event, resetPoker)">
         <span class="material-symbols-rounded button-icon">reset_image</span>
         Reset current item estimates
       </button>
       <hr />
-      <button @click="everyoneToModerator">
+      <button @click="flash($event, everyoneToModerator)">
         <span class="material-symbols-rounded button-icon">groups</span>
         Move everyone to current item
       </button>
-      <button @click="lockItem">
+      <button @click="flash($event, lockItem)">
         <span class="material-symbols-rounded button-icon">Lock</span>
         Lock/unlock current item
       </button>
-      <button @click="finishItemAndNext">
+      <button @click="flash($event, finishItemAndNext)">
         <span class="material-symbols-rounded button-icon">start</span>
         Finish/lock item + next
       </button>
@@ -29,17 +29,17 @@
           {{ drumroll }}
         </option>
       </select>
-      <button @click="drumroll">
+      <button @click="flash($event, drumroll)">
         <span class="material-symbols-rounded button-icon">music_note</span>
         Drum roll
       </button>
-      <button @click="reveal">
+      <button @click="flash($event, reveal)">
         <span class="material-symbols-rounded button-icon">casino</span>
         {{ revealText }} ({{ totalPokerCount }})
       </button>
       <hr />
 
-      <button @click="muteSounds">
+      <button @click="flash($event, muteSounds)">
         <span class="material-symbols-rounded button-icon">volume_mute</span>
         Mute/unmute all sounds
       </button>
@@ -93,6 +93,7 @@ function muteSounds() {
   socketStore.emitNamed("mute_sounds_toggle");
 }
 
+
 function finishItemAndNext() {
   socketStore.emitNamed("lock_room");
   const schedule = scheduleStore.getSchedule();
@@ -133,6 +134,15 @@ function reveal() {
     type: ActionType.POKER_REVEAL,
   });
 }
+
+function flash(event: MouseEvent, action: () => void) {
+  const button = (event.target as HTMLElement).closest("button");
+  if (button) {
+    button.classList.add("flashed");
+    setTimeout(() => button.classList.remove("flashed"), 300);
+  }
+  action();
+}
 </script>
 
 <style lang="scss" scoped>
@@ -147,5 +157,9 @@ select {
 }
 hr {
   min-width: 400px;
+}
+button.flashed {
+  background-color: var(--brand-color-2);
+  color: white;
 }
 </style>

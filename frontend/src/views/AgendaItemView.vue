@@ -232,9 +232,10 @@ onUnmounted(() => {
 }
 
 .lock {
-  width: 0px;
-  font-size: 4em;
-  margin: 0px;
+  position: absolute;
+  left: 100%;
+  font-size: 2em;
+  margin-left: 0.15em;
   opacity: 0;
   color: crimson;
   transition: opacity 0.15s ease-out;
@@ -291,6 +292,7 @@ main {
     h1 {
       display: flex;
       align-items: center;
+      position: relative;
     }
 
     .item-title {

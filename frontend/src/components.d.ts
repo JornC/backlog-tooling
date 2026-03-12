@@ -11,6 +11,8 @@ declare module 'vue' {
     ApplicationNavigation: typeof import('./components/nav/ApplicationNavigation.vue')['default']
     EstimationPoker: typeof import('./components/signals/EstimationPoker.vue')['default']
     MeetingControls: typeof import('./components/mod/MeetingControls.vue')['default']
+    PinControls: typeof import('./components/mod/PinControls.vue')['default']
+    PinGate: typeof import('./components/PinGate.vue')['default']
     PokerButton: typeof import('./components/signals/PokerButton.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

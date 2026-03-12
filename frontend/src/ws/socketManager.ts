@@ -18,6 +18,8 @@ export const useSocketStore = defineStore("socket", {
     moderatorUserId: undefined as string | undefined,
     numConnected: undefined as number | undefined,
     playSounds: true as boolean | undefined,
+    sessionPin: null as string | null,
+    hasPin: false,
   }),
 
   getters: {
@@ -30,7 +32,11 @@ export const useSocketStore = defineStore("socket", {
 
   actions: {
     initializeSocket() {
-      socket = io("/", { path: "/api/socket.io" });
+      const storedPin = sessionStorage.getItem("sessionPin");
+      socket = io("/", {
+        path: "/api/socket.io",
+        auth: storedPin ? { pin: storedPin } : {},
+      });
       socket.on("connect", () => {
         this.status = ConnectionStatus.Connected;
       });
@@ -62,7 +68,9 @@ export const useSocketStore = defineStore("socket", {
       });
 
       socket.on("disconnect", () => {
-        this.status = ConnectionStatus.Disconnected;
+        if (this.status !== ConnectionStatus.PinRequired) {
+          this.status = ConnectionStatus.Disconnected;
+        }
         this.numConnected = undefined;
       });
 
@@ -71,9 +79,27 @@ export const useSocketStore = defineStore("socket", {
         this.numConnected = undefined;
       });
 
-      socket.on("connect_error", () => {
+      socket.on("connect_error", (err) => {
+        if (err.message === "PIN_REQUIRED") {
+          this.status = ConnectionStatus.PinRequired;
+          sessionStorage.removeItem("sessionPin");
+          socket.disconnect();
+          return;
+        }
         this.status = ConnectionStatus.Error;
         this.numConnected = undefined;
+      });
+
+      socket.on("pin_changed", () => {
+        sessionStorage.removeItem("sessionPin");
+        this.sessionPin = null;
+        this.status = ConnectionStatus.PinRequired;
+        socket.disconnect();
+      });
+
+      socket.on("session_pin", (pin: string) => {
+        this.sessionPin = pin;
+        sessionStorage.setItem("sessionPin", pin);
       });
 
       socket.on("server_status", (serverStatus) => {
@@ -83,6 +109,12 @@ export const useSocketStore = defineStore("socket", {
         this.moderatorUserId = serverStatus.moderatorUserId;
         this.numConnected = serverStatus.numConnected;
         this.playSounds = serverStatus.playSounds;
+        this.hasPin = serverStatus.hasPin;
+
+        if (!serverStatus.hasPin) {
+          this.sessionPin = null;
+          sessionStorage.removeItem("sessionPin");
+        }
       });
 
       socket.on("schedule_update", (schedule) => {
@@ -148,6 +180,33 @@ export const useSocketStore = defineStore("socket", {
         event.silent = true;
       }
       socket.emit("user_action", event);
+    },
+
+    async submitPin(pin: string): Promise<boolean> {
+      const res = await fetch("/api/verify-pin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pin }),
+      });
+      if (!res.ok) {
+        return false;
+      }
+      sessionStorage.setItem("sessionPin", pin);
+      socket.auth = { pin };
+      socket.connect();
+      return true;
+    },
+
+    setPin() {
+      socket.emit("set_pin");
+    },
+
+    clearPin() {
+      socket.emit("clear_pin");
+    },
+
+    resetSession() {
+      socket.emit("reset_session");
     },
 
     getRoomState(room: string) {

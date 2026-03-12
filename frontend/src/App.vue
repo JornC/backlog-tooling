@@ -1,10 +1,14 @@
 <template>
+  <pin-gate v-if="isPinRequired" />
   <div class="mobile-nav">
     <div class="item" :class="{ active: isView(View.Menu) }" @click="setView(View.Menu)">
       Agenda
     </div>
     <div class="item" :class="{ active: isView(View.Item) }" @click="setView(View.Item)">
       Item
+    </div>
+    <div class="item" :class="{ active: isView(View.Mod) }" @click="openMod">
+      Mod
     </div>
   </div>
 
@@ -23,8 +27,13 @@
 </template>
 
 <script setup lang="ts">
+import { ConnectionStatus } from "./domain/types";
 import { useContextStore } from "./stores/contextStore";
+import { useSocketStore } from "./ws/socketManager";
+
 const contextStore = useContextStore();
+const socketStore = useSocketStore();
+const isPinRequired = computed(() => socketStore.status === ConnectionStatus.PinRequired);
 
 enum View {
   Menu,
@@ -36,6 +45,11 @@ const activeView = ref<View | undefined>(View.Item);
 
 function setView(view: View) {
   activeView.value = view;
+}
+
+function openMod() {
+  contextStore.setUserPanelActive(true);
+  activeView.value = View.Mod;
 }
 
 function isView(view: View): boolean {

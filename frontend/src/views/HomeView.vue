@@ -1,5 +1,13 @@
 <template>
   <div class="home-container">
+    <section class="intro">
+      <p>A shared session for working through a list of items together. One person moderates - they set
+        the agenda, navigate the team between items, and control reveals and locks.</p>
+      <p>Everyone else signals readiness, asks questions, estimates, and takes notes on the
+        scratchboard.</p>
+      <p>Click "Open user plaza" in the navigation to set your name and get started. From there you
+        can also claim moderation and manage the schedule.</p>
+    </section>
     <section class="expandable" @click="changelogRevealed = !changelogRevealed">
       <h2>
         Changelog <span class="reveal">({{ changelogRevealed ? "-" : "+" }})</span>
