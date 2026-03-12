@@ -81,8 +81,9 @@ const drumrolls = [
 const socketStore = useSocketStore();
 const scheduleStore = useScheduleStore();
 
-const drumrollSelection = ref<string>("random");
+const drumrollSelection = ref<string>(localStorage.getItem("drumrollSelection") || "random");
 watch(drumrollSelection, (neww) => {
+  localStorage.setItem("drumrollSelection", neww);
   socketStore.emitNamed("persist_drumroll", neww);
 });
 
