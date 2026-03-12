@@ -6,6 +6,7 @@ export interface ScheduleItem {
   description?: string;
   groupTitle?: string;
   locked?: boolean;
+  lockedBy?: string;
   size?: number;
 }
 

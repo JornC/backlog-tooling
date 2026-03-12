@@ -1,6 +1,7 @@
 import { createTransport } from "nodemailer";
 import { ActionType, RoomStateManager, RoomStateFragment } from "../data/roomStateManager";
 import { ScratchboardState } from "../data/scratchboardmanager";
+import { JiraItemResult } from "../jira/postEstimates";
 
 interface ScheduleItem {
   title: string;
@@ -45,12 +46,51 @@ function formatEstimates(
         .join(", ");
 }
 
+function formatJiraResult(result: JiraItemResult): string {
+  if (result.error) {
+    return `  JIRA: Failed (${result.error})`;
+  }
+
+  const lines: string[] = [];
+
+  // Story point estimate (test SP)
+  if (result.spEstimatePosted !== null) {
+    lines.push(`SP Estimate: posted ${result.spEstimatePosted}sp`);
+  } else if (result.skippedReasons.includes("sp_estimate_field_exists")) {
+    lines.push("SP Estimate: skipped (already set)");
+  } else if (result.skippedReasons.includes("tie_in_test")) {
+    lines.push("SP Estimate: skipped (tie)");
+  }
+
+  // Story points (dev + test)
+  if (result.spPosted !== null) {
+    lines.push(`SP: posted ${result.spPosted}sp (${result.devSp} dev + ${result.testSp} test)`);
+  } else if (result.skippedReasons.includes("sp_field_exists")) {
+    lines.push("SP: skipped (already set)");
+  } else if (result.skippedReasons.includes("tie_in_dev")) {
+    lines.push("SP: skipped (tie in dev)");
+  } else if (result.skippedReasons.includes("tie_in_test")) {
+    lines.push("SP: skipped (tie in test)");
+  }
+
+  if (lines.length === 0) {
+    if (result.skippedReasons.includes("no_estimates")) {
+      return "  JIRA: skipped (no estimates)";
+    }
+    return "  JIRA: skipped";
+  }
+
+  return "  JIRA: " + lines.join(", ");
+}
+
 export function composeSessionSummary(
   schedule: ScheduleItem[],
   roomStateManager: RoomStateManager,
   scratchboard: Map<string, ScratchboardState>,
   roster: Map<string, string>,
   lockedRooms: Set<string>,
+  lockedBy: Map<string, string>,
+  jiraResults?: JiraItemResult[],
 ): string {
   const date = new Date().toISOString().slice(0, 10);
   const participants = Array.from(roster.values());
@@ -67,9 +107,13 @@ export function composeSessionSummary(
   for (const item of schedule) {
     const locked = lockedRooms.has(item.code);
     lines.push("");
+    const lockedByName = lockedBy.get(item.code);
     lines.push(`${item.title}${locked ? " [LOCKED]" : ""}`);
 
     if (locked) {
+      if (lockedByName) {
+        lines.push(`  Locked by: ${lockedByName}`);
+      }
       const room = roomStateManager.getRoomState(item.code);
       lines.push(
         `  Dev estimates: ${formatEstimates(room, ActionType.POKER_DEV_ESTIMATE)}`,
@@ -84,6 +128,13 @@ export function composeSessionSummary(
     const scratch = scratchboard.get(item.code);
     if (scratch && scratch.text) {
       lines.push(`  Scratchboard: ${scratch.text}`);
+    }
+
+    if (jiraResults && jiraResults.length > 0 && locked) {
+      const jiraResult = jiraResults.find((r) => r.jiraKey === item.title);
+      if (jiraResult) {
+        lines.push(formatJiraResult(jiraResult));
+      }
     }
   }
 
@@ -103,6 +154,8 @@ export async function sendSessionSummary(
   scratchboard: Map<string, ScratchboardState>,
   roster: Map<string, string>,
   lockedRooms: Set<string>,
+  lockedBy: Map<string, string>,
+  jiraResults?: JiraItemResult[],
 ): Promise<void> {
   const smtpUser = process.env.SMTP_USER;
   const smtpPass = process.env.SMTP_PASS;
@@ -127,6 +180,8 @@ export async function sendSessionSummary(
       scratchboard,
       roster,
       lockedRooms,
+      lockedBy,
+      jiraResults,
     );
 
     const date = new Date().toISOString().slice(0, 10);

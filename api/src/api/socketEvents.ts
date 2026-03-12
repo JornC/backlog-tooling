@@ -3,11 +3,13 @@ import { Socket, Server as SocketIOServer } from "socket.io";
 import { RoomStateFragment, RoomStateManager } from "../data/roomStateManager";
 import { ScratchboardState } from "../data/scratchboardmanager";
 import { sendSessionSummary } from "../email/sessionSummary";
+import { postEstimatesToJira } from "../jira/postEstimates";
 
 export function setupSocketEvents(io: SocketIOServer, app: Express) {
   let moderatorUserId: string | undefined = undefined;
 
   let lockedRooms = new Set<string>();
+  const lockedBy = new Map<string, string>();
 
   let sessionPin: string | undefined = undefined;
   let pinClearTimer: ReturnType<typeof setTimeout> | undefined = undefined;
@@ -127,6 +129,7 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
       console.log("All clients disconnected. Session auto-reset in 24h.");
       pinClearTimer = setTimeout(async () => {
         console.log("Session auto-reset triggered (no connections for 24h)");
+        const jiraResults = await postEstimatesToJira(schedule, roomStateManager, lockedRooms);
         await sendSessionSummary(
           schedule,
           getDefaultScheduleCodes(),
@@ -134,11 +137,14 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
           scratchboard,
           roster,
           lockedRooms,
+          lockedBy,
+          jiraResults,
         );
         sessionPin = undefined;
         pinClearTimer = undefined;
         moderatorUserId = undefined;
         lockedRooms = new Set<string>();
+        lockedBy.clear();
         schedule = getDefaultSchedule();
         playSounds = true;
         drumrollType = "random";
@@ -322,6 +328,7 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
       const roomName = getUserRoom(socket);
       if (roomName) {
         lockedRooms.add(roomName);
+        lockedBy.set(roomName, roster.get(userId) || "Unknown");
         broadcastSchedule();
       }
     });
@@ -335,8 +342,10 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
       if (roomName) {
         if (lockedRooms.has(roomName)) {
           lockedRooms.delete(roomName);
+          lockedBy.delete(roomName);
         } else {
           lockedRooms.add(roomName);
+          lockedBy.set(roomName, roster.get(userId) || "Unknown");
         }
         broadcastSchedule();
       }
@@ -371,6 +380,7 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
         return;
       }
 
+      const jiraResults = await postEstimatesToJira(schedule, roomStateManager, lockedRooms);
       await sendSessionSummary(
         schedule,
         getDefaultScheduleCodes(),
@@ -378,12 +388,15 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
         scratchboard,
         roster,
         lockedRooms,
+        lockedBy,
+        jiraResults,
       );
 
       sessionPin = undefined;
       clearPinTimer();
       moderatorUserId = undefined;
       lockedRooms = new Set<string>();
+      lockedBy.clear();
       schedule = getDefaultSchedule();
       playSounds = true;
       drumrollType = "random";
@@ -475,8 +488,10 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
 
       if (lockedRooms.has(item.code)) {
         item.locked = true;
+        item.lockedBy = lockedBy.get(item.code);
       } else {
         item.locked = false;
+        item.lockedBy = undefined;
       }
     });
     apiNamespace.emit("schedule_update", schedule);

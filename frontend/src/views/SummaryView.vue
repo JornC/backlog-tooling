@@ -5,6 +5,7 @@
       <h3>{{ itemWithRoom.item.title }}</h3>
       <p v-if="!itemWithRoom.item.locked">Discussion on the item remains incomplete.</p>
       <template v-else>
+        <p v-if="itemWithRoom.item.lockedBy">Locked by: {{ itemWithRoom.item.lockedBy }}</p>
         <p>Dev: {{ formatDevEstimates(itemWithRoom.room) }}</p>
         <p>Test: {{ formatTestEstimates(itemWithRoom.room) }}</p>
       </template>
