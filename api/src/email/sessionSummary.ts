@@ -130,10 +130,14 @@ export function composeSessionSummary(
       lines.push(`  Scratchboard: ${scratch.text}`);
     }
 
-    if (jiraResults && jiraResults.length > 0 && locked) {
-      const jiraResult = jiraResults.find((r) => r.jiraKey === item.title);
-      if (jiraResult) {
-        lines.push(formatJiraResult(jiraResult));
+    if (item.code.startsWith("aer-")) {
+      if (locked) {
+        const jiraResult = jiraResults?.find((r) => r.jiraKey === item.title);
+        if (jiraResult) {
+          lines.push(formatJiraResult(jiraResult));
+        }
+      } else {
+        lines.push("  JIRA: not posting (item not locked)");
       }
     }
   }
