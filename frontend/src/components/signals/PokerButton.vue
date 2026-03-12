@@ -4,8 +4,8 @@
     @click="sendAction"
     @keyup.enter.space="sendAction"
     tabindex="0"
-    :style="{ '--count': count }"
-    :class="{ hasCount: count > 0, userHighlight, scale }">
+    :style="{ '--count': count, ...clownStyle }"
+    :class="{ hasCount: count > 0, userHighlight, scale, clown: contextStore.theme === 'funner' }">
     <div v-if="icon" class="icon material-symbols-rounded">{{ icon }}</div>
     <div :class="{ showing: count > 0 }" class="count-badge">{{ count || 1 }}</div>
     <div class="label">{{ value || label }}</div>
@@ -14,6 +14,8 @@
 
 <script setup lang="ts">
 import { ActionType } from "@/domain/types";
+import { useClownStyle } from "@/composables/useClownStyle";
+import { useContextStore } from "@/stores/contextStore";
 
 const props = defineProps<{
   icon?: string;
@@ -24,6 +26,9 @@ const props = defineProps<{
   count: number;
   label?: string;
 }>();
+
+const clownStyle = useClownStyle();
+const contextStore = useContextStore();
 
 const emit = defineEmits<{
   (event: "sendAction"): void;
@@ -73,6 +78,15 @@ function sendAction(): void {
     color: white;
   }
 
+  &.clown.hasCount {
+    animation-name: clown-rotate, clown-skew, clown-scale;
+    animation-duration: var(--clown-r-dur), var(--clown-s-dur), var(--clown-sc-dur);
+    animation-timing-function: ease-in-out, ease-in-out, ease-in-out;
+    animation-delay: var(--clown-r-delay), var(--clown-s-delay), var(--clown-sc-delay);
+    animation-iteration-count: infinite, infinite, infinite;
+    animation-direction: alternate, alternate, alternate;
+  }
+
   &:hover {
     background: var(--brand-color-2);
     border-color: var(--brand-color-2);
@@ -111,4 +125,30 @@ function sendAction(): void {
   }
 }
 
+@keyframes clown-rotate {
+  from {
+    rotate: var(--clown-r);
+  }
+  to {
+    rotate: calc(var(--clown-r) * -1);
+  }
+}
+
+@keyframes clown-skew {
+  from {
+    transform: skew(var(--clown-s));
+  }
+  to {
+    transform: skew(calc(var(--clown-s) * -1));
+  }
+}
+
+@keyframes clown-scale {
+  from {
+    scale: var(--clown-sc);
+  }
+  to {
+    scale: calc(1 / var(--clown-sc));
+  }
+}
 </style>

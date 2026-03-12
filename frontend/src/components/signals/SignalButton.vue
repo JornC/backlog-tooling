@@ -1,11 +1,11 @@
 <template>
   <div
     class="action-icon"
-    :style="{ '--count': count }"
+    :style="{ '--count': count, ...clownStyle }"
     tabindex="0"
     @click="sendAction(type)"
     @keyup.enter.space="sendAction(type)"
-    :class="{ hasCount: count > 0, userHighlight }">
+    :class="{ hasCount: count > 0, userHighlight, clown: contextStore.theme === 'funner' }">
     <div v-if="icon" class="icon material-symbols-rounded">{{ icon }}</div>
     <div :class="{ showing: count > 0 }" class="count-badge">{{ count || 1 }}</div>
     <div class="label">{{ label }}</div>
@@ -15,6 +15,7 @@
 <script setup lang="ts">
 import { ActionType } from "@/domain/types";
 import { useContextStore } from "@/stores/contextStore";
+import { useClownStyle } from "@/composables/useClownStyle";
 
 const props = defineProps<{
   icon?: string;
@@ -27,6 +28,7 @@ const props = defineProps<{
   soundCount: number;
 }>();
 
+const clownStyle = useClownStyle();
 const contextStore = useContextStore();
 
 const emit = defineEmits<{
@@ -91,6 +93,15 @@ watch(
     }
   }
 
+  &.clown.hasCount {
+    animation-name: clown-rotate, clown-skew, clown-scale;
+    animation-duration: var(--clown-r-dur), var(--clown-s-dur), var(--clown-sc-dur);
+    animation-timing-function: ease-in-out, ease-in-out, ease-in-out;
+    animation-delay: var(--clown-r-delay), var(--clown-s-delay), var(--clown-sc-delay);
+    animation-iteration-count: infinite, infinite, infinite;
+    animation-direction: alternate, alternate, alternate;
+  }
+
   &:hover {
     background: var(--brand-color-2);
     border-color: var(--brand-color-2);
@@ -129,4 +140,30 @@ watch(
   }
 }
 
+@keyframes clown-rotate {
+  from {
+    rotate: var(--clown-r);
+  }
+  to {
+    rotate: calc(var(--clown-r) * -1);
+  }
+}
+
+@keyframes clown-skew {
+  from {
+    transform: skew(var(--clown-s));
+  }
+  to {
+    transform: skew(calc(var(--clown-s) * -1));
+  }
+}
+
+@keyframes clown-scale {
+  from {
+    scale: var(--clown-sc);
+  }
+  to {
+    scale: calc(1 / var(--clown-sc));
+  }
+}
 </style>
