@@ -17,7 +17,7 @@ interface FieldIds {
 
 const JIRA_BASE = "https://aerius.atlassian.net";
 
-let cachedFieldIds: FieldIds | null | undefined = undefined;
+let cachedFieldIds: FieldIds | undefined = undefined;
 
 function jiraAuth(): string {
   const user = process.env.JIRA_USER!;
@@ -64,7 +64,13 @@ export function getWinningEstimate(
   return winners[0];
 }
 
-async function discoverFieldIds(): Promise<FieldIds | null> {
+// Known field IDs for the Aerius JIRA instance
+const KNOWN_FIELD_IDS: FieldIds = {
+  sp: "customfield_10028",
+  spEstimate: "customfield_10016",
+};
+
+async function discoverFieldIds(): Promise<FieldIds> {
   if (cachedFieldIds !== undefined) {
     return cachedFieldIds;
   }
@@ -75,44 +81,35 @@ async function discoverFieldIds(): Promise<FieldIds | null> {
     });
 
     if (!res.ok) {
-      console.warn(`JIRA field discovery failed: ${res.status} ${res.statusText}`);
-      cachedFieldIds = null;
-      return null;
+      console.warn(`JIRA field discovery failed: ${res.status}, using known field IDs`);
+      cachedFieldIds = KNOWN_FIELD_IDS;
+      return cachedFieldIds;
     }
 
     const fields: Array<{ id: string; name: string }> = await res.json();
 
     if (!Array.isArray(fields)) {
-      console.warn("JIRA field discovery: unexpected response type:", typeof fields);
-      console.warn("JIRA field discovery: response body:", JSON.stringify(fields).slice(0, 500));
-      cachedFieldIds = null;
-      return null;
+      console.warn("JIRA field discovery: unexpected response, using known field IDs");
+      cachedFieldIds = KNOWN_FIELD_IDS;
+      return cachedFieldIds;
     }
-
-    console.log(`JIRA field discovery: ${fields.length} fields returned`);
-    console.log("JIRA all field names:", JSON.stringify(fields.map((f) => f.name)));
-    const storyFields = fields.filter(
-      (f) => f.name && (f.name.toLowerCase().includes("story") || f.name.toLowerCase().includes("point")),
-    );
-    console.log("JIRA fields matching story/point:", JSON.stringify(storyFields.map((f) => ({ id: f.id, name: f.name }))));
 
     const spField = fields.find((f) => f.name === "Story Points");
     const spEstField = fields.find((f) => f.name === "Story point estimate");
 
     if (!spField || !spEstField) {
-      console.warn(
-        `JIRA field discovery: missing fields. Story Points=${spField?.id}, Story Point Estimate=${spEstField?.id}`,
-      );
-      cachedFieldIds = null;
-      return null;
+      console.warn("JIRA field discovery: fields not visible to token, using known field IDs");
+      cachedFieldIds = KNOWN_FIELD_IDS;
+      return cachedFieldIds;
     }
 
+    console.log(`JIRA field discovery: Story Points=${spField.id}, Story point estimate=${spEstField.id}`);
     cachedFieldIds = { sp: spField.id, spEstimate: spEstField.id };
     return cachedFieldIds;
   } catch (err) {
-    console.warn("JIRA field discovery error:", err);
-    cachedFieldIds = null;
-    return null;
+    console.warn("JIRA field discovery error, using known field IDs:", err);
+    cachedFieldIds = KNOWN_FIELD_IDS;
+    return cachedFieldIds;
   }
 }
 
@@ -148,17 +145,6 @@ export async function postEstimatesToJira(
   }
 
   const fieldIds = await discoverFieldIds();
-  if (!fieldIds) {
-    return aerItems.map((item) => ({
-      jiraKey: item.title,
-      devSp: null,
-      testSp: null,
-      spPosted: null,
-      spEstimatePosted: null,
-      skippedReasons: [],
-      error: "JIRA field discovery failed",
-    }));
-  }
 
   const results: JiraItemResult[] = [];
 
