@@ -404,6 +404,7 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
         lockedRooms,
         lockedBy,
         jiraResults,
+        sessionEmails,
       );
 
       sessionPin = undefined;
