@@ -3,6 +3,9 @@
     <p class="you-are-moderating hero" v-if="isModerator">
       You are moderating <span class="material-symbols-rounded">social_leaderboard</span>
     </p>
+    <p class="email-notification" v-if="socketStore.emailNotification">
+      {{ socketStore.emailNotification }}
+    </p>
     <section class="nav">
       <div :class="{ active: isActive('user') }" @click="setActive('user')" class="nav-item">
         User
@@ -126,6 +129,11 @@ select {
 .you-are-moderating {
   padding: var(--spacer);
   background: var(--brand-color-2);
+}
+
+.email-notification {
+  padding: var(--spacer);
+  background: var(--brand-color-4);
 }
 
 p {

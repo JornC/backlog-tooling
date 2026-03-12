@@ -29,6 +29,10 @@
     </template>
     <template v-if="socketStore.name">
       <hr />
+      <label class="email-label">
+        Email (for session summary)
+        <input type="email" v-model="email" placeholder="you@example.com" @change="saveEmail" />
+      </label>
       <button @click="claimModeration" v-if="!isModerator">
         <span class="material-symbols-rounded button-icon">stars</span>
         {{ hasModerator ? "Steal moderation" : "Claim moderation" }}
@@ -51,6 +55,7 @@ import { ref } from "vue";
 const socketStore = useSocketStore();
 
 const name = ref(socketStore.name);
+const email = ref(localStorage.getItem("moderatorEmail") || "");
 const showError = ref(false);
 
 const random1 = ref(generateRandomName());
@@ -89,6 +94,14 @@ function toPascalCaseWithSpace(name: string): string {
     .split("_")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
+}
+
+function saveEmail() {
+  if (email.value) {
+    localStorage.setItem("moderatorEmail", email.value);
+  } else {
+    localStorage.removeItem("moderatorEmail");
+  }
 }
 
 function claimModeration() {
@@ -130,6 +143,13 @@ hr {
 
 p {
   margin: 0px;
+  color: white;
+}
+
+.email-label {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacer) / 2);
   color: white;
 }
 </style>

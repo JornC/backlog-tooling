@@ -84,12 +84,14 @@ async function discoverFieldIds(): Promise<FieldIds | null> {
 
     if (!Array.isArray(fields)) {
       console.warn("JIRA field discovery: unexpected response type:", typeof fields);
+      console.warn("JIRA field discovery: response body:", JSON.stringify(fields).slice(0, 500));
       cachedFieldIds = null;
       return null;
     }
 
+    console.log(`JIRA field discovery: ${fields.length} fields returned`);
     const storyFields = fields.filter(
-      (f) => f.name && f.name.toLowerCase().includes("story") || f.name && f.name.toLowerCase().includes("point"),
+      (f) => f.name && (f.name.toLowerCase().includes("story") || f.name.toLowerCase().includes("point")),
     );
     console.log("JIRA fields matching story/point:", JSON.stringify(storyFields.map((f) => ({ id: f.id, name: f.name }))));
 

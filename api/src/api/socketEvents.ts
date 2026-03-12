@@ -7,6 +7,7 @@ import { postEstimatesToJira } from "../jira/postEstimates";
 
 export function setupSocketEvents(io: SocketIOServer, app: Express) {
   let moderatorUserId: string | undefined = undefined;
+  let moderatorEmail: string | undefined = undefined;
 
   let lockedRooms = new Set<string>();
   const lockedBy = new Map<string, string>();
@@ -139,10 +140,12 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
           lockedRooms,
           lockedBy,
           jiraResults,
+          moderatorEmail,
         );
         sessionPin = undefined;
         pinClearTimer = undefined;
         moderatorUserId = undefined;
+        moderatorEmail = undefined;
         lockedRooms = new Set<string>();
         lockedBy.clear();
         schedule = getDefaultSchedule();
@@ -207,8 +210,14 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
       broadcastServerStatus();
     });
 
-    socket.on("claim_moderation", () => {
+    socket.on("claim_moderation", (email?: string) => {
       moderatorUserId = userId;
+      if (email) {
+        moderatorEmail = email;
+        socket.emit("moderator_email_registered", email);
+      } else {
+        moderatorEmail = undefined;
+      }
       broadcastServerStatus();
     });
 
@@ -395,6 +404,7 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
       sessionPin = undefined;
       clearPinTimer();
       moderatorUserId = undefined;
+      moderatorEmail = undefined;
       lockedRooms = new Set<string>();
       lockedBy.clear();
       schedule = getDefaultSchedule();
@@ -503,6 +513,7 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
 
   function clearModerator(broadcast: boolean = true) {
     moderatorUserId = undefined;
+    moderatorEmail = undefined;
     if (broadcast) {
       broadcastServerStatus();
     }

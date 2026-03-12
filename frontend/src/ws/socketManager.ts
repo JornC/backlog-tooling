@@ -20,6 +20,7 @@ export const useSocketStore = defineStore("socket", {
     playSounds: true as boolean | undefined,
     sessionPin: null as string | null,
     hasPin: false,
+    emailNotification: undefined as string | undefined,
   }),
 
   getters: {
@@ -102,6 +103,13 @@ export const useSocketStore = defineStore("socket", {
         sessionStorage.setItem("sessionPin", pin);
       });
 
+      socket.on("moderator_email_registered", (email: string) => {
+        this.emailNotification = `Session summary will be sent to ${email}`;
+        setTimeout(() => {
+          this.emailNotification = undefined;
+        }, 5000);
+      });
+
       socket.on("server_status", (serverStatus) => {
         const roster = new Map<string, string>(Object.entries(serverStatus.roster));
 
@@ -140,7 +148,8 @@ export const useSocketStore = defineStore("socket", {
     },
 
     claimModeration() {
-      socket.emit("claim_moderation");
+      const email = localStorage.getItem("moderatorEmail") || undefined;
+      socket.emit("claim_moderation", email);
     },
 
     stopModeration() {
