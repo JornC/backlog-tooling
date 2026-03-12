@@ -217,6 +217,9 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
         const otherCount = sessionEmails.size - 1;
         socket.emit("moderator_email_registered", { email, otherCount });
       }
+      if (sessionPin) {
+        socket.emit("session_pin", sessionPin);
+      }
       broadcastServerStatus();
     });
 
