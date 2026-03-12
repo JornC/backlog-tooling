@@ -161,6 +161,10 @@ export const useSocketStore = defineStore("socket", {
     claimModeration() {
       const email = localStorage.getItem("moderatorEmail") || undefined;
       socket.emit("claim_moderation", email);
+      const drumroll = localStorage.getItem("drumrollSelection");
+      if (drumroll) {
+        socket.emit("persist_drumroll", drumroll);
+      }
     },
 
     stopModeration() {
