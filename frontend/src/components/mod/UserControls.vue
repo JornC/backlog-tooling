@@ -24,7 +24,7 @@
         </label>
         <button class="primary" @click="claimModeration" v-if="!isModerator">
           <span class="material-symbols-rounded button-icon">stars</span>
-          {{ hasModerator ? "Steal moderation" : "Claim moderation" }}
+          {{ hasModerator ? "Take moderation" : "Claim moderation" }}
         </button>
         <button @click="stopModeration" v-if="isModerator">
           <span class="material-symbols-rounded button-icon">hiking</span>
@@ -101,7 +101,7 @@ function claimModeration() {
   if (hasModerator.value) {
     if (
       !window.confirm(
-        `Are you sure you want to take moderation responsibilities away from ${socketStore.moderator}?`,
+        `Take over moderation from ${socketStore.moderator}?`,
       )
     ) {
       return;

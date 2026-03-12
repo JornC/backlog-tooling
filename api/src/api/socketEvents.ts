@@ -214,9 +214,8 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
       moderatorUserId = userId;
       if (email) {
         sessionEmails.add(email);
-        const otherCount = sessionEmails.size - 1;
-        socket.emit("moderator_email_registered", { email, otherCount });
       }
+      apiNamespace.emit("session_email_count", sessionEmails.size);
       broadcastServerStatus();
     });
 

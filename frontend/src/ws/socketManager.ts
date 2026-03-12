@@ -111,15 +111,17 @@ export const useSocketStore = defineStore("socket", {
         sessionStorage.setItem("sessionPin", pin);
       });
 
-      socket.on(
-        "moderator_email_registered",
-        ({ email, otherCount }: { email: string; otherCount: number }) => {
-          this.emailNotification =
-            otherCount > 0
-              ? `Session summary will be sent to ${email} and ${otherCount} other${otherCount > 1 ? "s" : ""}`
-              : `Session summary will be sent to ${email}`;
-        },
-      );
+      socket.on("session_email_count", (totalCount: number) => {
+        const myEmail = localStorage.getItem("moderatorEmail");
+        if (!myEmail) {
+          return;
+        }
+        const otherCount = totalCount - 1;
+        this.emailNotification =
+          otherCount > 0
+            ? `Session summary will be sent to ${myEmail} and ${otherCount} other${otherCount > 1 ? "s" : ""}`
+            : `Session summary will be sent to ${myEmail}`;
+      });
 
       socket.on("server_status", (serverStatus) => {
         const roster = new Map<string, string>(Object.entries(serverStatus.roster));
