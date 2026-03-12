@@ -1,49 +1,65 @@
 <template>
-  <section class="control-panel">
-    <template v-if="isModerator">
-      <button @click="flash($event, resetSignals)">
-        <span class="material-symbols-rounded button-icon">device_reset</span>
-        Reset current item signals
-      </button>
-      <button @click="flash($event, resetPoker)">
-        <span class="material-symbols-rounded button-icon">reset_image</span>
-        Reset current item estimates
-      </button>
-      <hr />
-      <button @click="flash($event, everyoneToModerator)">
-        <span class="material-symbols-rounded button-icon">groups</span>
-        Move everyone to current item
-      </button>
-      <button @click="flash($event, lockItem)">
-        <span class="material-symbols-rounded button-icon">Lock</span>
-        Lock/unlock current item
-      </button>
-      <button @click="flash($event, finishItemAndNext)">
-        <span class="material-symbols-rounded button-icon">start</span>
-        Finish/lock item + next
-      </button>
-      <hr />
+  <section class="control-panel" v-if="isModerator">
+    <div class="group">
+      <label class="group-label">Reveal</label>
+      <div class="row">
+        <button class="primary" @click="flash($event, drumroll)">
+          <span class="material-symbols-rounded button-icon">music_note</span>
+          Drumroll
+        </button>
+        <button class="primary" @click="flash($event, reveal)">
+          <span class="material-symbols-rounded button-icon">casino</span>
+          {{ revealText }} ({{ totalPokerCount }})
+        </button>
+      </div>
       <select v-model="drumrollSelection">
         <option value="random" selected>Random!</option>
         <option v-for="drumroll in drumrolls" :key="drumroll" :value="drumroll">
           {{ drumroll }}
         </option>
       </select>
-      <button @click="flash($event, drumroll)">
-        <span class="material-symbols-rounded button-icon">music_note</span>
-        Drum roll
-      </button>
-      <button @click="flash($event, reveal)">
-        <span class="material-symbols-rounded button-icon">casino</span>
-        {{ revealText }} ({{ totalPokerCount }})
-      </button>
-      <hr />
+    </div>
 
-      <button @click="flash($event, muteSounds)">
-        <span class="material-symbols-rounded button-icon">volume_mute</span>
-        Mute/unmute all sounds
+    <div class="group">
+      <label class="group-label">Item</label>
+      <button class="accent" @click="flash($event, finishItemAndNext)">
+        <span class="material-symbols-rounded button-icon">start</span>
+        Finish item &amp; next
       </button>
-    </template>
+      <div class="row">
+        <button class="subtle" @click="flash($event, lockItem)">
+          <span class="material-symbols-rounded button-icon">Lock</span>
+          Lock/unlock
+        </button>
+        <button class="subtle" @click="flash($event, resetPoker)">
+          <span class="material-symbols-rounded button-icon">reset_image</span>
+          Reset estimates
+        </button>
+      </div>
+    </div>
+
+    <div class="group">
+      <label class="group-label">Navigation</label>
+      <button @click="flash($event, everyoneToModerator)">
+        <span class="material-symbols-rounded button-icon">groups</span>
+        Move everyone here
+      </button>
+    </div>
+
+    <div class="group">
+      <div class="row">
+        <button class="subtle small" @click="flash($event, resetSignals)">
+          <span class="material-symbols-rounded button-icon">device_reset</span>
+          Reset signals
+        </button>
+        <button class="subtle small" @click="flash($event, muteSounds)">
+          <span class="material-symbols-rounded button-icon">{{
+            socketStore.playSounds ? "volume_up" : "volume_off"
+          }}</span>
+          {{ socketStore.playSounds ? "Mute sounds" : "Unmute sounds" }}
+        </button>
+      </div>
+    </div>
   </section>
 </template>
 
@@ -93,7 +109,6 @@ function muteSounds() {
   socketStore.emitNamed("mute_sounds_toggle");
 }
 
-
 function finishItemAndNext() {
   socketStore.emitNamed("lock_room");
   const schedule = scheduleStore.getSchedule();
@@ -121,7 +136,7 @@ const revealed = computed(() =>
     ? currentRoomState.value.filter((v) => v.type === ActionType.POKER_REVEAL).length > 0
     : false,
 );
-const revealText = computed(() => (revealed.value ? "Hide estimates" : "Reveal estimates"));
+const revealText = computed(() => (revealed.value ? "Hide" : "Reveal"));
 const totalPokerCount = computed(
   () =>
     currentRoomState.value!.filter(
@@ -149,15 +164,57 @@ function flash(event: MouseEvent, action: () => void) {
 .control-panel {
   display: flex;
   flex-direction: column;
+  gap: calc(var(--spacer) * 1.5);
+}
 
-  gap: var(--spacer);
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacer) * 0.5);
 }
+
+.group-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  opacity: 0.6;
+  color: white;
+}
+
+.row {
+  display: flex;
+  gap: calc(var(--spacer) * 0.5);
+
+  button {
+    flex: 1;
+  }
+}
+
 select {
-  padding: 20px;
+  padding: 8px;
+  font-size: 0.8rem;
 }
-hr {
-  min-width: 400px;
+
+button.primary {
+  background: var(--brand-color-1);
+  color: white;
 }
+
+button.accent {
+  background: var(--brand-color-2);
+  color: white;
+}
+
+button.subtle {
+  background: var(--brand-color-4);
+  font-size: 0.85rem;
+}
+
+button.small {
+  font-size: 0.8rem;
+  padding: 8px;
+}
+
 button.flashed {
   background-color: var(--brand-color-2);
   color: white;
