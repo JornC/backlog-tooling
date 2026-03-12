@@ -152,7 +152,12 @@ export async function postEstimatesToJira(
     const jiraKey = item.title;
     const room = roomStateManager.getRoomState(item.code);
     const devSp = getWinningEstimate(room, ActionType.POKER_DEV_ESTIMATE);
-    const testSp = getWinningEstimate(room, ActionType.POKER_TEST_ESTIMATE);
+    const rawTestSp = getWinningEstimate(room, ActionType.POKER_TEST_ESTIMATE);
+    const hasTestVotes = room
+      ? room.some((v) => v.type === ActionType.POKER_TEST_ESTIMATE && v.value !== undefined)
+      : false;
+    // No test votes = assume 0sp test; actual tie in test votes = null (skip)
+    const testSp = rawTestSp !== null ? rawTestSp : !hasTestVotes ? 0 : null;
 
     const result: JiraItemResult = {
       jiraKey,
@@ -163,8 +168,8 @@ export async function postEstimatesToJira(
       skippedReasons: [],
     };
 
-    if (devSp === null && testSp === null) {
-      result.skippedReasons.push("no_estimates");
+    if (devSp === null) {
+      result.skippedReasons.push("no_dev_estimates");
       results.push(result);
       continue;
     }

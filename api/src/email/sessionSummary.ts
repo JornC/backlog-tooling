@@ -74,6 +74,9 @@ function formatJiraResult(result: JiraItemResult): string {
   }
 
   if (lines.length === 0) {
+    if (result.skippedReasons.includes("no_dev_estimates")) {
+      return "  JIRA: skipped (no dev estimates)";
+    }
     if (result.skippedReasons.includes("no_estimates")) {
       return "  JIRA: skipped (no estimates)";
     }
