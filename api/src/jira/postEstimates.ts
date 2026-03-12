@@ -111,30 +111,46 @@ export async function postEstimatesToJira(
   roomStateManager: RoomStateManager,
   lockedRooms: Set<string>,
 ): Promise<JiraItemResult[]> {
+  const lockedAerItems = schedule.filter(
+    (item) => item.code.startsWith("aer-") && lockedRooms.has(item.code),
+  );
+
+  if (lockedAerItems.length === 0) {
+    return [];
+  }
+
   const jiraUser = process.env.JIRA_USER;
   const jiraToken = process.env.JIRA_API_TOKEN;
 
   if (!jiraUser || !jiraToken) {
     console.warn("JIRA env vars not configured (JIRA_USER, JIRA_API_TOKEN) - skipping JIRA posting");
-    return [];
+    return lockedAerItems.map((item) => ({
+      jiraKey: item.title,
+      devSp: null,
+      testSp: null,
+      spPosted: null,
+      spEstimatePosted: null,
+      skippedReasons: [],
+      error: "JIRA not configured",
+    }));
   }
 
   const fieldIds = await discoverFieldIds();
   if (!fieldIds) {
-    return [];
+    return lockedAerItems.map((item) => ({
+      jiraKey: item.title,
+      devSp: null,
+      testSp: null,
+      spPosted: null,
+      spEstimatePosted: null,
+      skippedReasons: [],
+      error: "JIRA field discovery failed",
+    }));
   }
 
   const results: JiraItemResult[] = [];
 
-  for (const item of schedule) {
-    if (!item.code.startsWith("aer-")) {
-      continue;
-    }
-
-    if (!lockedRooms.has(item.code)) {
-      continue;
-    }
-
+  for (const item of lockedAerItems) {
     const jiraKey = item.title;
     const room = roomStateManager.getRoomState(item.code);
     const devSp = getWinningEstimate(room, ActionType.POKER_DEV_ESTIMATE);
