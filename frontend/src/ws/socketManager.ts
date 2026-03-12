@@ -165,6 +165,10 @@ export const useSocketStore = defineStore("socket", {
       if (drumroll) {
         socket.emit("persist_drumroll", drumroll);
       }
+      const storedPin = sessionStorage.getItem("sessionPin");
+      if (storedPin) {
+        this.sessionPin = storedPin;
+      }
     },
 
     stopModeration() {
