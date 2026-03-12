@@ -81,6 +81,18 @@ async function discoverFieldIds(): Promise<FieldIds | null> {
     }
 
     const fields: Array<{ id: string; name: string }> = await res.json();
+
+    if (!Array.isArray(fields)) {
+      console.warn("JIRA field discovery: unexpected response type:", typeof fields);
+      cachedFieldIds = null;
+      return null;
+    }
+
+    const storyFields = fields.filter(
+      (f) => f.name && f.name.toLowerCase().includes("story") || f.name && f.name.toLowerCase().includes("point"),
+    );
+    console.log("JIRA fields matching story/point:", JSON.stringify(storyFields.map((f) => ({ id: f.id, name: f.name }))));
+
     const spField = fields.find((f) => f.name === "Story Points");
     const spEstField = fields.find((f) => f.name === "Story point estimate");
 
