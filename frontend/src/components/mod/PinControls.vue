@@ -1,7 +1,7 @@
 <template>
   <section class="pin-panel">
     <template v-if="socketStore.hasPin">
-      <p>Session PIN active. Share it verbally.</p>
+      <p>Session PIN active. Share it verbally or via private channels (e.g. Mattermost).</p>
       <div class="pin-display">{{ socketStore.sessionPin }}</div>
       <button @click="flash($event, setPin)">
         <span class="material-symbols-rounded button-icon">refresh</span>
