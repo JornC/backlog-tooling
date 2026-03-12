@@ -18,6 +18,7 @@ declare module 'vue' {
     RouterView: typeof import('vue-router')['RouterView']
     Scratchboard: typeof import('./components/signals/Scratchboard.vue')['default']
     SessionControls: typeof import('./components/mod/SessionControls.vue')['default']
+    SessionEnded: typeof import('./components/SessionEnded.vue')['default']
     SignalButton: typeof import('./components/signals/SignalButton.vue')['default']
     SimpleSignals: typeof import('./components/signals/SimpleSignals.vue')['default']
     UserControls: typeof import('./components/mod/UserControls.vue')['default']

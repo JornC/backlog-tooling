@@ -1,17 +1,60 @@
 <template>
   <div class="home-container">
-    <section class="intro">
-      <p>A shared session for working through a list of items together. One person moderates - they set
-        the agenda, navigate the team between items, and control reveals and locks.</p>
-      <p>Everyone else signals readiness, asks questions, estimates, and takes notes on the
-        scratchboard.</p>
-      <p>Click "Open user plaza" in the navigation to set your name and get started. From there you
-        can also claim moderation and manage the schedule.</p>
-    </section>
-    <section class="expandable" @click="changelogRevealed = !changelogRevealed">
-      <h2>
-        Changelog <span class="reveal">({{ changelogRevealed ? "-" : "+" }})</span>
-      </h2>
+    <div class="home-card">
+      <!-- State 1: Not identified -->
+      <template v-if="!socketStore.isIdentified">
+        <p class="tagline">A shared session for working through agenda items together.</p>
+        <div class="name-group">
+          <label class="group-label">Set your name to get started</label>
+          <div class="name-row">
+            <input
+              type="text"
+              v-model="name"
+              placeholder="Your name"
+              @keyup.enter="updateName" />
+            <button @click="updateName">
+              <span class="material-symbols-rounded">badge</span>
+            </button>
+          </div>
+          <p class="error" v-if="showError">Enter a name first</p>
+          <button class="subtle" @click="pickRandomName">
+            <span class="material-symbols-rounded button-icon">shuffle</span>
+            Random: {{ randomName }}
+          </button>
+        </div>
+      </template>
+
+      <!-- State 2: Identified, no moderator -->
+      <template v-else-if="!socketStore.moderator">
+        <p class="greeting">Welcome, <strong>{{ socketStore.name }}</strong></p>
+        <button class="primary" @click="claimModeration">
+          <span class="material-symbols-rounded button-icon">stars</span>
+          Claim moderation
+        </button>
+        <p class="subtle-text">Or wait for someone else to moderate.</p>
+      </template>
+
+      <!-- State 3: Identified, someone else is moderating -->
+      <template v-else-if="!socketStore.isModerator">
+        <p class="greeting">
+          <strong>{{ socketStore.moderator }}</strong> is moderating
+        </p>
+        <p class="subtle-text">Navigate to an agenda item from the sidebar to get started.</p>
+      </template>
+
+      <!-- State 4: You are the moderator -->
+      <template v-else>
+        <p class="greeting">You are moderating</p>
+        <button class="primary" @click="openSessionTab">
+          <span class="material-symbols-rounded button-icon">settings</span>
+          Open Session tab to set PIN and schedule
+        </button>
+      </template>
+
+      <!-- Changelog: collapsed at bottom -->
+      <div class="changelog-toggle" @click="changelogRevealed = !changelogRevealed">
+        Changelog <span class="reveal">{{ changelogRevealed ? "-" : "+" }}</span>
+      </div>
       <template v-if="changelogRevealed">
         <article v-for="entry in changelog.slice().reverse()" :key="entry.version">
           <h3>
@@ -25,11 +68,15 @@
           </ul>
         </article>
       </template>
-    </section>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { useContextStore } from "@/stores/contextStore";
+import { useSocketStore } from "@/ws/socketManager";
+import dockerNames from "docker-names";
+
 interface Change {
   type: string;
   description: string;
@@ -41,7 +88,48 @@ interface ChangelogEntry {
   changes: Change[];
 }
 
+const socketStore = useSocketStore();
+const contextStore = useContextStore();
+
+const name = ref(socketStore.name || localStorage.getItem("moderatorName") || "");
+const showError = ref(false);
+const randomName = ref(generateRandomName());
 const changelogRevealed = ref(false);
+
+function updateName() {
+  if (!name.value) {
+    showError.value = true;
+    return;
+  }
+
+  showError.value = false;
+  localStorage.setItem("moderatorName", name.value);
+  socketStore.updateName(name.value);
+}
+
+function pickRandomName() {
+  name.value = randomName.value;
+  localStorage.removeItem("moderatorName");
+  socketStore.updateName(randomName.value);
+  randomName.value = generateRandomName();
+}
+
+function generateRandomName(): string {
+  return dockerNames
+    .getRandomName()
+    .split("_")
+    .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
+function claimModeration() {
+  socketStore.claimModeration();
+  contextStore.setUserPanelActive(true);
+}
+
+function openSessionTab() {
+  contextStore.setUserPanelActive(true);
+}
 
 const changelog = ref<ChangelogEntry[]>([
   {
@@ -241,31 +329,112 @@ const formatDate = (date: Date): string => {
 </script>
 
 <style lang="scss" scoped>
-.expandable {
-  cursor: pointer;
-  transition: all var(--anim);
-
-  &:hover {
-    background: var(--brand-color-4);
-    padding: 0px var(--spacer);
-  }
-}
 .home-container {
-  padding: 0px var(--spacer);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: calc(var(--spacer) * 3) var(--spacer);
+  min-height: 100%;
+}
+
+.home-card {
   display: flex;
   flex-direction: column;
-}
-h2 {
-  text-align: left;
-}
-p {
-  max-width: 75ch;
-  font-size: 0.8em;
+  gap: calc(var(--spacer) * 0.75);
+  max-width: 400px;
+  width: 100%;
 }
 
-@media (max-width: 1024px) {
-  .home-container {
-    display: none;
+.tagline {
+  font-size: 0.85em;
+  opacity: 0.8;
+  margin: 0;
+  max-width: 50ch;
+}
+
+.name-group {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacer) * 0.5);
+}
+
+.group-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  opacity: 0.6;
+}
+
+.name-row {
+  display: flex;
+  gap: calc(var(--spacer) * 0.5);
+
+  input {
+    flex: 1;
+    min-width: 0;
+  }
+
+  button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 12px;
+  }
+}
+
+.error {
+  color: red;
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.greeting {
+  font-size: 1.2em;
+  margin: 0;
+}
+
+.subtle-text {
+  font-size: 0.85em;
+  opacity: 0.6;
+  margin: 0;
+}
+
+button.primary {
+  background: var(--brand-color-1);
+  color: white;
+}
+
+button.subtle {
+  background: var(--brand-color-4);
+  font-size: 0.85rem;
+}
+
+.changelog-toggle {
+  cursor: pointer;
+  font-size: 0.75em;
+  opacity: 0.5;
+  margin-top: calc(var(--spacer) * 2);
+  transition: opacity var(--anim);
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+.reveal {
+  font-size: 0.9em;
+}
+
+article {
+  font-size: 0.8em;
+
+  h3 {
+    margin: var(--spacer) 0 calc(var(--spacer) * 0.25);
+  }
+
+  ul {
+    margin: 0;
+    padding-left: 1.5em;
   }
 }
 </style>

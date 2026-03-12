@@ -10,13 +10,14 @@
     </section>
 
     <button v-if="!contextStore.isUserPanelActive" class="moderate-button" @click="openModeration">
-      Open user plaza
+      User panel
     </button>
 
     <hr />
 
     <nav class="nav-menu">
       <router-link class="item" :to="{ name: 'home' }">Home</router-link>
+      <template v-if="scheduleStore.schedule.length > 0">
       <div
         v-for="group in scheduleStore.groupedSchedule"
         :key="group.groupTitle"
@@ -73,6 +74,7 @@
       <router-link v-if="scheduleStore.schedule.length > 0" class="item" :to="{ name: 'summary' }">
         Summary
       </router-link>
+      </template>
       <div class="spacer"></div>
       <div class="bare-item settings-toggle" @click="settingsExpanded = !settingsExpanded">
         <div class="line">

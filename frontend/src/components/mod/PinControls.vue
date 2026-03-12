@@ -52,8 +52,9 @@
         Finishing the session posts consensus estimates to JIRA (ties and
         existing values are skipped, never overwritten), sends a summary email
         to the recipients above, then resets everything:
-        schedule, estimates, emails, scratchboard, and PIN are all cleared.
-        Everyone is disconnected.
+        schedule, estimates, emails, scratchboard, and PIN are all cleared,
+        and everyone is disconnected. Sessions that have had no connections for
+        24 hours are automatically finished in the same way.
       </p>
       <button class="finish-button" @click="flash($event, finishSession)">
         <span class="material-symbols-rounded button-icon">stop_circle</span>
