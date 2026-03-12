@@ -131,13 +131,9 @@ export function composeSessionSummary(
     }
 
     if (item.code.startsWith("aer-")) {
-      if (locked) {
-        const jiraResult = jiraResults?.find((r) => r.jiraKey === item.title);
-        if (jiraResult) {
-          lines.push(formatJiraResult(jiraResult));
-        }
-      } else {
-        lines.push("  JIRA: not posting (item not locked)");
+      const jiraResult = jiraResults?.find((r) => r.jiraKey === item.title);
+      if (jiraResult) {
+        lines.push(formatJiraResult(jiraResult));
       }
     }
   }

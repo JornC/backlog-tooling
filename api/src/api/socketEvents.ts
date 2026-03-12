@@ -129,7 +129,7 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
       console.log("All clients disconnected. Session auto-reset in 24h.");
       pinClearTimer = setTimeout(async () => {
         console.log("Session auto-reset triggered (no connections for 24h)");
-        const jiraResults = await postEstimatesToJira(schedule, roomStateManager, lockedRooms);
+        const jiraResults = await postEstimatesToJira(schedule, roomStateManager);
         await sendSessionSummary(
           schedule,
           getDefaultScheduleCodes(),
@@ -380,7 +380,7 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
         return;
       }
 
-      const jiraResults = await postEstimatesToJira(schedule, roomStateManager, lockedRooms);
+      const jiraResults = await postEstimatesToJira(schedule, roomStateManager);
       await sendSessionSummary(
         schedule,
         getDefaultScheduleCodes(),

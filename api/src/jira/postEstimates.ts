@@ -109,13 +109,10 @@ interface ScheduleItem {
 export async function postEstimatesToJira(
   schedule: ScheduleItem[],
   roomStateManager: RoomStateManager,
-  lockedRooms: Set<string>,
 ): Promise<JiraItemResult[]> {
-  const lockedAerItems = schedule.filter(
-    (item) => item.code.startsWith("aer-") && lockedRooms.has(item.code),
-  );
+  const aerItems = schedule.filter((item) => item.code.startsWith("aer-"));
 
-  if (lockedAerItems.length === 0) {
+  if (aerItems.length === 0) {
     return [];
   }
 
@@ -124,7 +121,7 @@ export async function postEstimatesToJira(
 
   if (!jiraUser || !jiraToken) {
     console.warn("JIRA env vars not configured (JIRA_USER, JIRA_API_TOKEN) - skipping JIRA posting");
-    return lockedAerItems.map((item) => ({
+    return aerItems.map((item) => ({
       jiraKey: item.title,
       devSp: null,
       testSp: null,
@@ -137,7 +134,7 @@ export async function postEstimatesToJira(
 
   const fieldIds = await discoverFieldIds();
   if (!fieldIds) {
-    return lockedAerItems.map((item) => ({
+    return aerItems.map((item) => ({
       jiraKey: item.title,
       devSp: null,
       testSp: null,
@@ -150,7 +147,7 @@ export async function postEstimatesToJira(
 
   const results: JiraItemResult[] = [];
 
-  for (const item of lockedAerItems) {
+  for (const item of aerItems) {
     const jiraKey = item.title;
     const room = roomStateManager.getRoomState(item.code);
     const devSp = getWinningEstimate(room, ActionType.POKER_DEV_ESTIMATE);
