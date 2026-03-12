@@ -219,6 +219,13 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
       broadcastServerStatus();
     });
 
+    socket.on("register_email", (email: string) => {
+      if (email) {
+        sessionEmails.add(email);
+        apiNamespace.emit("session_email_count", sessionEmails.size);
+      }
+    });
+
     socket.on("stop_moderation", () => {
       if (moderatorUserId === userId) {
         clearModerator();

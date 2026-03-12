@@ -207,9 +207,12 @@ export async function sendSessionSummary(
       }
     }
 
+    const recipientList = Array.from(recipients);
+    console.log("Sending session summary email to:", recipientList.join(", "));
+
     await transport.sendMail({
       from: smtpUser,
-      to: Array.from(recipients).join(", "),
+      to: recipientList.join(", "),
       subject: `Backlog session summary - ${date}`,
       text: body,
     });

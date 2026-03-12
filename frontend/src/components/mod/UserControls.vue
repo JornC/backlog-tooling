@@ -20,7 +20,7 @@
         <label class="group-label">Session</label>
         <label class="field-label">
           Email (for session summary)
-          <input type="email" v-model="email" placeholder="you@example.com" @change="saveEmail" />
+          <input type="email" v-model="email" placeholder="you@example.com" @input="saveEmail" />
         </label>
         <button class="primary" @click="claimModeration" v-if="!isModerator">
           <span class="material-symbols-rounded button-icon">stars</span>
@@ -94,6 +94,9 @@ function saveEmail() {
     localStorage.setItem("moderatorEmail", email.value);
   } else {
     localStorage.removeItem("moderatorEmail");
+  }
+  if (isModerator.value && email.value) {
+    socketStore.emitNamed("register_email", email.value);
   }
 }
 
