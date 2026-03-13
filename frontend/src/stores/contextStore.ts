@@ -3,8 +3,6 @@ import { defineStore } from "pinia";
 export type Theme = "modern" | "fun" | "funner";
 
 const THEME_KEY = "backlog-theme";
-const SHOW_SIGNALS_KEY = "backlog-show-signals";
-const SHOW_SCRATCHBOARD_KEY = "backlog-show-scratchboard";
 const PLAY_SOUNDS_KEY = "backlog-play-sounds";
 const SILENT_SIGNALS_KEY = "backlog-silent-signals";
 
@@ -29,9 +27,6 @@ export const useContextStore = defineStore("contextStore", {
     silentSignals: loadBool(SILENT_SIGNALS_KEY, false),
     userPanelActive: false as boolean,
     theme: loadTheme() as Theme,
-    showSignals: loadBool(SHOW_SIGNALS_KEY, true),
-    showScratchboard: loadBool(SHOW_SCRATCHBOARD_KEY, true),
-
     soundEmbargo: false as boolean,
     soundEmbargoTimeout: null as ReturnType<typeof setTimeout> | null,
   }),
@@ -83,14 +78,5 @@ export const useContextStore = defineStore("contextStore", {
       }, 600);
     },
 
-    setShowSignals(val: boolean) {
-      this.showSignals = val;
-      localStorage.setItem(SHOW_SIGNALS_KEY, String(val));
-    },
-
-    setShowScratchboard(val: boolean) {
-      this.showScratchboard = val;
-      localStorage.setItem(SHOW_SCRATCHBOARD_KEY, String(val));
-    },
   },
 });

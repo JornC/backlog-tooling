@@ -85,22 +85,6 @@
         </div>
       </div>
       <template v-if="settingsExpanded">
-        <div class="bare-item toggle-line" @click="toggleSignals">
-          <div class="line">
-            <span><span v-if="hasSignals && !contextStore.showSignals" class="activity-indicator">!</span>Signals:</span>
-            <span class="material-symbols-rounded sound-icon">{{
-              contextStore.showSignals ? "visibility" : "visibility_off"
-            }}</span>
-          </div>
-        </div>
-        <div class="bare-item toggle-line" @click="toggleScratchboard">
-          <div class="line">
-            <span><span v-if="hasScratchboard && !contextStore.showScratchboard" class="activity-indicator">!</span>Scratchboard:</span>
-            <span class="material-symbols-rounded sound-icon">{{
-              contextStore.showScratchboard ? "visibility" : "visibility_off"
-            }}</span>
-          </div>
-        </div>
         <div class="bare-item theme-switcher">
           <div class="theme-options">
             <button
@@ -162,7 +146,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ActionType, ConnectionStatus } from "@/domain/types";
+import { ConnectionStatus } from "@/domain/types";
 import router from "@/router";
 import { useContextStore, type Theme } from "@/stores/contextStore";
 import { useScheduleStore } from "@/stores/scheduleStore";
@@ -216,13 +200,6 @@ function toggleSilentSignals() {
   contextStore.setSilentSignals(!contextStore.silentSignals);
 }
 
-function toggleSignals() {
-  contextStore.setShowSignals(!contextStore.showSignals);
-}
-
-function toggleScratchboard() {
-  contextStore.setShowScratchboard(!contextStore.showScratchboard);
-}
 
 function setTheme(theme: Theme) {
   contextStore.setTheme(theme);
@@ -232,30 +209,7 @@ const isConnected = computed(() => socketStore.status === ConnectionStatus.Conne
 
 const numConnected = computed(() => socketStore.numConnected);
 
-const signalTypes = new Set([
-  ActionType.SIGNAL_ESTIMATE,
-  ActionType.SIGNAL_QUESTIONS,
-  ActionType.SIGNAL_THINKING,
-  ActionType.SIGNAL_TAPOUT,
-  ActionType.SIGNAL_SNOOZE,
-  ActionType.SIGNAL_COFFEE,
-]);
 
-const currentRoomState = computed(() => {
-  const code = route.params.code as string;
-  return code ? socketStore.getRoomState(code) : undefined;
-});
-
-const hasSignals = computed(
-  () => currentRoomState.value?.some((v) => signalTypes.has(v.type)) ?? false,
-);
-
-const hasScratchboard = computed(() => {
-  const code = route.params.code as string;
-  if (!code) {return false;}
-  const state = socketStore.scratchboard.get(code);
-  return !!state?.text;
-});
 
 watch(route, () => {
   const itemCode = route.params.code;

@@ -108,7 +108,8 @@ function sendEvent(eventType: ActionType): void {
 <style lang="scss" scoped>
 .buttons {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, auto);
+  justify-content: center;
   gap: calc(var(--spacer) * 0.5);
 }
 </style>

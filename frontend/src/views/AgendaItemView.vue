@@ -17,12 +17,14 @@
     </section>
 
     <div class="actions" v-if="currentRoomState && socketStore.userId">
-      <div class="title-section">
+      <div class="centered-content" :style="{ '--title-offset': titleHeight }">
+      <div ref="titleSectionRef" class="title-section">
         <div class="title-row">
           <div class="title-left">
             <h1 class="current-topic">
               <a :href="aeriusItemHref" v-if="isAeriusItem" target="_blank" class="item-title">
                 {{ aeriusItemTitle }}
+                <span class="material-symbols-rounded open-icon">open_in_new</span>
               </a>
               <span v-else class="item-title">{{ aeriusItemTitle }}</span>
               <span
@@ -32,27 +34,19 @@
                 >lock</span
               >
             </h1>
-            <a v-if="isAeriusItem" :href="aeriusItemHref" target="_blank" class="jira-link">
-              <span class="material-symbols-rounded">open_in_new</span>
-              Open in Jira
-            </a>
           </div>
           <div v-if="scheduleItem?.description" class="description" v-html="itemDescription"></div>
         </div>
       </div>
-      <div
-        class="secondary-row"
-        v-if="
-          contextStore.showSignals || (contextStore.showScratchboard && scheduleItem)
-        ">
-        <fieldset v-if="contextStore.showSignals" class="secondary-section">
+      <div class="secondary-row" v-if="scheduleItem">
+        <fieldset class="secondary-section">
           <legend>Signals</legend>
           <simple-signals
             :user-id="socketStore.userId"
             :roomState="currentRoomState"
             @send-action="sendAction($event)" />
         </fieldset>
-        <fieldset v-if="contextStore.showScratchboard && scheduleItem" class="secondary-section scratchboard-field">
+        <fieldset class="secondary-section scratchboard-field">
           <legend>Scratchboard</legend>
           <scratchboard
             :user-id="socketStore.userId"
@@ -87,6 +81,7 @@
             @send-action="sendAction($event)" />
         </fieldset>
       </template>
+      </div>
     </div>
   </main>
 </template>
@@ -115,6 +110,19 @@ const aeriusItemHref = computed(
       .toUpperCase()}`,
 );
 const moderator = computed(() => socketStore.moderator);
+
+const titleSectionRef = ref<HTMLElement>();
+const titleHeight = ref("0px");
+
+watchEffect((onCleanup) => {
+  const el = titleSectionRef.value;
+  if (!el) return;
+  const observer = new ResizeObserver(() => {
+    titleHeight.value = `${el.offsetHeight}px`;
+  });
+  observer.observe(el);
+  onCleanup(() => observer.disconnect());
+});
 
 watch(
   () => route.params.code,
@@ -214,7 +222,22 @@ onUnmounted(() => {
   flex-direction: column;
   align-items: center;
   gap: var(--spacer);
-  padding-bottom: var(--spacer);
+  flex: 1;
+}
+
+.centered-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacer);
+  width: 100%;
+
+  &::after {
+    content: "";
+    height: var(--title-offset, 0px);
+  }
 }
 
 .secondary-row {
@@ -254,6 +277,7 @@ onUnmounted(() => {
   padding: var(--spacer);
   border-radius: var(--radius);
   font-size: 0.9em;
+  flex: 1;
   display: flex;
   align-items: center;
 }
@@ -293,6 +317,7 @@ main {
   flex-direction: column;
   gap: var(--spacer);
   padding: var(--spacer);
+  min-height: 100%;
 
   .moderator {
     display: none;
@@ -321,21 +346,21 @@ main {
   gap: calc(var(--spacer) * 0.5);
   width: 100%;
   max-width: min(800px, 100%);
+  margin-bottom: var(--spacer);
 }
 
 .title-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   align-items: stretch;
-  gap: calc(var(--spacer) * 1);
+  gap: var(--spacer);
   width: 100%;
 }
 
 .title-left {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: calc(var(--spacer) * 0.25);
+  align-items: stretch;
+  min-width: 0;
 }
 
 .title-row h1 {
@@ -348,31 +373,23 @@ main {
 .item-title {
   background: var(--brand-color-1);
   color: white;
-  padding: var(--spacer);
+  padding: var(--spacer) calc(var(--spacer) * 2);
   text-decoration: none;
   font-size: 1.6em;
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 0.3em;
   border-radius: var(--radius);
   flex: 1;
 }
 
-.jira-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 0.8em;
-  color: var(--brand-color-1);
-  text-decoration: none;
+.open-icon {
+  font-size: 0.55em;
   opacity: 0.7;
   transition: opacity var(--anim);
 
-  .material-symbols-rounded {
-    font-size: 16px;
-  }
-
-  &:hover {
+  .item-title:hover & {
     opacity: 1;
   }
 }

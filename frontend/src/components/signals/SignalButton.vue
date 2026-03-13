@@ -77,6 +77,7 @@ watch(
   &.userHighlight {
     background: var(--brand-color-2);
     color: white;
+    z-index: 1;
   }
 
   .icon {
