@@ -69,6 +69,9 @@ watch(
   padding: 10px;
   user-select: none;
   transition: all 0.15s ease-out;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 
   * {
     transition: all 0.15s ease-out;
