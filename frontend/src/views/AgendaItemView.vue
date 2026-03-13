@@ -31,7 +31,7 @@
             <span
               title="Item is locked"
               :class="{ visible: scheduleItem?.locked }"
-              class="lock material-symbols-rounded button-icon"
+              class="lock material-symbols-rounded"
               >lock</span
             >
           </div>
