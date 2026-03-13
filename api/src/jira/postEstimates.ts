@@ -176,7 +176,7 @@ export async function postEstimatesToJira(
 
     try {
       const issueRes = await fetch(
-        `${JIRA_BASE}/rest/api/3/issue/${jiraKey}?fields=${fieldIds.sp},${fieldIds.spEstimate}`,
+        `${JIRA_BASE}/rest/api/3/issue/${encodeURIComponent(jiraKey)}?fields=${fieldIds.sp},${fieldIds.spEstimate}`,
         {
           headers: { Authorization: jiraAuth(), Accept: "application/json" },
         },
@@ -219,7 +219,7 @@ export async function postEstimatesToJira(
       }
 
       if (Object.keys(fieldsToUpdate).length > 0) {
-        const putRes = await fetch(`${JIRA_BASE}/rest/api/3/issue/${jiraKey}`, {
+        const putRes = await fetch(`${JIRA_BASE}/rest/api/3/issue/${encodeURIComponent(jiraKey)}`, {
           method: "PUT",
           headers: {
             Authorization: jiraAuth(),

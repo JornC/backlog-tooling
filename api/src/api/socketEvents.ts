@@ -1,6 +1,6 @@
 import { Express } from "express";
 import { Socket, Server as SocketIOServer } from "socket.io";
-import { RoomStateFragment, RoomStateManager } from "../data/roomStateManager";
+import { ActionType, RoomStateFragment, RoomStateManager } from "../data/roomStateManager";
 import { ScratchboardState } from "../data/scratchboardmanager";
 import { sendSessionSummary } from "../email/sessionSummary";
 import { postEstimatesToJira } from "../jira/postEstimates";
@@ -14,6 +14,36 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
 
   let sessionPin: string | undefined = undefined;
   let pinClearTimer: ReturnType<typeof setTimeout> | undefined = undefined;
+
+  const pinAttempts = new Map<string, { count: number; blockedUntil: number }>();
+  const PIN_MAX_ATTEMPTS = 5;
+  const PIN_BLOCK_DURATION = 15 * 60 * 1000;
+
+  function isPinBlocked(ip: string): boolean {
+    const entry = pinAttempts.get(ip);
+    if (!entry) return false;
+    if (entry.blockedUntil > Date.now()) return true;
+    pinAttempts.delete(ip);
+    return false;
+  }
+
+  function recordPinFailure(ip: string) {
+    const entry = pinAttempts.get(ip) || { count: 0, blockedUntil: 0 };
+    entry.count++;
+    if (entry.count >= PIN_MAX_ATTEMPTS) {
+      entry.blockedUntil = Date.now() + PIN_BLOCK_DURATION;
+    }
+    pinAttempts.set(ip, entry);
+  }
+
+  function clearPinFailure(ip: string) {
+    pinAttempts.delete(ip);
+  }
+
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  function isValidEmail(v: unknown): v is string {
+    return typeof v === "string" && v.length <= 254 && EMAIL_RE.test(v);
+  }
 
   function getDefaultSchedule() {
     return [
@@ -91,10 +121,17 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
   });
 
   app.post("/api/verify-pin", (req, res) => {
+    const ip = req.ip || "unknown";
+    if (isPinBlocked(ip)) {
+      res.status(429).json({ error: "Too many attempts, try again later" });
+      return;
+    }
     const pin = (req as any).body?.pin;
     if (!sessionPin || pin === sessionPin) {
+      clearPinFailure(ip);
       res.status(200).json({ ok: true });
     } else {
+      recordPinFailure(ip);
       res.status(401).json({ error: "Invalid PIN" });
     }
   });
@@ -104,10 +141,16 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
     if (!sessionPin) {
       return next();
     }
+    const ip = socket.handshake.address || "unknown";
+    if (isPinBlocked(ip)) {
+      return next(new Error("PIN_BLOCKED"));
+    }
     const pin = socket.handshake.auth?.pin;
     if (pin === sessionPin) {
+      clearPinFailure(ip);
       return next();
     }
+    recordPinFailure(ip);
     return next(new Error("PIN_REQUIRED"));
   });
 
@@ -181,6 +224,7 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
 
     socket.on("join_room", (roomName) => {
       if (!sessionPin) { return; }
+      if (!schedule.some((item) => item.code === roomName)) { return; }
       socket.join(roomName);
       console.log(`User joined room: ${roomName}`);
 
@@ -204,6 +248,7 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
       }
 
       if (name) {
+        if (typeof name !== "string" || name.length > 100) { return; }
         roster.set(userId, name);
       } else {
         roster.delete(userId);
@@ -215,7 +260,9 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
       moderatorUserId = userId;
       if (emails) {
         for (const email of emails) {
-          sessionEmails.add(email);
+          if (isValidEmail(email)) {
+            sessionEmails.add(email);
+          }
         }
       }
       socket.emit("session_emails", Array.from(sessionEmails));
@@ -228,7 +275,9 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
       }
       sessionEmails.clear();
       for (const email of emails) {
-        sessionEmails.add(email);
+        if (isValidEmail(email)) {
+          sessionEmails.add(email);
+        }
       }
       socket.emit("session_emails", Array.from(sessionEmails));
     });
@@ -272,6 +321,7 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
 
     socket.on("update_scratchboard", (roomId, text) => {
       if (!sessionPin) { return; }
+      if (typeof text !== "string" || text.length > 10000) { return; }
       if (!scratchboard.has(roomId)) {
         scratchboard.set(roomId, {} as ScratchboardState);
       }
@@ -375,6 +425,7 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
     });
 
     socket.on("mute_sounds_toggle", () => {
+      if (moderatorUserId !== userId) { return; }
       playSounds = !playSounds;
       broadcastServerStatus();
     });
@@ -447,6 +498,8 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
 
     socket.on("user_action", (msg) => {
       if (!sessionPin) { return; }
+      if (!msg || !Object.values(ActionType).includes(msg.type)) { return; }
+      if (msg.value !== undefined && typeof msg.value !== "string" && typeof msg.value !== "number") { return; }
       const roomName = getUserRoom(socket);
       if (roomName && isRoomLocked(roomName)) {
         return;

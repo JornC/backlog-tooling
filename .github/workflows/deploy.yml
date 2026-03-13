@@ -10,19 +10,19 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: ruby/setup-ruby@v1
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+      - uses: ruby/setup-ruby@4eb9f110bac952a8b68ecf92e3b5c7a987594ba6
         with:
           ruby-version: "3.3"
       - run: gem install kamal
-      - uses: webfactory/ssh-agent@v0.9.0
+      - uses: webfactory/ssh-agent@dc588b651fe13675774614f8e6a936a468676387
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-      - name: Accept server SSH host key
-        run: ssh-keyscan 128.140.14.118 >> ~/.ssh/known_hosts
+      - name: Write server SSH host key
+        run: echo "${{ secrets.SERVER_HOST_KEY }}" >> ~/.ssh/known_hosts
       - name: Login to ghcr.io
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u JornC --password-stdin
-      - run: kamal setup
+      - run: kamal deploy
         env:
           KAMAL_REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
           JIRA_USER: ${{ secrets.JIRA_USER }}

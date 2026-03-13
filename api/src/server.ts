@@ -27,6 +27,9 @@ if (existsSync(frontendDist)) {
 const server: HTTPServer = createServer(app);
 const io: SocketIOServer = new SocketIOServer(server, {
   path: "/api/socket.io",
+  cors: {
+    origin: process.env.CORS_ORIGIN || "https://aeriusbacklog.nl",
+  },
 });
 
 setupSocketEvents(io, app);
