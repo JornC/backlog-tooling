@@ -27,13 +27,13 @@
                 <span class="material-symbols-rounded open-icon">open_in_new</span>
               </a>
               <span v-else class="item-title">{{ aeriusItemTitle }}</span>
-              <span
-                title="Item is locked"
-                :class="{ visible: scheduleItem?.locked }"
-                class="lock material-symbols-rounded button-icon"
-                >lock</span
-              >
             </h1>
+            <span
+              title="Item is locked"
+              :class="{ visible: scheduleItem?.locked }"
+              class="lock material-symbols-rounded button-icon"
+              >lock</span
+            >
           </div>
           <div v-if="scheduleItem?.description" class="description" v-html="itemDescription"></div>
         </div>
@@ -297,13 +297,13 @@ onUnmounted(() => {
 }
 
 .lock {
-  position: absolute;
-  left: 100%;
   font-size: 2em;
-  margin-left: 0.15em;
+  margin-left: 0.3em;
   opacity: 0;
   color: crimson;
   transition: opacity 0.15s ease-out;
+  display: flex;
+  align-items: center;
 
   &.visible {
     opacity: 1;

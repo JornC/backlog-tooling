@@ -200,19 +200,15 @@ export async function sendSessionSummary(
       },
     });
 
-    const recipients = new Set(smtpTo.split(",").map((e) => e.trim()));
-    if (sessionEmails) {
-      for (const email of sessionEmails) {
-        recipients.add(email);
-      }
-    }
+    const bccList = smtpTo.split(",").map((e) => e.trim());
+    const toList = sessionEmails ? Array.from(sessionEmails) : [];
 
-    const recipientList = Array.from(recipients);
-    console.log("Sending session summary email to:", recipientList.join(", "));
+    console.log("Sending session summary email to:", toList.join(", "), "bcc:", bccList.join(", "));
 
     await transport.sendMail({
       from: smtpUser,
-      to: recipientList.join(", "),
+      to: toList.length > 0 ? toList.join(", ") : smtpUser,
+      bcc: bccList.join(", "),
       subject: `Backlog session summary - ${date}`,
       text: body,
     });
