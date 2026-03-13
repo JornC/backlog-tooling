@@ -20,6 +20,8 @@ jobs:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
       - name: Accept server SSH host key
         run: ssh-keyscan 128.140.14.118 >> ~/.ssh/known_hosts
+      - name: Login to ghcr.io
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u JornC --password-stdin
       - run: kamal setup
         env:
           KAMAL_REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
