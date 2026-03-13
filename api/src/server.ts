@@ -6,6 +6,7 @@ import { Server as SocketIOServer } from "socket.io";
 import { setupSocketEvents } from "./api/socketEvents";
 
 const app = express();
+app.set("trust proxy", 1);
 
 app.use((_req, res, next) => {
   res.setHeader("X-Robots-Tag", "noindex, nofollow, noarchive, nosnippet");

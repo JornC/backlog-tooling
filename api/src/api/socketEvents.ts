@@ -362,6 +362,7 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
       if (moderatorUserId !== userId || !sessionPin) {
         return;
       }
+      if (!Array.isArray(arr)) { return; }
 
       schedule = arr;
       broadcastSchedule();
@@ -371,6 +372,7 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
       if (moderatorUserId !== userId) {
         return;
       }
+      if (typeof type !== "string" || (type !== "random" && !drumrolls.includes(type))) { return; }
 
       console.log("Changing drumroll to: ", type);
       drumrollType = type;
@@ -435,6 +437,7 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
         return;
       }
       sessionPin = String(Math.floor(1000 + Math.random() * 9000));
+      pinAttempts.clear();
       socket.emit("session_pin", sessionPin);
       broadcastServerStatus();
       disconnectNonModerator();
@@ -445,6 +448,7 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
         return;
       }
       sessionPin = undefined;
+      pinAttempts.clear();
       clearPinTimer();
       broadcastServerStatus();
     });
