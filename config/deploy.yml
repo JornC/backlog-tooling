@@ -19,6 +19,14 @@ registry:
   password:
     - KAMAL_REGISTRY_PASSWORD
 
+env:
+  secret:
+    - JIRA_USER
+    - JIRA_API_TOKEN
+    - SMTP_USER
+    - SMTP_PASS
+    - SMTP_TO
+
 builder:
   arch: arm64
   remote: ssh://root@128.140.14.118
