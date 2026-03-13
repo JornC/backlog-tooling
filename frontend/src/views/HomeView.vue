@@ -308,7 +308,6 @@ const changelog = ref<ChangelogEntry[]>([
       { type: "Added", description: "Theme system: modern, fun, and funner (clown) themes" },
       { type: "Added", description: "Shy mode: your signals don't make sound for others" },
       { type: "Added", description: "Collapsible settings panel with persisted preferences" },
-      { type: "Added", description: "Toggle visibility of signals and scratchboard sections" },
       { type: "Added", description: "Mobile-friendly two-tab layout (Agenda / Item)" },
       { type: "Updated", description: "Smooth CSS transitions when switching themes" },
       { type: "Updated", description: "All user preferences persisted to local storage" },
@@ -349,6 +348,19 @@ const changelog = ref<ChangelogEntry[]>([
       { type: "Updated", description: "Navigation hides schedule items when no session is active" },
       { type: "Updated", description: "Controls tab shows hint when not on an agenda item" },
       { type: "Added", description: "Auto-reset notice: idle sessions are finished after 24 hours" },
+    ],
+  },
+  {
+    version: "v2.3",
+    date: new Date("2026-03-13"),
+    changes: [
+      { type: "Updated", description: "Redesigned agenda page layout: compact, vertically centered, fits on laptops without scrolling" },
+      { type: "Updated", description: "Title row: side-by-side item badge with integrated Jira link icon and description" },
+      { type: "Updated", description: "Signals and scratchboard displayed side-by-side in fieldsets" },
+      { type: "Updated", description: "Smaller signal icons, larger estimate buttons for visual hierarchy" },
+      { type: "Updated", description: "Consistent 800px max-width alignment across all sections" },
+      { type: "Removed", description: "Signals/scratchboard visibility toggles (always shown now)" },
+      { type: "Added", description: "Highlighted buttons (selected signals/estimates) render above neighbours" },
     ],
   },
 ]);
