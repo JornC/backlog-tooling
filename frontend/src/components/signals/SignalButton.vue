@@ -64,7 +64,7 @@ watch(
   position: relative;
   cursor: pointer;
   color: var(--brand-color-1);
-  border: var(--signal-border-width) var(--signal-border-style) #ddd;
+  border: 2px solid #ddd;
   border-radius: var(--radius);
   padding: 10px;
   user-select: none;
@@ -80,16 +80,15 @@ watch(
   }
 
   .icon {
-    font-size: 96px;
-    min-width: 96px;
-    min-height: 96px;
+    font-size: 48px;
+    min-width: 48px;
+    min-height: 48px;
   }
 
   &.hasCount {
-    border: var(--signal-border-width) var(--signal-border-style) var(--brand-color) !important;
 
     .icon {
-      font-size: min(calc(128px + var(--count) * 8px), 168px);
+      font-size: min(calc(56px + var(--count) * 4px), 72px);
     }
   }
 
@@ -116,14 +115,14 @@ watch(
 
   .count-badge {
     position: absolute;
-    top: -20px;
-    right: -20px;
-    font-size: 20px;
-    width: 20px;
-    height: 20px;
-    padding: 10px;
+    top: -12px;
+    right: -12px;
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+    padding: 6px;
     border-radius: 50%;
-    line-height: 20px;
+    line-height: 14px;
     font-weight: bold;
 
     background-color: var(--brand-color-3);

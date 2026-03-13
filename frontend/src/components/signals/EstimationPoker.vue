@@ -62,22 +62,15 @@ function sendEvent(eventType: ActionType, value?: string | number): void {
   display: flex;
   flex-direction: column;
   gap: var(--spacer);
-  padding: 0px var(--spacer);
 }
 .buttons {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   margin: 0 auto;
-  gap: var(--spacer);
-  padding: 25px;
-  border: var(--signal-border-width) var(--signal-border-style) #ddd;
-  border-radius: var(--radius);
+  gap: calc(var(--spacer) * 0.4);
+  padding: 0;
   transition: all 0.15s ease-out;
-
-  &.revealed {
-    border: var(--signal-border-width) var(--signal-border-style) var(--brand-color-1);
-  }
 }
 
 </style>

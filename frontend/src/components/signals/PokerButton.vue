@@ -44,9 +44,9 @@ function sendAction(): void {
   position: relative;
   cursor: pointer;
   color: var(--brand-color-1);
-  border: var(--signal-border-width) var(--signal-border-style) #ddd;
+  border: 2px solid #ddd;
   border-radius: var(--radius);
-  padding: 10px;
+  padding: 22px 20px;
   user-select: none;
   transition: all 0.15s ease-out;
 
@@ -55,7 +55,7 @@ function sendAction(): void {
   }
 
   &.scale {
-    font-size: min(calc(16px + var(--count) * 12px), 64px);
+    font-size: min(calc(18px + var(--count) * 12px), 64px);
   }
 
   .icon {
@@ -66,7 +66,6 @@ function sendAction(): void {
   }
 
   &.hasCount {
-    border: var(--signal-border-width) var(--signal-border-style) var(--brand-color) !important;
 
     .icon {
       font-size: 128px;

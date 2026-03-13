@@ -80,27 +80,24 @@ function openUserPanel() {
 .scratchboard-container {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  min-width: 350px;
   width: 100%;
-  max-width: 650px;
+  height: 100%;
   gap: var(--spacer);
 }
 
 .scratchboard-textarea {
   flex-grow: 1;
-  height: 200px;
   resize: none;
-  border: 2px solid #ccc;
-  padding: var(--spacer) calc(var(--spacer) - 2px);
-  font-size: 16px;
+  border: 2px solid #ddd;
+  border-radius: var(--radius);
+  padding: calc(var(--spacer) * 0.5);
+  font-size: 14px;
 }
 
 .text-area {
   position: relative;
   display: flex;
-  align-self: stretch;
+  flex: 1;
 }
 
 .user-notify {

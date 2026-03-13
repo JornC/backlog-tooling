@@ -107,12 +107,8 @@ function sendEvent(eventType: ActionType): void {
 
 <style lang="scss" scoped>
 .buttons {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: var(--spacer);
-  margin: 0px var(--spacer);
-  padding: 0px var(--spacer);
-  justify-content: space-around;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: calc(var(--spacer) * 0.5);
 }
 </style>

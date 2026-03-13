@@ -15,43 +15,51 @@
         Scratch board and moderation
       </button>
     </section>
-    <section class="title">
-      <span class="label">Current topic</span>
-      <h1 class="center-wrap current-topic">
-        <a :href="aeriusItemHref" v-if="isAeriusItem" target="_blank" class="item-title">
-          <span>{{ aeriusItemTitle }}</span>
-          <span class="mini-text" v-if="isAeriusItem" :href="aeriusItemHref" target="_blank">
-            <div>{{ aeriusItemHref }}</div>
-            <span>(opens new window)</span>
-          </span>
-        </a>
-        <span v-else class="item-title">{{ aeriusItemTitle }}</span>
-        <span
-          title="Item is locked"
-          :class="{ visible: scheduleItem?.locked }"
-          class="lock material-symbols-rounded button-icon"
-          >lock</span
-        >
-      </h1>
-      <div v-if="scheduleItem?.description" class="description" v-html="itemDescription" ></div>
-    </section>
 
     <div class="actions" v-if="currentRoomState && socketStore.userId">
-      <template v-if="contextStore.showSignals">
-        <h2>Signals</h2>
-        <simple-signals
-          :user-id="socketStore.userId"
-          :roomState="currentRoomState"
-          @send-action="sendAction($event)" />
-      </template>
-
-      <template v-if="contextStore.showScratchboard && scheduleItem">
-        <h2>Scratchboard</h2>
-        <scratchboard
-          :user-id="socketStore.userId"
-          :room-id="scheduleItem.code"
-          :locked="scheduleItem?.locked || false" />
-      </template>
+      <div class="title-section">
+        <div class="title-row">
+          <div class="title-left">
+            <h1 class="current-topic">
+              <a :href="aeriusItemHref" v-if="isAeriusItem" target="_blank" class="item-title">
+                {{ aeriusItemTitle }}
+              </a>
+              <span v-else class="item-title">{{ aeriusItemTitle }}</span>
+              <span
+                title="Item is locked"
+                :class="{ visible: scheduleItem?.locked }"
+                class="lock material-symbols-rounded button-icon"
+                >lock</span
+              >
+            </h1>
+            <a v-if="isAeriusItem" :href="aeriusItemHref" target="_blank" class="jira-link">
+              <span class="material-symbols-rounded">open_in_new</span>
+              Open in Jira
+            </a>
+          </div>
+          <div v-if="scheduleItem?.description" class="description" v-html="itemDescription"></div>
+        </div>
+      </div>
+      <div
+        class="secondary-row"
+        v-if="
+          contextStore.showSignals || (contextStore.showScratchboard && scheduleItem)
+        ">
+        <fieldset v-if="contextStore.showSignals" class="secondary-section">
+          <legend>Signals</legend>
+          <simple-signals
+            :user-id="socketStore.userId"
+            :roomState="currentRoomState"
+            @send-action="sendAction($event)" />
+        </fieldset>
+        <fieldset v-if="contextStore.showScratchboard && scheduleItem" class="secondary-section scratchboard-field">
+          <legend>Scratchboard</legend>
+          <scratchboard
+            :user-id="socketStore.userId"
+            :room-id="scheduleItem.code"
+            :locked="scheduleItem?.locked || false" />
+        </fieldset>
+      </div>
 
       <template v-if="isAeriusItem">
         <h2 class="poker-count-title">
@@ -60,26 +68,24 @@
             {{ totalPokerCount || 1 }}
           </div>
         </h2>
-        <div class="poker-section center-wrap">
-          <h3>Dev</h3>
+        <fieldset class="poker-section" :class="{ revealed }">
+          <legend>Dev</legend>
           <estimation-poker
-            class="panel"
             :revealed="revealed"
             :user-id="socketStore.userId"
             :roomState="currentRoomState"
             :estimate-action="ActionType.POKER_DEV_ESTIMATE"
             @send-action="sendAction($event)" />
-        </div>
-        <div class="poker-section center-wrap">
-          <h3>Test</h3>
+        </fieldset>
+        <fieldset class="poker-section" :class="{ revealed }">
+          <legend>Test</legend>
           <estimation-poker
-            class="panel"
             :revealed="revealed"
             :user-id="socketStore.userId"
             :roomState="currentRoomState"
             :estimate-action="ActionType.POKER_TEST_ESTIMATE"
             @send-action="sendAction($event)" />
-        </div>
+        </fieldset>
       </template>
     </div>
   </main>
@@ -180,55 +186,79 @@ onUnmounted(() => {
 </script>
 
 <style lang="scss" scoped>
-.label {
-  font-size: 0.9em;
-  color: gray;
-}
 .poker-section {
-  display: flex;
-  align-items: center;
-  gap: var(--spacer);
-  position: relative;
+  border: var(--signal-border-width) var(--signal-border-style) #ddd;
+  border-radius: var(--radius);
+  padding: var(--spacer);
+  width: 100%;
+  max-width: min(800px, 100%);
+  box-sizing: border-box;
+  transition: border-color 0.15s ease-out;
 
-  h3 {
-    position: absolute;
-    right: 100%;
+  &.revealed {
+    border-color: var(--brand-color-1);
+  }
+
+  legend {
+    font-size: 0.85em;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    opacity: 0.6;
+    padding: 0 0.5em;
   }
 }
 
-.center-wrap {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  text-align: center;
-
-  .mini-text {
-    font-size: 0.25em;
-    display: flex;
-    flex-direction: column;
-  }
-}
 .actions {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: var(--spacer);
   padding-bottom: var(--spacer);
+}
 
-  div {
-    margin: 0 auto;
+.secondary-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacer);
+  width: 100%;
+  max-width: min(800px, 100%);
+  box-sizing: border-box;
+}
+
+.secondary-section {
+  border: var(--signal-border-width) var(--signal-border-style) #ddd;
+  border-radius: var(--radius);
+  margin: 0;
+  padding: var(--spacer);
+
+  legend {
+    font-size: 0.85em;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    opacity: 0.6;
+    padding: 0 0.5em;
   }
+}
+
+.scratchboard-field {
+  flex: 1;
+  min-width: 0;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
 }
 .description {
   background: var(--brand-color-2);
   padding: var(--spacer);
   border-radius: var(--radius);
+  font-size: 0.9em;
+  display: flex;
+  align-items: center;
 }
 .estimate-button {
   margin: 15px auto;
-}
-
-.panel {
-  margin: var(--spacer) auto;
 }
 
 .lock {
@@ -282,52 +312,68 @@ main {
     }
   }
 
-  .title {
-    display: flex;
-    align-items: center;
-    flex-direction: column;
-    justify-content: center;
-    gap: var(--spacer);
+}
 
-    h1 {
-      display: flex;
-      align-items: center;
-      position: relative;
-    }
+.title-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(var(--spacer) * 0.5);
+  width: 100%;
+  max-width: min(800px, 100%);
+}
 
-    .item-title {
-      background: var(--brand-color-1);
-      color: white;
-      padding: var(--spacer);
-      text-decoration: none;
-      font-size: 2em;
-      display: inline-block;
-      border-radius: var(--radius);
-    }
+.title-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: stretch;
+  gap: calc(var(--spacer) * 1);
+  width: 100%;
+}
 
-    a {
-      background: white;
-      padding: var(--spacer);
-      display: flex;
-      align-items: center;
-      text-decoration: none;
-      background: var(--brand-color-3);
+.title-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(var(--spacer) * 0.25);
+}
 
-      .anchor-style {
-        color: #0000ee;
-        text-decoration: underline;
-      }
+.title-row h1 {
+  display: flex;
+  align-items: stretch;
+  position: relative;
+  flex: 1;
+}
 
-      .no-style {
-        color: black;
-        margin-left: var(--spacer);
-        text-decoration: none;
-      }
+.item-title {
+  background: var(--brand-color-1);
+  color: white;
+  padding: var(--spacer);
+  text-decoration: none;
+  font-size: 1.6em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius);
+  flex: 1;
+}
 
-      &:hover {
-        background: var(--brand-color-4);
-      }
-    }
+.jira-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.8em;
+  color: var(--brand-color-1);
+  text-decoration: none;
+  opacity: 0.7;
+  transition: opacity var(--anim);
+
+  .material-symbols-rounded {
+    font-size: 16px;
+  }
+
+  &:hover {
+    opacity: 1;
   }
 }
 
@@ -339,13 +385,27 @@ main {
       font-size: 1em;
     }
 
-    .title .mini-text {
-      display: none;
-    }
+  }
+}
+
+@media (max-width: 768px) {
+  .title-row {
+    flex-direction: column;
+    align-items: center;
   }
 
-  .poker-section h3 {
-    position: static !important;
+  .description {
+    max-width: 100%;
+  }
+
+  .secondary-row {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .scratchboard-field {
+    max-width: 100%;
+    width: 100%;
   }
 }
 
