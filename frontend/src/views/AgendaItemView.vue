@@ -98,6 +98,16 @@ const scheduleStore = useScheduleStore();
 const contextStore = useContextStore();
 
 const route = useRoute();
+const router = useRouter();
+
+watch(
+  () => socketStore.hasPin,
+  (hasPin) => {
+    if (socketStore.userId && !hasPin) {
+      router.push("/");
+    }
+  },
+);
 
 const scheduleItem = computed(() => scheduleStore.findScheduleItem(route.params.code as string));
 const isAeriusItem = computed(() => scheduleItem.value?.code.startsWith("aer-"));

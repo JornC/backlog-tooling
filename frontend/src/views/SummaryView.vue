@@ -25,6 +25,16 @@ import { computed } from "vue";
 
 const scheduleStore = useScheduleStore();
 const socketStore = useSocketStore();
+const router = useRouter();
+
+watch(
+  () => socketStore.hasPin,
+  (hasPin) => {
+    if (socketStore.userId && !hasPin) {
+      router.push("/");
+    }
+  },
+);
 
 const items = computed(() => scheduleStore.schedule);
 

@@ -180,6 +180,7 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
     broadcastScratchboard();
 
     socket.on("join_room", (roomName) => {
+      if (!sessionPin) { return; }
       socket.join(roomName);
       console.log(`User joined room: ${roomName}`);
 
@@ -250,6 +251,7 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
       }
     });
     socket.on("fetch_all_room_state", () => {
+      if (!sessionPin) { return; }
       const fullRoomState = Array.from(roomStateManager.roomKeys()).map((v) => [
         v,
         roomStateManager.getRoomState(v),
@@ -269,6 +271,7 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
     });
 
     socket.on("update_scratchboard", (roomId, text) => {
+      if (!sessionPin) { return; }
       if (!scratchboard.has(roomId)) {
         scratchboard.set(roomId, {} as ScratchboardState);
       }
@@ -443,6 +446,7 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
     });
 
     socket.on("user_action", (msg) => {
+      if (!sessionPin) { return; }
       const roomName = getUserRoom(socket);
       if (roomName && isRoomLocked(roomName)) {
         return;
@@ -493,6 +497,7 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
   }
 
   function broadcastScratchboard() {
+    if (!sessionPin) { return; }
     const scratchboardSerialized = Array.from(scratchboard.entries()).map(([key, value]) => [
       key,
       {
@@ -504,6 +509,7 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
   }
 
   function broadcastSchedule() {
+    if (!sessionPin) { return; }
     schedule.forEach((item) => {
       const room = io.sockets.adapter.rooms.get(item.code);
       const userCount = room ? room.size : 0;
