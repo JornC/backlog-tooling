@@ -101,12 +101,13 @@ const route = useRoute();
 const router = useRouter();
 
 watch(
-  () => socketStore.hasPin,
-  (hasPin) => {
-    if (socketStore.userId && !hasPin) {
+  () => [socketStore.hasPin, socketStore.userId] as const,
+  ([hasPin, userId]) => {
+    if (userId && !hasPin) {
       router.push("/");
     }
   },
+  { immediate: true },
 );
 
 const scheduleItem = computed(() => scheduleStore.findScheduleItem(route.params.code as string));

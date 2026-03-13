@@ -28,12 +28,13 @@ const socketStore = useSocketStore();
 const router = useRouter();
 
 watch(
-  () => socketStore.hasPin,
-  (hasPin) => {
-    if (socketStore.userId && !hasPin) {
+  () => [socketStore.hasPin, socketStore.userId] as const,
+  ([hasPin, userId]) => {
+    if (userId && !hasPin) {
       router.push("/");
     }
   },
+  { immediate: true },
 );
 
 const items = computed(() => scheduleStore.schedule);
