@@ -308,6 +308,7 @@ const changelog = ref<ChangelogEntry[]>([
       { type: "Added", description: "Theme system: modern, fun, and funner (clown) themes" },
       { type: "Added", description: "Shy mode: your signals don't make sound for others" },
       { type: "Added", description: "Collapsible settings panel with persisted preferences" },
+      { type: "Added", description: "Toggle visibility of signals and scratchboard sections" },
       { type: "Added", description: "Mobile-friendly two-tab layout (Agenda / Item)" },
       { type: "Updated", description: "Smooth CSS transitions when switching themes" },
       { type: "Updated", description: "All user preferences persisted to local storage" },
