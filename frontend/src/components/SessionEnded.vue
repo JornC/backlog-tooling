@@ -42,6 +42,10 @@ button {
   display: inline-flex;
   align-items: center;
   gap: calc(var(--spacer) * 0.5);
+
+  .button-icon {
+    position: static;
+  }
 }
 
 .icon {

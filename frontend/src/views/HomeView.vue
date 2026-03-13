@@ -1,19 +1,27 @@
 <template>
   <div class="home-container">
     <div class="home-card">
+      <p class="tagline">A shared session for working through agenda items together.</p>
+      <div class="session-notice" :class="{ active: socketStore.hasPin }">
+        <span class="material-symbols-rounded notice-icon">
+          {{ socketStore.hasPin ? "play_circle" : "pause_circle" }}
+        </span>
+        <div>
+          <p class="notice-title">
+            {{ socketStore.hasPin ? "Session is active" : "Session is not yet active" }}
+          </p>
+          <p class="notice-body">
+            {{
+              socketStore.hasPin
+                ? "The agenda is available in the sidebar. The moderator will navigate to each item as the session progresses."
+                : "Wait for the moderator to start the session."
+            }}
+          </p>
+        </div>
+      </div>
+
       <!-- State 1: Not identified -->
       <template v-if="!socketStore.isIdentified">
-        <p class="tagline">A shared session for working through agenda items together.</p>
-        <div v-if="socketStore.hasPin" class="session-notice">
-          <span class="material-symbols-rounded notice-icon">play_circle</span>
-          <div>
-            <p class="notice-title">Session is active</p>
-            <p class="notice-body">
-              The agenda is available in the sidebar. The moderator will navigate to each item as
-              the session progresses.
-            </p>
-          </div>
-        </div>
         <div class="name-group">
           <label class="group-label">Optionally set your name</label>
           <div class="name-row">
@@ -410,7 +418,12 @@ const formatDate = (date: Date): string => {
   gap: calc(var(--spacer) * 0.75);
   padding: calc(var(--spacer) * 0.75);
   border-radius: var(--radius);
-  background: var(--brand-color-2);
+  background: var(--brand-color-4);
+  transition: background var(--anim);
+
+  &.active {
+    background: var(--brand-color-2);
+  }
 
   .notice-icon {
     font-size: 24px;
