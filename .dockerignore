@@ -1,0 +1,9 @@
+node_modules
+.git
+.do
+.github
+dist
+coverage
+*.log
+.vscode
+.idea

@@ -1,0 +1,21 @@
+service: backlog
+image: jornc/backlog-tooling
+
+servers:
+  web:
+    hosts:
+      - 128.140.14.118
+
+proxy:
+  host: aeriusbacklog.nl
+  ssl: true
+
+registry:
+  server: ghcr.io
+  username: JornC
+  password:
+    - KAMAL_REGISTRY_PASSWORD
+
+builder:
+  arch: arm64
+  remote: ssh://root@128.140.14.118
