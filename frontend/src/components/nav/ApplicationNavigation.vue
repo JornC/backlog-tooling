@@ -17,7 +17,7 @@
 
     <nav class="nav-menu">
       <router-link class="item" :to="{ name: 'home' }">Home</router-link>
-      <template v-if="scheduleStore.schedule.length > 0">
+      <template v-if="socketStore.hasPin && scheduleStore.schedule.length > 0">
       <div
         v-for="group in scheduleStore.groupedSchedule"
         :key="group.groupTitle"

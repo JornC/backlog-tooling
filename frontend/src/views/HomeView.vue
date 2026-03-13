@@ -4,8 +4,18 @@
       <!-- State 1: Not identified -->
       <template v-if="!socketStore.isIdentified">
         <p class="tagline">A shared session for working through agenda items together.</p>
+        <div v-if="socketStore.hasPin" class="session-notice">
+          <span class="material-symbols-rounded notice-icon">play_circle</span>
+          <div>
+            <p class="notice-title">Session is active</p>
+            <p class="notice-body">
+              The agenda is available in the sidebar. The moderator will navigate to each item as
+              the session progresses.
+            </p>
+          </div>
+        </div>
         <div class="name-group">
-          <label class="group-label">Set your name to get started</label>
+          <label class="group-label">Optionally set your name</label>
           <div class="name-row">
             <input
               type="text"
@@ -16,10 +26,11 @@
               <span class="material-symbols-rounded">badge</span>
             </button>
           </div>
+          <p class="hint" v-if="!showError">Needed for moderation and scratchboard contributions.</p>
           <p class="error" v-if="showError">Enter a name first</p>
           <button class="subtle" @click="pickRandomName">
             <span class="material-symbols-rounded button-icon">shuffle</span>
-            Random: {{ randomName }}
+            Random name: {{ randomName }}
           </button>
         </div>
       </template>
@@ -39,7 +50,9 @@
         <p class="greeting">
           <strong>{{ socketStore.moderator }}</strong> is moderating
         </p>
-        <p class="subtle-text">Navigate to an agenda item from the sidebar to get started.</p>
+        <p class="subtle-text">
+          Follow along via the sidebar - the moderator will navigate to each item.
+        </p>
       </template>
 
       <!-- State 4: You are the moderator -->
@@ -390,6 +403,38 @@ const formatDate = (date: Date): string => {
     justify-content: center;
     padding: 8px 12px;
   }
+}
+
+.session-notice {
+  display: flex;
+  gap: calc(var(--spacer) * 0.75);
+  padding: calc(var(--spacer) * 0.75);
+  border-radius: var(--radius);
+  background: var(--brand-color-2);
+
+  .notice-icon {
+    font-size: 24px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .notice-title {
+    margin: 0;
+    font-weight: bold;
+    font-size: 0.9em;
+  }
+
+  .notice-body {
+    margin: 4px 0 0;
+    font-size: 0.8em;
+    opacity: 0.8;
+  }
+}
+
+.hint {
+  font-size: 0.8rem;
+  opacity: 0.5;
+  margin: 0;
 }
 
 .error {
