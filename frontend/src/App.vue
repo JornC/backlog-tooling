@@ -60,7 +60,6 @@ function isView(view: View): boolean {
   return activeView.value === view;
 }
 
-
 </script>
 
 <style lang="scss" scoped>

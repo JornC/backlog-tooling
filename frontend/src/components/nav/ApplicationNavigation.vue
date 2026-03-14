@@ -4,6 +4,9 @@
       <template v-if="socketStore.moderator">
         <span class="name">{{ socketStore.moderator }}</span> is moderating
       </template>
+      <template v-else-if="socketStore.moderatorReconnecting">
+        <span class="name">{{ socketStore.moderatorGraceName }}</span> is reconnecting...
+      </template>
       <template v-else>
         <span>No moderator</span>
       </template>
@@ -200,7 +203,6 @@ function toggleSilentSignals() {
   contextStore.setSilentSignals(!contextStore.silentSignals);
 }
 
-
 function setTheme(theme: Theme) {
   contextStore.setTheme(theme);
 }
@@ -208,8 +210,6 @@ function setTheme(theme: Theme) {
 const isConnected = computed(() => socketStore.status === ConnectionStatus.Connected);
 
 const numConnected = computed(() => socketStore.numConnected);
-
-
 
 watch(route, () => {
   const itemCode = route.params.code;

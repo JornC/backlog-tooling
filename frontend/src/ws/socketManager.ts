@@ -16,6 +16,8 @@ export const useSocketStore = defineStore("socket", {
     roster: new Map() as Map<string, string>,
     userId: undefined as string | undefined,
     moderatorUserId: undefined as string | undefined,
+    moderatorReconnecting: false,
+    moderatorGraceName: undefined as string | undefined,
     numConnected: undefined as number | undefined,
     playSounds: true as boolean | undefined,
     sessionPin: null as string | null,
@@ -28,6 +30,12 @@ export const useSocketStore = defineStore("socket", {
     isIdentified: (state) => state.userId !== undefined && state.roster.has(state.userId),
     moderator: (state) =>
       state.moderatorUserId ? state.roster.get(state.moderatorUserId) ?? undefined : undefined,
+    moderatorDisplayName: (state) =>
+      state.moderatorUserId
+        ? state.roster.get(state.moderatorUserId) ?? undefined
+        : state.moderatorReconnecting
+          ? state.moderatorGraceName
+          : undefined,
     name: (state) => state.roster.get(state.userId!) ?? undefined,
   },
 
@@ -40,6 +48,10 @@ export const useSocketStore = defineStore("socket", {
       });
       socket.on("connect", () => {
         this.status = ConnectionStatus.Connected;
+        const storedName = localStorage.getItem("moderatorName");
+        if (storedName) {
+          socket.emit("update_name", storedName);
+        }
       });
 
       socket.on("user_socket_id", (userId) => {
@@ -86,6 +98,8 @@ export const useSocketStore = defineStore("socket", {
         this.rooms = new Map();
         this.roster = new Map();
         this.moderatorUserId = undefined;
+        this.moderatorReconnecting = false;
+        this.moderatorGraceName = undefined;
         this.sessionEmails = [];
         const scheduleStore = useScheduleStore();
         scheduleStore.setSchedule([]);
@@ -129,6 +143,8 @@ export const useSocketStore = defineStore("socket", {
 
         this.roster = roster;
         this.moderatorUserId = serverStatus.moderatorUserId;
+        this.moderatorReconnecting = serverStatus.moderatorReconnecting;
+        this.moderatorGraceName = serverStatus.moderatorGraceName;
         this.numConnected = serverStatus.numConnected;
         this.playSounds = serverStatus.playSounds;
         this.hasPin = serverStatus.hasPin;

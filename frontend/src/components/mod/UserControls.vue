@@ -20,7 +20,7 @@
         <label class="group-label">Session</label>
         <button class="primary" @click="claimModeration" v-if="!isModerator">
           <span class="material-symbols-rounded button-icon">stars</span>
-          {{ hasModerator ? "Take moderation" : "Claim moderation" }}
+          {{ socketStore.moderatorReconnecting ? "Claim moderation (moderator reconnecting)" : hasModerator ? "Take moderation" : "Claim moderation" }}
         </button>
         <button @click="stopModeration" v-if="isModerator">
           <span class="material-symbols-rounded button-icon">hiking</span>
@@ -50,7 +50,7 @@ const showError = ref(false);
 const randomName = ref(generateRandomName());
 
 const isModerator = computed(() => socketStore.isModerator);
-const hasModerator = computed(() => socketStore.moderator);
+const hasModerator = computed(() => socketStore.moderator || socketStore.moderatorReconnecting);
 
 function updateName() {
   if (!name.value) {
@@ -86,11 +86,10 @@ function generateRandomName(): string {
 
 function claimModeration() {
   if (hasModerator.value) {
-    if (
-      !window.confirm(
-        `Take over moderation from ${socketStore.moderator}?`,
-      )
-    ) {
+    const message = socketStore.moderatorReconnecting
+      ? `${socketStore.moderatorGraceName} is reconnecting and may return shortly. Claim moderation anyway?`
+      : `Take over moderation from ${socketStore.moderator}?`;
+    if (!window.confirm(message)) {
       return;
     }
   }

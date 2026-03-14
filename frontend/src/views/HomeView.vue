@@ -44,13 +44,25 @@
       </template>
 
       <!-- State 2: Identified, no moderator -->
-      <template v-else-if="!socketStore.moderator">
+      <template v-else-if="!socketStore.moderator && !socketStore.moderatorReconnecting">
         <p class="greeting">Welcome, <strong>{{ socketStore.name }}</strong></p>
         <button class="primary" @click="claimModeration">
           <span class="material-symbols-rounded button-icon">stars</span>
           Claim moderation
         </button>
         <p class="subtle-text">Or wait for someone else to moderate.</p>
+      </template>
+
+      <!-- State 2b: Moderator reconnecting (grace period) -->
+      <template v-else-if="socketStore.moderatorReconnecting">
+        <p class="greeting">
+          <strong>{{ socketStore.moderatorGraceName }}</strong> is reconnecting...
+        </p>
+        <button class="primary" @click="claimModeration">
+          <span class="material-symbols-rounded button-icon">stars</span>
+          Claim moderation
+        </button>
+        <p class="subtle-text">The moderator may return shortly.</p>
       </template>
 
       <!-- State 3: Identified, someone else is moderating -->
@@ -362,6 +374,14 @@ const changelog = ref<ChangelogEntry[]>([
       { type: "Updated", description: "Consistent 800px max-width alignment across all sections" },
       { type: "Removed", description: "Signals/scratchboard visibility toggles (always shown now)" },
       { type: "Added", description: "Highlighted buttons (selected signals/estimates) render above neighbours" },
+    ],
+  },
+  {
+    version: "v2.4",
+    date: new Date("2026-03-13"),
+    changes: [
+      { type: "Added", description: "Moderator disconnect grace period: 60s window to auto-reclaim on reconnect" },
+      { type: "Added", description: "Reconnecting state shown in nav and home page during grace period" },
     ],
   },
 ]);

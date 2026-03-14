@@ -127,7 +127,7 @@ const titleHeight = ref("0px");
 
 watchEffect((onCleanup) => {
   const el = titleSectionRef.value;
-  if (!el) return;
+  if (!el) {return;}
   const observer = new ResizeObserver(() => {
     titleHeight.value = `${el.offsetHeight}px`;
   });

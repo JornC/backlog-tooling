@@ -7,6 +7,9 @@ import { postEstimatesToJira } from "../jira/postEstimates";
 
 export function setupSocketEvents(io: SocketIOServer, app: Express) {
   let moderatorUserId: string | undefined = undefined;
+  let moderatorGraceTimer: ReturnType<typeof setTimeout> | undefined;
+  let moderatorGraceName: string | undefined;
+  let moderatorReconnecting = false;
   const sessionEmails = new Set<string>();
 
   let lockedRooms = new Set<string>();
@@ -173,6 +176,7 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
       console.log("All clients disconnected. Session auto-reset in 24h.");
       pinClearTimer = setTimeout(async () => {
         console.log("Session auto-reset triggered (no connections for 24h)");
+        cancelModeratorGrace();
         const jiraResults = await postEstimatesToJira(schedule, roomStateManager);
         await sendSessionSummary(
           schedule,
@@ -250,6 +254,13 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
       if (name) {
         if (typeof name !== "string" || name.length > 100) { return; }
         roster.set(userId, name);
+
+        if (moderatorReconnecting && moderatorGraceName === name) {
+          cancelModeratorGrace();
+          moderatorUserId = userId;
+          socket.emit("session_emails", Array.from(sessionEmails));
+          socket.emit("session_pin", sessionPin);
+        }
       } else {
         roster.delete(userId);
       }
@@ -257,6 +268,7 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
     });
 
     socket.on("claim_moderation", (emails?: string[]) => {
+      cancelModeratorGrace();
       moderatorUserId = userId;
       if (emails) {
         for (const email of emails) {
@@ -473,6 +485,7 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
 
       sessionPin = undefined;
       clearPinTimer();
+      cancelModeratorGrace();
       moderatorUserId = undefined;
       sessionEmails.clear();
       lockedRooms = new Set<string>();
@@ -526,7 +539,7 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
       }
 
       if (moderatorUserId === userId) {
-        clearModerator();
+        startModeratorGrace(userId);
       }
     });
 
@@ -587,7 +600,31 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
     apiNamespace.emit("server_status", getServerStatus());
   }
 
+  function startModeratorGrace(disconnectingUserId: string) {
+    moderatorGraceName = roster.get(disconnectingUserId);
+    moderatorReconnecting = true;
+    moderatorUserId = undefined;
+    broadcastServerStatus();
+    moderatorGraceTimer = setTimeout(() => {
+      moderatorGraceName = undefined;
+      moderatorReconnecting = false;
+      moderatorGraceTimer = undefined;
+      broadcastServerStatus();
+      apiNamespace.emit("moderator_left");
+    }, 60_000);
+  }
+
+  function cancelModeratorGrace() {
+    if (moderatorGraceTimer) {
+      clearTimeout(moderatorGraceTimer);
+      moderatorGraceTimer = undefined;
+    }
+    moderatorGraceName = undefined;
+    moderatorReconnecting = false;
+  }
+
   function clearModerator(broadcast: boolean = true) {
+    cancelModeratorGrace();
     moderatorUserId = undefined;
     if (broadcast) {
       broadcastServerStatus();
@@ -598,6 +635,8 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
     const rosterSerialized = Object.fromEntries(roster);
     return {
       moderatorUserId: moderatorUserId,
+      moderatorReconnecting: moderatorReconnecting,
+      moderatorGraceName: moderatorGraceName,
       roster: rosterSerialized,
       numConnected: apiNamespace.sockets.size,
       playSounds: playSounds,
