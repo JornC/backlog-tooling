@@ -1,6 +1,5 @@
 node_modules
 .git
-.do
 .github
 .kamal
 dist
