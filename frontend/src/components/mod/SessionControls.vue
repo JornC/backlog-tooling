@@ -87,7 +87,8 @@ function parseSchedule(
         return null;
       }
 
-      const title = line.startsWith("AER-") ? line.split(" ", 2)[0] : line.trim();
+      const rawTitle = line.startsWith("AER-") ? line.split(" ", 2)[0] : line.trim();
+      const title = rawTitle.replace(/[:;,]+$/, "");
       const normalizedCode = title.toLowerCase().replace(/\s+/g, "-");
 
       const item =

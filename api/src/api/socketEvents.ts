@@ -450,6 +450,14 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
       }
       sessionPin = String(Math.floor(1000 + Math.random() * 9000));
       pinAttempts.clear();
+
+      // Reset roster to only the moderator, starting a fresh participant list
+      const moderatorName = roster.get(userId);
+      roster.clear();
+      if (moderatorName) {
+        roster.set(userId, moderatorName);
+      }
+
       socket.emit("session_pin", sessionPin);
       broadcastServerStatus();
       disconnectNonModerator();

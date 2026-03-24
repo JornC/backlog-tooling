@@ -96,13 +96,13 @@ export function composeSessionSummary(
   jiraResults?: JiraItemResult[],
 ): string {
   const date = new Date().toISOString().slice(0, 10);
-  const participants = Array.from(roster.values());
+  const participants = [...new Set(roster.values())];
 
   const lines: string[] = [];
   lines.push(`Backlog Session Summary - ${date}`);
   lines.push("");
   lines.push(
-    `Participants: ${participants.length > 0 ? participants.join(", ") : "None"}`,
+    `Participants (${participants.length}): ${participants.length > 0 ? participants.join(", ") : "None"}`,
   );
   lines.push("");
   lines.push("---");
