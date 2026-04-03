@@ -9,6 +9,9 @@
         <div>
           <p class="notice-title">
             {{ socketStore.hasPin ? "Session is active" : "Session is not yet active" }}
+            <span v-if="socketStore.numConnected !== undefined" class="connected-count">
+              ({{ socketStore.numConnected }} connected)
+            </span>
           </p>
           <p class="notice-body">
             {{
@@ -51,6 +54,13 @@
           Claim moderation
         </button>
         <p class="subtle-text">Or wait for someone else to moderate.</p>
+        <button
+          v-if="socketStore.hasPin && socketStore.numConnected === 1"
+          class="danger"
+          @click="forceReset">
+          <span class="material-symbols-rounded button-icon">restart_alt</span>
+          Force reset session
+        </button>
       </template>
 
       <!-- State 2b: Moderator reconnecting (grace period) -->
@@ -158,6 +168,10 @@ function generateRandomName(): string {
 function claimModeration() {
   socketStore.claimModeration();
   contextStore.setUserPanelActive(true);
+}
+
+function forceReset() {
+  socketStore.forceResetSession();
 }
 
 function openSessionTab() {
@@ -468,6 +482,12 @@ const formatDate = (date: Date): string => {
     margin: 0;
     font-weight: bold;
     font-size: 0.9em;
+
+    .connected-count {
+      font-weight: normal;
+      opacity: 0.7;
+      font-size: 0.9em;
+    }
   }
 
   .notice-body {
@@ -508,6 +528,11 @@ button.primary {
 button.subtle {
   background: var(--brand-color-4);
   font-size: 0.85rem;
+}
+
+button.danger {
+  background: #c0392b;
+  color: white;
 }
 
 .changelog-toggle {

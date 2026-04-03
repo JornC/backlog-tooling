@@ -60,6 +60,10 @@
         <span class="material-symbols-rounded button-icon">stop_circle</span>
         Finish session
       </button>
+      <button class="purge-button" @click="flash($event, purgeSession)">
+        <span class="material-symbols-rounded button-icon">delete_forever</span>
+        Purge session
+      </button>
     </template>
   </section>
 </template>
@@ -104,6 +108,17 @@ function finishSession() {
     return;
   }
   socketStore.resetSession();
+}
+
+function purgeSession() {
+  if (
+    !window.confirm(
+      "This will discard all session data without posting to JIRA or sending emails. This is meant for testing only. Are you sure?",
+    )
+  ) {
+    return;
+  }
+  socketStore.purgeSession();
 }
 
 function flash(event: MouseEvent, action: () => void) {
@@ -209,6 +224,11 @@ button.remove {
 
 .finish-button {
   background: var(--brand-color-2);
+}
+
+.purge-button {
+  background: #c0392b;
+  color: white;
 }
 
 p {

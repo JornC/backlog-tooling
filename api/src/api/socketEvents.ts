@@ -515,6 +515,78 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
       }
     });
 
+    socket.on("purge_session", () => {
+      if (moderatorUserId !== userId) {
+        return;
+      }
+
+      sessionPin = undefined;
+      clearPinTimer();
+      cancelModeratorGrace();
+      moderatorUserId = undefined;
+      sessionEmails.clear();
+      lockedRooms = new Set<string>();
+      lockedBy.clear();
+      schedule = getDefaultSchedule();
+      playSounds = true;
+      drumrollType = "random";
+      Array.from(roomStateManager.roomKeys()).forEach((key: string) => {
+        roomStateManager.purgeSignal(key);
+        roomStateManager.purgePoker(key);
+      });
+      roster.clear();
+      scratchboard.clear();
+
+      for (const [, s] of apiNamespace.sockets) {
+        s.emit("session_ended");
+        s.disconnect(true);
+      }
+    });
+
+    socket.on("force_reset_session", async () => {
+      if (!sessionPin || moderatorUserId || moderatorReconnecting) {
+        return;
+      }
+      if (apiNamespace.sockets.size !== 1) {
+        return;
+      }
+
+      const jiraResults = await postEstimatesToJira(schedule, roomStateManager);
+      await sendSessionSummary(
+        schedule,
+        getDefaultScheduleCodes(),
+        roomStateManager,
+        scratchboard,
+        roster,
+        lockedRooms,
+        lockedBy,
+        jiraResults,
+        sessionEmails,
+      );
+
+      sessionPin = undefined;
+      clearPinTimer();
+      cancelModeratorGrace();
+      moderatorUserId = undefined;
+      sessionEmails.clear();
+      lockedRooms = new Set<string>();
+      lockedBy.clear();
+      schedule = getDefaultSchedule();
+      playSounds = true;
+      drumrollType = "random";
+      Array.from(roomStateManager.roomKeys()).forEach((key: string) => {
+        roomStateManager.purgeSignal(key);
+        roomStateManager.purgePoker(key);
+      });
+      roster.clear();
+      scratchboard.clear();
+
+      for (const [, s] of apiNamespace.sockets) {
+        s.emit("session_ended");
+        s.disconnect(true);
+      }
+    });
+
     socket.on("leave_room", (roomName) => {
       socket.leave(roomName);
 

@@ -275,6 +275,14 @@ export const useSocketStore = defineStore("socket", {
       socket.emit("reset_session");
     },
 
+    forceResetSession() {
+      socket.emit("force_reset_session");
+    },
+
+    purgeSession() {
+      socket.emit("purge_session");
+    },
+
     getRoomState(room: string) {
       return this.rooms.get(room);
     },
