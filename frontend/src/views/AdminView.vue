@@ -252,8 +252,9 @@ h1 {
   font-size: 0.85em;
   padding: calc(var(--spacer) * 0.5);
   border-radius: var(--radius);
-  border: 1px solid var(--brand-color-4);
+  border: none;
   background: var(--brand-color-4);
+  box-sizing: border-box;
 }
 
 .login-log {
