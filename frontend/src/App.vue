@@ -1,5 +1,6 @@
 <template>
-  <session-ended v-if="isSessionEnded" />
+  <RouterView v-if="isAdminRoute" />
+  <session-ended v-else-if="isSessionEnded" />
   <pin-gate v-else-if="isPinRequired" />
   <template v-else>
   <div class="mobile-nav">
@@ -34,8 +35,10 @@ import { ConnectionStatus } from "./domain/types";
 import { useContextStore } from "./stores/contextStore";
 import { useSocketStore } from "./ws/socketManager";
 
+const route = useRoute();
 const contextStore = useContextStore();
 const socketStore = useSocketStore();
+const isAdminRoute = computed(() => route.path === "/admin");
 const isSessionEnded = computed(() => socketStore.status === ConnectionStatus.SessionEnded);
 const isPinRequired = computed(() => socketStore.status === ConnectionStatus.PinRequired);
 

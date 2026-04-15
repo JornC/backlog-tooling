@@ -30,3 +30,4 @@ jobs:
           SMTP_USER: ${{ secrets.SMTP_USER }}
           SMTP_PASS: ${{ secrets.SMTP_PASS }}
           SMTP_TO: ${{ secrets.SMTP_TO }}
+          ADMIN_SECRET: ${{ secrets.ADMIN_SECRET }}

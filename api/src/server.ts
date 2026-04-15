@@ -17,14 +17,6 @@ app.get("/api/ping", (_req, res) => {
   res.send("pong");
 });
 
-const frontendDist = join(__dirname, "../../frontend/dist");
-if (existsSync(frontendDist)) {
-  app.use(express.static(frontendDist));
-  app.get("/{*splat}", (_req, res) => {
-    res.sendFile(join(frontendDist, "index.html"));
-  });
-}
-
 const server: HTTPServer = createServer(app);
 const io: SocketIOServer = new SocketIOServer(server, {
   path: "/api/socket.io",
@@ -34,6 +26,14 @@ const io: SocketIOServer = new SocketIOServer(server, {
 });
 
 setupSocketEvents(io, app);
+
+const frontendDist = join(__dirname, "../../frontend/dist");
+if (existsSync(frontendDist)) {
+  app.use(express.static(frontendDist));
+  app.get("/{*splat}", (_req, res) => {
+    res.sendFile(join(frontendDist, "index.html"));
+  });
+}
 
 const port = process.env.PORT || 8080;
 server.listen(port, () => {

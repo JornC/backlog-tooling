@@ -26,6 +26,7 @@ env:
     - SMTP_USER
     - SMTP_PASS
     - SMTP_TO
+    - ADMIN_SECRET
 
 builder:
   arch: arm64

@@ -5,6 +5,8 @@ import { ScratchboardState } from "../data/scratchboardmanager";
 import { sendSessionSummary } from "../email/sessionSummary";
 import { postEstimatesToJira } from "../jira/postEstimates";
 
+const ADMIN_SECRET = process.env.ADMIN_SECRET;
+
 export function setupSocketEvents(io: SocketIOServer, app: Express) {
   let moderatorUserId: string | undefined = undefined;
   let moderatorGraceTimer: ReturnType<typeof setTimeout> | undefined;
@@ -176,34 +178,7 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
       console.log("All clients disconnected. Session auto-reset in 24h.");
       pinClearTimer = setTimeout(async () => {
         console.log("Session auto-reset triggered (no connections for 24h)");
-        cancelModeratorGrace();
-        const jiraResults = await postEstimatesToJira(schedule, roomStateManager);
-        await sendSessionSummary(
-          schedule,
-          getDefaultScheduleCodes(),
-          roomStateManager,
-          scratchboard,
-          roster,
-          lockedRooms,
-          lockedBy,
-          jiraResults,
-          sessionEmails,
-        );
-        sessionPin = undefined;
-        pinClearTimer = undefined;
-        moderatorUserId = undefined;
-        sessionEmails.clear();
-        lockedRooms = new Set<string>();
-        lockedBy.clear();
-        schedule = getDefaultSchedule();
-        playSounds = true;
-        drumrollType = "random";
-        Array.from(roomStateManager.roomKeys()).forEach((key: string) => {
-          roomStateManager.purgeSignal(key);
-          roomStateManager.purgePoker(key);
-        });
-        roster.clear();
-        scratchboard.clear();
+        await finishSession(true);
       }, 24 * 60 * 60_000);
     }
   }
@@ -215,6 +190,76 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
       }
     }
   }
+
+  async function finishSession(postToJira: boolean) {
+    let jiraResults;
+    if (postToJira) {
+      jiraResults = await postEstimatesToJira(schedule, roomStateManager);
+      await sendSessionSummary(
+        schedule,
+        getDefaultScheduleCodes(),
+        roomStateManager,
+        scratchboard,
+        roster,
+        lockedRooms,
+        lockedBy,
+        jiraResults,
+        sessionEmails,
+      );
+    }
+
+    sessionPin = undefined;
+    clearPinTimer();
+    cancelModeratorGrace();
+    moderatorUserId = undefined;
+    sessionEmails.clear();
+    lockedRooms = new Set<string>();
+    lockedBy.clear();
+    schedule = getDefaultSchedule();
+    playSounds = true;
+    drumrollType = "random";
+    Array.from(roomStateManager.roomKeys()).forEach((key: string) => {
+      roomStateManager.purgeSignal(key);
+      roomStateManager.purgePoker(key);
+    });
+    roster.clear();
+    scratchboard.clear();
+
+    for (const [, s] of apiNamespace.sockets) {
+      s.emit("session_ended");
+      s.disconnect(true);
+    }
+  }
+
+  // Admin endpoints - not guarded by the WebSocket PIN middleware
+  app.use("/api/admin", (req, res, next) => {
+    if (!ADMIN_SECRET) {
+      res.status(404).json({ error: "Admin endpoints are disabled" });
+      return;
+    }
+    const secret = req.headers["x-admin-secret"];
+    if (secret !== ADMIN_SECRET) {
+      res.status(401).json({ error: "Invalid admin secret" });
+      return;
+    }
+    next();
+  });
+
+  app.get("/api/admin/status", (_req, res) => {
+    const moderatorName = moderatorUserId ? roster.get(moderatorUserId) : undefined;
+    res.json({
+      numConnected: apiNamespace.sockets.size,
+      hasPin: !!sessionPin,
+      hasModerator: !!moderatorUserId,
+      moderatorName: moderatorName || null,
+      moderatorReconnecting,
+    });
+  });
+
+  app.post("/api/admin/reset", async (_req, res) => {
+    await finishSession(false);
+    res.json({ ok: true });
+  });
 
   apiNamespace.on("connection", (socket: Socket) => {
     clearPinTimer();
@@ -477,70 +522,14 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
       if (moderatorUserId !== userId) {
         return;
       }
-
-      const jiraResults = await postEstimatesToJira(schedule, roomStateManager);
-      await sendSessionSummary(
-        schedule,
-        getDefaultScheduleCodes(),
-        roomStateManager,
-        scratchboard,
-        roster,
-        lockedRooms,
-        lockedBy,
-        jiraResults,
-        sessionEmails,
-      );
-
-      sessionPin = undefined;
-      clearPinTimer();
-      cancelModeratorGrace();
-      moderatorUserId = undefined;
-      sessionEmails.clear();
-      lockedRooms = new Set<string>();
-      lockedBy.clear();
-      schedule = getDefaultSchedule();
-      playSounds = true;
-      drumrollType = "random";
-      Array.from(roomStateManager.roomKeys()).forEach((key: string) => {
-        roomStateManager.purgeSignal(key);
-        roomStateManager.purgePoker(key);
-      });
-      roster.clear();
-      scratchboard.clear();
-
-      // Notify then disconnect everyone (including moderator)
-      for (const [, s] of apiNamespace.sockets) {
-        s.emit("session_ended");
-        s.disconnect(true);
-      }
+      await finishSession(true);
     });
 
-    socket.on("purge_session", () => {
+    socket.on("purge_session", async () => {
       if (moderatorUserId !== userId) {
         return;
       }
-
-      sessionPin = undefined;
-      clearPinTimer();
-      cancelModeratorGrace();
-      moderatorUserId = undefined;
-      sessionEmails.clear();
-      lockedRooms = new Set<string>();
-      lockedBy.clear();
-      schedule = getDefaultSchedule();
-      playSounds = true;
-      drumrollType = "random";
-      Array.from(roomStateManager.roomKeys()).forEach((key: string) => {
-        roomStateManager.purgeSignal(key);
-        roomStateManager.purgePoker(key);
-      });
-      roster.clear();
-      scratchboard.clear();
-
-      for (const [, s] of apiNamespace.sockets) {
-        s.emit("session_ended");
-        s.disconnect(true);
-      }
+      await finishSession(false);
     });
 
     socket.on("force_reset_session", async () => {
@@ -550,41 +539,7 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
       if (apiNamespace.sockets.size !== 1) {
         return;
       }
-
-      const jiraResults = await postEstimatesToJira(schedule, roomStateManager);
-      await sendSessionSummary(
-        schedule,
-        getDefaultScheduleCodes(),
-        roomStateManager,
-        scratchboard,
-        roster,
-        lockedRooms,
-        lockedBy,
-        jiraResults,
-        sessionEmails,
-      );
-
-      sessionPin = undefined;
-      clearPinTimer();
-      cancelModeratorGrace();
-      moderatorUserId = undefined;
-      sessionEmails.clear();
-      lockedRooms = new Set<string>();
-      lockedBy.clear();
-      schedule = getDefaultSchedule();
-      playSounds = true;
-      drumrollType = "random";
-      Array.from(roomStateManager.roomKeys()).forEach((key: string) => {
-        roomStateManager.purgeSignal(key);
-        roomStateManager.purgePoker(key);
-      });
-      roster.clear();
-      scratchboard.clear();
-
-      for (const [, s] of apiNamespace.sockets) {
-        s.emit("session_ended");
-        s.disconnect(true);
-      }
+      await finishSession(true);
     });
 
     socket.on("leave_room", (roomName) => {
