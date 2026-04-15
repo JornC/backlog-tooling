@@ -50,6 +50,15 @@
         </button>
         <p class="hint" v-if="!status?.hasPin">No active session to reset.</p>
         <p class="hint" v-if="resetDone">Session has been reset.</p>
+
+        <label class="group-label">Admin logins (24h)</label>
+        <div class="login-log" v-if="status?.adminLogins?.length">
+          <p v-for="(entry, i) in status.adminLogins" :key="i" class="log-entry">
+            <span class="log-time">{{ formatTime(entry.time) }}</span>
+            <span class="log-ip">{{ entry.ip }}</span>
+          </p>
+        </div>
+        <p class="hint" v-else>No recent logins.</p>
       </template>
     </div>
   </div>
@@ -72,6 +81,7 @@ interface AdminStatus {
   moderatorName: string | null;
   moderatorReconnecting: boolean;
   schedule: ScheduleItem[];
+  adminLogins: { ip: string; time: string }[];
 }
 
 const secret = ref("");
@@ -120,8 +130,14 @@ async function authenticate() {
     return;
   }
   authenticated.value = true;
+  await apiFetch("/api/admin/login", "POST");
   status.value = await res.json();
+  await fetchStatus();
   pollTimer = setInterval(fetchStatus, 5000);
+}
+
+function formatTime(iso: string): string {
+  return new Date(iso).toLocaleString();
 }
 
 async function fetchStatus() {
@@ -238,6 +254,23 @@ h1 {
   border-radius: var(--radius);
   border: 1px solid var(--brand-color-4);
   background: var(--brand-color-4);
+}
+
+.login-log {
+  padding: calc(var(--spacer) * 0.5);
+  border-radius: var(--radius);
+  background: var(--brand-color-4);
+  font-size: 0.8em;
+  font-family: monospace;
+}
+
+.log-entry {
+  margin: 2px 0;
+
+  .log-time {
+    margin-right: 1em;
+    opacity: 0.7;
+  }
 }
 
 button.primary {

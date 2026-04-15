@@ -232,6 +232,8 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
   }
 
   // Admin endpoints - not guarded by the WebSocket PIN middleware
+  const adminLogins: { ip: string; time: string }[] = [];
+
   app.use("/api/admin", (req, res, next) => {
     if (!ADMIN_SECRET) {
       res.status(404).json({ error: "Admin endpoints are disabled" });
@@ -245,7 +247,20 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
     next();
   });
 
+  app.post("/api/admin/login", (req, res) => {
+    const ip = req.ip || "unknown";
+    const time = new Date().toISOString();
+    adminLogins.push({ ip, time });
+    const cutoff = Date.now() - 24 * 60 * 60_000;
+    while (adminLogins.length > 0 && new Date(adminLogins[0].time).getTime() < cutoff) {
+      adminLogins.shift();
+    }
+    res.json({ ok: true });
+  });
+
   app.get("/api/admin/status", (_req, res) => {
+    const cutoff = Date.now() - 24 * 60 * 60_000;
+    const recentLogins = adminLogins.filter((l) => new Date(l.time).getTime() >= cutoff);
     const moderatorName = moderatorUserId ? roster.get(moderatorUserId) : undefined;
     res.json({
       numConnected: apiNamespace.sockets.size,
@@ -255,6 +270,7 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
       moderatorName: moderatorName || null,
       moderatorReconnecting,
       schedule,
+      adminLogins: recentLogins,
     });
   });
 
