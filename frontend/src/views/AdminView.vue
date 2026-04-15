@@ -21,6 +21,10 @@
             <span class="label">Session:</span>
             <span>{{ status?.hasPin ? "Active (PIN set)" : "No active session" }}</span>
           </p>
+          <p class="status-row" v-if="status?.pin">
+            <span class="label">PIN:</span>
+            <span class="pin">{{ status.pin }}</span>
+          </p>
           <p class="status-row">
             <span class="label">Connected:</span>
             <span>{{ status?.numConnected ?? "..." }}</span>
@@ -63,6 +67,7 @@ interface ScheduleItem {
 interface AdminStatus {
   numConnected: number;
   hasPin: boolean;
+  pin: string | null;
   hasModerator: boolean;
   moderatorName: string | null;
   moderatorReconnecting: boolean;
@@ -195,6 +200,12 @@ h1 {
   .label {
     font-weight: bold;
     margin-right: 0.5em;
+  }
+
+  .pin {
+    font-family: monospace;
+    font-size: 1.2em;
+    letter-spacing: 0.15em;
   }
 }
 

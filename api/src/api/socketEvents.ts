@@ -250,6 +250,7 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
     res.json({
       numConnected: apiNamespace.sockets.size,
       hasPin: !!sessionPin,
+      pin: sessionPin || null,
       hasModerator: !!moderatorUserId,
       moderatorName: moderatorName || null,
       moderatorReconnecting,
