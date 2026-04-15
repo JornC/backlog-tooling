@@ -253,6 +253,7 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
       hasModerator: !!moderatorUserId,
       moderatorName: moderatorName || null,
       moderatorReconnecting,
+      schedule,
     });
   });
 

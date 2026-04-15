@@ -35,6 +35,9 @@
           </p>
         </div>
 
+        <label class="group-label">Schedule</label>
+        <textarea class="schedule-area" readonly :value="scheduleText" />
+
         <button
           class="danger"
           :disabled="resetting || !status?.hasPin"
@@ -49,12 +52,21 @@
 </template>
 
 <script setup lang="ts">
+interface ScheduleItem {
+  title: string;
+  code: string;
+  description?: string;
+  groupTitle?: string;
+  locked?: boolean;
+}
+
 interface AdminStatus {
   numConnected: number;
   hasPin: boolean;
   hasModerator: boolean;
   moderatorName: string | null;
   moderatorReconnecting: boolean;
+  schedule: ScheduleItem[];
 }
 
 const secret = ref("");
@@ -63,6 +75,28 @@ const authError = ref("");
 const status = ref<AdminStatus | null>(null);
 const resetting = ref(false);
 const resetDone = ref(false);
+
+const scheduleText = computed(() => {
+  const items = status.value?.schedule;
+  if (!items || items.length === 0) {
+    return "(empty)";
+  }
+  return items
+    .map((item) => {
+      const parts = [item.title];
+      if (item.description) {
+        parts.push(item.description);
+      }
+      if (item.groupTitle) {
+        parts.push(`[${item.groupTitle}]`);
+      }
+      if (item.locked) {
+        parts.push("(locked)");
+      }
+      return parts.join(" - ");
+    })
+    .join("\n");
+});
 
 let pollTimer: ReturnType<typeof setInterval> | undefined;
 
@@ -174,6 +208,25 @@ h1 {
   font-size: 0.8rem;
   opacity: 0.5;
   margin: 0;
+}
+
+.group-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  opacity: 0.6;
+}
+
+.schedule-area {
+  width: 100%;
+  min-height: 120px;
+  resize: vertical;
+  font-family: monospace;
+  font-size: 0.85em;
+  padding: calc(var(--spacer) * 0.5);
+  border-radius: var(--radius);
+  border: 1px solid var(--brand-color-4);
+  background: var(--brand-color-4);
 }
 
 button.primary {
