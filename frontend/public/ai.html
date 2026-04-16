@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI & Software Engineering</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Georgia', serif;
+    background: #0a0a0a;
+    color: #e8e8e8;
+    line-height: 1.5;
+  }
+  #slide-indicator {
+    position: fixed;
+    top: 2rem;
+    left: 2.5rem;
+    font-family: monospace;
+    font-size: 1rem;
+    color: #666;
+    z-index: 100;
+    transition: color 0.3s;
+  }
+  #slide-indicator .current {
+    color: #f0c040;
+    font-weight: 700;
+  }
+  .slide {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 4rem;
+    border-bottom: 1px solid #222;
+    position: relative;
+    text-align: center;
+  }
+  .slide-number {
+    position: absolute;
+    top: 2rem;
+    right: 3rem;
+    font-size: 0.85rem;
+    color: #444;
+    font-family: monospace;
+  }
+
+  /* Typography scale */
+  h1 {
+    font-size: 6rem;
+    font-weight: 300;
+    letter-spacing: -0.03em;
+    margin-bottom: 0.5rem;
+    color: #fff;
+  }
+  .subtitle {
+    font-size: 1.4rem;
+    color: #777;
+    font-style: italic;
+    letter-spacing: 0.05em;
+  }
+  h2 {
+    font-size: 3.4rem;
+    font-weight: 300;
+    margin-bottom: 2.5rem;
+    color: #fff;
+    letter-spacing: -0.02em;
+  }
+  .big {
+    font-size: 2rem;
+    max-width: 48rem;
+    margin-bottom: 0.6rem;
+    color: #ddd;
+  }
+  .med {
+    font-size: 1.4rem;
+    max-width: 48rem;
+    margin-bottom: 0.5rem;
+    color: #bbb;
+  }
+  .sm {
+    font-size: 1.1rem;
+    max-width: 48rem;
+    color: #888;
+  }
+  .highlight { color: #f0c040; }
+  .bad { color: #e06060; }
+  .punchline {
+    font-size: 2.4rem;
+    color: #f0c040;
+    margin-top: 2rem;
+    font-style: italic;
+    max-width: 48rem;
+    font-weight: 300;
+  }
+
+  /* Slide 1: collections story */
+  .timeline {
+    display: flex;
+    align-items: flex-start;
+    gap: 3rem;
+    margin: 2rem 0;
+    max-width: 56rem;
+  }
+  .era {
+    flex: 1;
+    padding: 1.5rem 2rem;
+    border-radius: 8px;
+    border: 1px solid #333;
+    background: #141414;
+  }
+  .era h3 {
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: 0.8rem;
+    font-weight: 600;
+  }
+  .era p {
+    font-size: 1.15rem;
+    color: #ccc;
+    text-align: left;
+    margin-bottom: 0.4rem;
+  }
+  .era code {
+    font-size: 0.95rem;
+    color: #c55;
+    background: rgba(204,85,85,0.08);
+    padding: 0.15rem 0.4rem;
+    border-radius: 3px;
+  }
+  .amplifier {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin: 2rem 0 1.5rem;
+  }
+  .amp-arrow {
+    font-size: 2rem;
+    color: #555;
+  }
+  .amp-box {
+    padding: 1.2rem 2rem;
+    border-radius: 8px;
+    font-size: 1.15rem;
+    font-weight: 600;
+    text-align: center;
+    line-height: 1.4;
+  }
+  .amp-good {
+    border: 2px solid #4a9;
+    color: #4a9;
+    background: rgba(68,170,153,0.06);
+  }
+  .amp-bad {
+    border: 2px solid #c55;
+    color: #c55;
+    background: rgba(204,85,85,0.06);
+  }
+  .amp-center {
+    font-size: 2rem;
+    color: #f0c040;
+    font-weight: 700;
+    padding: 1.2rem 1.6rem;
+    border: 2px solid #f0c040;
+    border-radius: 50%;
+    background: rgba(240,192,64,0.05);
+    letter-spacing: 0.02em;
+  }
+  .versus {
+    display: flex;
+    gap: 2.5rem;
+    margin: 1.5rem 0;
+    max-width: 52rem;
+  }
+  .vs-col {
+    flex: 1;
+    text-align: left;
+  }
+  .vs-col h4 {
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+  }
+
+  /* Slide 2: stacked bars */
+  .stacked-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    width: 100%;
+    max-width: 52rem;
+    margin: 1.5rem 0 1rem;
+  }
+  .stacked-row {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+  .stacked-label {
+    width: 6rem;
+    text-align: right;
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .before-label { color: #999; }
+  .after-label { color: #f0c040; }
+  .stacked-track {
+    flex: 1;
+    height: 56px;
+    display: flex;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .stacked-seg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .seg-text {
+    font-size: 0.9rem;
+    color: rgba(0,0,0,0.6);
+    font-weight: 600;
+    white-space: nowrap;
+    padding: 0 0.5rem;
+  }
+  .stacked-note {
+    font-size: 1.05rem;
+    color: #999;
+    text-align: left;
+    padding-left: 7.5rem;
+    margin-bottom: 1.8rem;
+  }
+
+  /* Slide 3: bar chart */
+  .bar-chart {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    margin: 2rem 0;
+    width: 100%;
+    max-width: 44rem;
+  }
+  .bar-row {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+  .bar-label {
+    width: 10rem;
+    text-align: right;
+    font-size: 1.2rem;
+    color: #bbb;
+    flex-shrink: 0;
+  }
+  .bar-track {
+    flex: 1;
+    height: 36px;
+    background: #151515;
+    border-radius: 5px;
+    overflow: hidden;
+    position: relative;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 5px;
+    transition: width 0.3s;
+  }
+  .bar-value {
+    font-size: 1rem;
+    color: #666;
+    width: 3rem;
+    flex-shrink: 0;
+  }
+
+  .rome-map {
+    max-width: 100%;
+    height: auto;
+  }
+
+  @media (max-width: 900px) {
+    .slide { padding: 2rem; }
+    h1 { font-size: 3rem; }
+    h2 { font-size: 2rem; }
+    .amplifier { flex-direction: column; }
+    .pies { flex-direction: column; gap: 3rem; }
+    .bar-chart { max-width: 100%; }
+    .bar-label { width: 5rem; font-size: 0.8rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- TITLE -->
+<div class="slide" id="slide-0">
+  <h1>AI & Software Engineering</h1>
+  <p class="subtitle">three observations</p>
+</div>
+
+<!-- SLIDE 1a: The Collections Story -->
+<div class="slide" id="slide-1">
+  <span class="slide-number">01</span>
+  <h2>Java Collections &rarr; AI</h2>
+
+  <div class="timeline">
+    <div class="era">
+      <h3 style="color:#bbb">Before 1998</h3>
+      <p>Hand-rolled data structures.</p>
+      <p>Verbose, but you could <span class="highlight">see</span> the mistakes.</p>
+    </div>
+    <div class="era">
+      <h3 style="color:#4a9">JDK 1.2</h3>
+      <p>ArrayList, HashMap, TreeSet.</p>
+      <p>10x more accessible. 10x more dangerous.</p>
+    </div>
+  </div>
+
+  <div class="amplifier">
+    <div class="amp-box amp-good">Clean, correct code<br>10x faster</div>
+    <div class="amp-arrow">&larr;</div>
+    <div class="amp-center">Collections</div>
+    <div class="amp-arrow">&rarr;</div>
+    <div class="amp-box amp-bad">Quietly broken code<br>10x faster</div>
+  </div>
+
+  <p class="med"><code>list.contains(x)</code> in a loop. <code>LinkedList.get(i)</code> in a hot path.</p>
+  <p class="med">Looked fine. Tests passed. Prod fell over at scale.</p>
+</div>
+
+<!-- SLIDE 1b: But AI Is Worse -->
+<div class="slide" id="slide-2">
+  <span class="slide-number">01</span>
+  <h2>Same Dynamic. Worse Diagnostics.</h2>
+
+  <div class="versus">
+    <div class="vs-col">
+      <h4 style="color:#4a9">Collections bloat</h4>
+      <p class="med">Performance problem.</p>
+      <p class="med">You can profile it.</p>
+      <p class="med">You can spot it in review.</p>
+      <p class="med" style="color:#5cdb95">It leaves traces.</p>
+    </div>
+    <div class="vs-col">
+      <h4 style="color:#e06060">AI bloat</h4>
+      <p class="med">Architecture problem.</p>
+      <p class="med">Looks reasonable. Doesn't compose.</p>
+      <p class="med">Tests pass. Code rots slowly.</p>
+      <p class="med" style="color:#e06060">Nothing warns you until it's too late.</p>
+    </div>
+  </div>
+
+  <p class="punchline">Big-O you can measure.<br><span class="bad">This you can't.</span></p>
+</div>
+
+<!-- SLIDE 2: The Job Changed -->
+<div class="slide" id="slide-3">
+  <span class="slide-number">02</span>
+
+  <h2>The Job Changed</h2>
+
+  <div class="stacked-bars">
+    <!-- PRE-AI bar -->
+    <div class="stacked-row">
+      <div class="stacked-label before-label">Pre-AI</div>
+      <div class="stacked-track">
+        <div class="stacked-seg" style="width:70%;background:#555" title="Programming + architecture (intertwined)">
+          <span class="seg-text">programming + architecture</span>
+        </div>
+        <div class="stacked-seg" style="width:20%;background:#4a9" title="Architecture">
+          <span class="seg-text">design</span>
+        </div>
+        <div class="stacked-seg" style="width:10%;background:#333" title="Other">
+          <span class="seg-text"></span>
+        </div>
+      </div>
+    </div>
+    <div class="stacked-note"><span class="highlight">intertwined</span> &mdash; programming and architecture happen together, in flow</div>
+
+    <!-- POST-AI bar -->
+    <div class="stacked-row">
+      <div class="stacked-label after-label">Post-AI</div>
+      <div class="stacked-track">
+        <div class="stacked-seg" style="width:40%;background:#f0c040" title="Review & refine">
+          <span class="seg-text">review & refine</span>
+        </div>
+        <div class="stacked-seg" style="width:25%;background:#c55" title="Swearing at robot">
+          <span class="seg-text">swearing at robot</span>
+        </div>
+        <div class="stacked-seg" style="width:20%;background:#4a9" title="Architecture">
+          <span class="seg-text">architecture</span>
+        </div>
+        <div class="stacked-seg" style="width:15%;background:#555" title="Programming">
+          <span class="seg-text">code</span>
+        </div>
+      </div>
+    </div>
+    <div class="stacked-note"><span class="highlight">fragmented</span> &mdash; same work, different composition, less flow</div>
+  </div>
+
+  <p class="punchline">The flow state was a feature, not a bug.</p>
+</div>
+
+<!-- SLIDE 3: Judgment -->
+<div class="slide" id="slide-4">
+  <span class="slide-number">03</span>
+  <h2>What's Scarce Now</h2>
+
+  <p class="big" style="margin-bottom:2rem">Anyone can make code now.<br><span class="highlight">Knowing if it's good is the hard part.</span></p>
+
+  <div class="bar-chart">
+    <div class="bar-row">
+      <div class="bar-label">Writing code</div>
+      <div class="bar-track">
+        <div class="bar-fill" style="width:15%;background:#555"></div>
+      </div>
+      <div class="bar-value" style="color:#888">easy</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label">Knowing what<br>to build</div>
+      <div class="bar-track">
+        <div class="bar-fill" style="width:80%;background:#f0c040"></div>
+      </div>
+      <div class="bar-value" style="color:#f0c040">hard</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label">Telling good<br>from bad</div>
+      <div class="bar-track">
+        <div class="bar-fill" style="width:95%;background:#f0c040"></div>
+      </div>
+      <div class="bar-value" style="color:#f0c040">hard</div>
+    </div>
+  </div>
+
+  <p class="sm" style="margin-top:1.5rem">What's hard now</p>
+
+  <p class="med" style="margin-top:2.5rem">Experience helps &mdash; but let's be honest,<br>even experienced devs struggle to tell if AI code is solid.</p>
+</div>
+
+<!-- SLIDE 4: All Roads Lead to Rome -->
+<div class="slide" id="slide-5">
+  <span class="slide-number">04</span>
+  <h2>All Roads Lead to Rome</h2>
+
+  <svg class="rome-map" width="700" height="500" viewBox="0 0 700 500">
+    <defs>
+      <pattern id="dots" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+        <circle cx="20" cy="20" r="0.8" fill="#1a1a1a" />
+      </pattern>
+      <filter id="glow">
+        <feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="blur" />
+        <feMerge>
+          <feMergeNode in="blur" />
+          <feMergeNode in="SourceGraphic" />
+        </feMerge>
+      </filter>
+    </defs>
+    <rect width="700" height="500" fill="url(#dots)" />
+
+    <!-- Pre-AI roads: clean, direct, well-worn, bright -->
+    <path d="M 60,420 Q 200,350 350,260" stroke="#5cdb95" stroke-width="6" fill="none" />
+    <path d="M 120,60 Q 230,160 350,250" stroke="#5cdb95" stroke-width="6" fill="none" />
+    <path d="M 640,80 Q 500,170 360,250" stroke="#5cdb95" stroke-width="5.5" fill="none" />
+
+    <!-- Post-AI roads: messy, winding, glowing -->
+    <g filter="url(#glow)">
+      <path d="M 30,250 Q 80,180 130,220 Q 180,260 200,200 Q 240,140 280,190 Q 320,230 350,255" stroke="#c55" stroke-width="3.5" fill="none" opacity="0.8" stroke-dasharray="8 4" />
+      <path d="M 680,400 Q 620,350 590,390 Q 550,430 510,380 Q 470,330 440,360 Q 400,390 370,340 Q 360,300 355,265" stroke="#c55" stroke-width="3.5" fill="none" opacity="0.8" stroke-dasharray="8 4" />
+      <path d="M 500,480 Q 520,420 480,380 Q 440,340 460,290 Q 480,250 430,230 Q 390,220 360,255" stroke="#c55" stroke-width="3.5" fill="none" opacity="0.75" stroke-dasharray="8 4" />
+      <path d="M 700,250 Q 650,230 620,270 Q 580,310 540,280 Q 500,250 470,280 Q 430,310 400,280 Q 380,260 360,255" stroke="#c55" stroke-width="3.5" fill="none" opacity="0.8" stroke-dasharray="8 4" />
+      <path d="M 200,490 Q 180,440 220,400 Q 260,360 240,310 Q 220,270 270,250 Q 310,240 345,255" stroke="#c55" stroke-width="3.5" fill="none" opacity="0.75" stroke-dasharray="8 4" />
+      <path d="M 50,100 Q 100,130 90,180 Q 80,230 130,260 Q 180,280 220,260 Q 270,240 310,260 Q 340,270 350,258" stroke="#c55" stroke-width="3.5" fill="none" opacity="0.8" stroke-dasharray="8 4" />
+      <path d="M 650,450 Q 600,470 570,430 Q 540,390 500,420 Q 460,450 430,410 Q 400,370 380,330 Q 365,290 358,262" stroke="#c55" stroke-width="3.5" fill="none" opacity="0.7" stroke-dasharray="8 4" />
+    </g>
+
+    <!-- Rome -->
+    <circle cx="355" cy="255" r="28" fill="#0a0a0a" stroke="#f0c040" stroke-width="3" />
+    <text x="355" y="261" text-anchor="middle" fill="#f0c040" font-size="15" font-family="Georgia" font-weight="700">Rome</text>
+
+    <!-- Legend -->
+    <line x1="40" y1="18" x2="70" y2="18" stroke="#5cdb95" stroke-width="6" />
+    <text x="78" y="23" fill="#5cdb95" font-size="13" font-family="Georgia">Pre-AI: few roads, well-understood</text>
+
+    <line x1="40" y1="40" x2="70" y2="40" stroke="#c55" stroke-width="2" stroke-dasharray="8 4" />
+    <text x="78" y="45" fill="#e05555" font-size="13" font-family="Georgia">Post-AI: many roads, unclear quality</text>
+  </svg>
+
+  <p class="med" style="margin-top:2rem">They all arrive. Not all of them should have been built.</p>
+  <p class="punchline">It looks right. It runs. It passes tests.<br><span class="bad">That used to be enough.</span></p>
+</div>
+
+<!-- SLIDE 5: The Future -->
+<div class="slide" id="slide-6">
+  <span class="slide-number">05</span>
+  <h2>What Changes Next</h2>
+
+  <svg width="900" height="360" viewBox="0 0 900 360">
+    <!-- Arrow base -->
+    <line x1="80" y1="180" x2="820" y2="180" stroke="#333" stroke-width="3" />
+    <polygon points="820,166 850,180 820,194" fill="#333" />
+
+    <!-- Before label -->
+    <text x="200" y="120" text-anchor="middle" fill="#555" font-size="24" font-family="Georgia">before</text>
+    <text x="200" y="235" text-anchor="middle" fill="#777" font-size="22" font-family="Georgia">plan it right</text>
+    <text x="200" y="268" text-anchor="middle" fill="#555" font-size="18" font-family="Georgia">bottom-up</text>
+    <circle cx="200" cy="180" r="14" fill="#555" />
+
+    <!-- Now label -->
+    <text x="460" y="120" text-anchor="middle" fill="#c55" font-size="24" font-family="Georgia">now</text>
+    <text x="460" y="235" text-anchor="middle" fill="#999" font-size="22" font-family="Georgia">figuring it out</text>
+    <text x="460" y="268" text-anchor="middle" fill="#555" font-size="18" font-family="Georgia">???</text>
+    <circle cx="460" cy="180" r="14" fill="#c55" />
+
+    <!-- Future label -->
+    <text x="710" y="120" text-anchor="middle" fill="#f0c040" font-size="24" font-family="Georgia">future</text>
+    <text x="710" y="235" text-anchor="middle" fill="#bbb" font-size="22" font-family="Georgia">refine it right</text>
+    <text x="710" y="268" text-anchor="middle" fill="#555" font-size="18" font-family="Georgia">top-down</text>
+    <circle cx="710" cy="180" r="14" fill="#f0c040" />
+  </svg>
+
+  <p class="big" style="margin-top:1.5rem">The skill becomes: <span class="highlight">telling good from bad, fast.</span></p>
+  <p class="med" style="margin-top:1rem">Less process upfront. More refinement after.<br>We don't fully know what that looks like yet.</p>
+  <p class="punchline" style="margin-top:2rem">Nobody has this figured out yet.</p>
+</div>
+
+<div id="slide-indicator"></div>
+
+<script>
+(function() {
+  var slides = document.querySelectorAll('.slide');
+  var indicator = document.getElementById('slide-indicator');
+
+  // Labels for the indicator: what number each slide belongs to
+  var labels = ['title', '1a', '1b', '2', '3', '4', '5'];
+
+  function updateIndicator() {
+    var current = 0;
+    var scrollY = window.scrollY + window.innerHeight / 2;
+    for (var i = 0; i < slides.length; i++) {
+      if (scrollY >= slides[i].offsetTop) current = i;
+    }
+    indicator.innerHTML = labels.map(function(label, i) {
+      var cls = i === current ? 'current' : '';
+      return '<span class="' + cls + '">' + label + '</span>';
+    }).join(' &middot; ');
+  }
+
+  // Keyboard navigation: number keys jump to slides, arrows go prev/next
+  var currentSlide = 0;
+  function getCurrentSlide() {
+    var scrollY = window.scrollY + window.innerHeight / 2;
+    for (var i = slides.length - 1; i >= 0; i--) {
+      if (scrollY >= slides[i].offsetTop) return i;
+    }
+    return 0;
+  }
+
+  document.addEventListener('keydown', function(e) {
+    // Number keys 0-7
+    var num = parseInt(e.key);
+    if (!isNaN(num) && num >= 0 && num < slides.length) {
+      slides[num].scrollIntoView({ behavior: 'smooth' });
+      return;
+    }
+    var cur = getCurrentSlide();
+    if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ') {
+      e.preventDefault();
+      if (cur < slides.length - 1) slides[cur + 1].scrollIntoView({ behavior: 'smooth' });
+    }
+    if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+      e.preventDefault();
+      if (cur > 0) slides[cur - 1].scrollIntoView({ behavior: 'smooth' });
+    }
+  });
+
+  window.addEventListener('scroll', updateIndicator);
+  updateIndicator();
+})();
+</script>
+
+</body>
+</html>

@@ -30,6 +30,9 @@ setupSocketEvents(io, app);
 const frontendDist = join(__dirname, "../../frontend/dist");
 if (existsSync(frontendDist)) {
   app.use(express.static(frontendDist));
+  app.get("/ai", (_req, res) => {
+    res.sendFile(join(frontendDist, "ai.html"));
+  });
   app.get("/{*splat}", (_req, res) => {
     res.sendFile(join(frontendDist, "index.html"));
   });
