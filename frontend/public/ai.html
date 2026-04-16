@@ -23,6 +23,14 @@
     z-index: 100;
     transition: color 0.3s;
   }
+  #slide-indicator a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  #slide-indicator a:hover {
+    color: #f0c040;
+  }
   #slide-indicator .current {
     color: #f0c040;
     font-weight: 700;
@@ -616,22 +624,39 @@
         </g>
         <text x="370" y="278" text-anchor="middle" fill="#777" font-size="11" font-family="Georgia" font-style="italic">predicted futures</text>
 
-        <!-- "Better prompt" cone -->
-        <path d="M 220,180 L 500,135 L 500,200 Z"
-              fill="rgba(240,192,64,0.08)"
-              stroke="#f0c040" stroke-width="1.5" stroke-dasharray="5 4" opacity="0.9" />
-        <text x="380" y="100" fill="#f0c040" font-size="12" font-family="Georgia" font-style="italic">"better prompt"</text>
-        <text x="380" y="116" fill="#f0c040" font-size="10" font-family="Georgia" font-style="italic">narrows the cone</text>
+        <!-- Prompt iterations: multiple cones at different angles - sprawl, not convergence -->
+        <path d="M 220,180 L 495,70 L 495,120 Z"
+              fill="rgba(240,192,64,0.06)"
+              stroke="#f0c040" stroke-width="1.2" stroke-dasharray="4 3" opacity="0.7" />
+        <path d="M 220,180 L 495,140 L 495,205 Z"
+              fill="rgba(240,192,64,0.06)"
+              stroke="#f0c040" stroke-width="1.2" stroke-dasharray="4 3" opacity="0.7" />
+        <path d="M 220,180 L 495,225 L 495,275 Z"
+              fill="rgba(240,192,64,0.06)"
+              stroke="#f0c040" stroke-width="1.2" stroke-dasharray="4 3" opacity="0.7" />
 
-        <!-- Goal -->
-        <g transform="translate(488, 180)">
+        <!-- Iteration labels at each cone tip -->
+        <text x="505" y="98" fill="#f0c040" font-size="10" font-family="Georgia" font-style="italic">v1</text>
+        <text x="505" y="178" fill="#f0c040" font-size="10" font-family="Georgia" font-style="italic">v2</text>
+        <text x="505" y="252" fill="#f0c040" font-size="10" font-family="Georgia" font-style="italic">v3</text>
+
+        <!-- Drift arrow: v1 -> v2 -> v3, no convergence -->
+        <path d="M 514,100 Q 528,138 514,178 Q 528,218 514,252"
+              fill="none" stroke="#f0c040" stroke-width="1" stroke-dasharray="2 3" opacity="0.6" />
+
+        <!-- Header for iterations -->
+        <text x="370" y="34" fill="#f0c040" font-size="12" font-family="Georgia" font-style="italic">"better prompt", iterated</text>
+        <text x="370" y="49" fill="#f0c040" font-size="10" font-family="Georgia" font-style="italic">cones sprawl, never converge</text>
+
+        <!-- Goal: in the gap between cones, structurally unreached -->
+        <g transform="translate(485, 218)">
           <circle r="12" fill="none" stroke="#e06060" stroke-width="2" />
           <circle r="6" fill="none" stroke="#e06060" stroke-width="2" />
           <circle r="2.5" fill="#e06060" />
         </g>
-        <text x="488" y="210" text-anchor="middle" fill="#e06060" font-size="10" font-family="Georgia">goal</text>
+        <text x="455" y="222" text-anchor="end" fill="#e06060" font-size="10" font-family="Georgia">goal</text>
       </svg>
-      <p class="caption">One shot. Better wording shrinks the cone &mdash; you still hope it lands.</p>
+      <p class="caption">Each iteration tweaks a new direction. The space sprawls &mdash; nothing structurally pulls the model toward the goal.</p>
     </div>
 
     <!-- RIGHT: Pipeline engineering -->
@@ -732,7 +757,7 @@
     }
     indicator.innerHTML = labels.map(function(label, i) {
       var cls = i === current ? 'current' : '';
-      return '<span class="' + cls + '">' + label + '</span>';
+      return '<a href="#slide-' + i + '" class="' + cls + '">' + label + '</a>';
     }).join(' &middot; ');
   }
 
