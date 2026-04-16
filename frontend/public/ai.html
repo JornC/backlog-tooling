@@ -599,7 +599,14 @@
     <!-- LEFT: Prompt engineering -->
     <div class="compare-col">
       <h4 style="color:#e06060">Prompt engineering</h4>
-      <svg viewBox="0 0 540 320" style="max-width:100%;height:auto">
+      <svg viewBox="0 0 540 320" overflow="visible" style="max-width:100%;height:auto;overflow:visible">
+        <defs>
+          <marker id="shotArrow" viewBox="0 0 10 10" refX="9" refY="5"
+                  markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M 0,0 L 10,5 L 0,10 Z" fill="#f0c040" />
+          </marker>
+        </defs>
+
         <!-- Baseline -->
         <line x1="30" y1="290" x2="510" y2="290" stroke="#2a2a2a" stroke-width="1" />
 
@@ -612,8 +619,8 @@
               stroke="#5cdb95" stroke-width="2.5" fill="none" />
         <text x="130" y="278" text-anchor="middle" fill="#5cdb95" font-size="11" font-family="Georgia" font-style="italic">historic context</text>
 
-        <!-- Wide fan of possible futures -->
-        <g stroke="#5a5a5a" stroke-width="1.1" fill="none" stroke-dasharray="3 3" opacity="0.85">
+        <!-- Wide fan of possible futures (faded background) -->
+        <g stroke="#444" stroke-width="1" fill="none" stroke-dasharray="3 3" opacity="0.4">
           <path d="M 220,180 Q 360,155 500,40" />
           <path d="M 220,180 Q 360,165 500,80" />
           <path d="M 220,180 Q 360,173 500,120" />
@@ -622,41 +629,38 @@
           <path d="M 220,180 Q 360,200 500,235" />
           <path d="M 220,180 Q 360,218 500,270" />
         </g>
-        <text x="370" y="278" text-anchor="middle" fill="#777" font-size="11" font-family="Georgia" font-style="italic">predicted futures</text>
+        <text x="360" y="278" text-anchor="middle" fill="#666" font-size="10" font-family="Georgia" font-style="italic">predicted futures</text>
 
-        <!-- Prompt iterations: multiple cones at different angles - sprawl, not convergence -->
-        <path d="M 220,180 L 495,70 L 495,120 Z"
-              fill="rgba(240,192,64,0.06)"
-              stroke="#f0c040" stroke-width="1.2" stroke-dasharray="4 3" opacity="0.7" />
-        <path d="M 220,180 L 495,140 L 495,205 Z"
-              fill="rgba(240,192,64,0.06)"
-              stroke="#f0c040" stroke-width="1.2" stroke-dasharray="4 3" opacity="0.7" />
-        <path d="M 220,180 L 495,225 L 495,275 Z"
-              fill="rgba(240,192,64,0.06)"
-              stroke="#f0c040" stroke-width="1.2" stroke-dasharray="4 3" opacity="0.7" />
-
-        <!-- Iteration labels at each cone tip -->
-        <text x="505" y="98" fill="#f0c040" font-size="10" font-family="Georgia" font-style="italic">v1</text>
-        <text x="505" y="178" fill="#f0c040" font-size="10" font-family="Georgia" font-style="italic">v2</text>
-        <text x="505" y="252" fill="#f0c040" font-size="10" font-family="Georgia" font-style="italic">v3</text>
-
-        <!-- Drift arrow: v1 -> v2 -> v3, no convergence -->
-        <path d="M 514,100 Q 528,138 514,178 Q 528,218 514,252"
-              fill="none" stroke="#f0c040" stroke-width="1" stroke-dasharray="2 3" opacity="0.6" />
-
-        <!-- Header for iterations -->
-        <text x="370" y="34" fill="#f0c040" font-size="12" font-family="Georgia" font-style="italic">"better prompt", iterated</text>
-        <text x="370" y="49" fill="#f0c040" font-size="10" font-family="Georgia" font-style="italic">cones sprawl, never converge</text>
-
-        <!-- Goal: in the gap between cones, structurally unreached -->
-        <g transform="translate(485, 218)">
-          <circle r="12" fill="none" stroke="#e06060" stroke-width="2" />
-          <circle r="6" fill="none" stroke="#e06060" stroke-width="2" />
-          <circle r="2.5" fill="#e06060" />
+        <!-- Goal (rendered first so shots cross over it visually) -->
+        <g transform="translate(478, 180)">
+          <circle r="15" fill="none" stroke="#e06060" stroke-width="2.5" />
+          <circle r="9" fill="none" stroke="#e06060" stroke-width="2.5" />
+          <circle r="3.5" fill="#e06060" />
         </g>
-        <text x="455" y="222" text-anchor="end" fill="#e06060" font-size="10" font-family="Georgia">goal</text>
+        <text x="478" y="262" text-anchor="middle" fill="#e06060" font-size="11" font-family="Georgia" font-weight="600">goal</text>
+
+        <!-- Single iterative trajectory: from "now", first shot near-misses (v1), then overshoots (v2), then near-misses again (v3) -->
+        <path d="M 222,180 Q 335,160 442,156 Q 498,100 510,118 Q 535,158 495,192"
+              fill="none" stroke="#f0c040" stroke-width="2.2"
+              marker-end="url(#shotArrow)" opacity="0.95" />
+
+        <!-- v1: first shot, in the ballpark but not close (less close than before) -->
+        <circle cx="442" cy="156" r="6" fill="#0a0a0a" stroke="#f0c040" stroke-width="2.2" />
+        <text x="435" y="146" text-anchor="end" fill="#f0c040" font-size="12" font-family="Georgia" font-style="italic" font-weight="600">v1: in the ballpark</text>
+
+        <!-- v2: refocus overshoots -->
+        <circle cx="510" cy="118" r="6" fill="#0a0a0a" stroke="#f0c040" stroke-width="2.2" />
+        <text x="505" y="108" text-anchor="end" fill="#f0c040" font-size="12" font-family="Georgia" font-style="italic" font-weight="600">v2: overshoots</text>
+
+        <!-- v3: refocus, near-miss again -->
+        <circle cx="495" cy="192" r="6" fill="#0a0a0a" stroke="#f0c040" stroke-width="2.2" />
+        <text x="495" y="216" text-anchor="middle" fill="#f0c040" font-size="12" font-family="Georgia" font-style="italic" font-weight="600">v3: close, still missed</text>
+
+        <!-- Header -->
+        <text x="365" y="36" fill="#f0c040" font-size="13" font-family="Georgia" font-style="italic" font-weight="600">focus &rarr; shoot &rarr; near miss</text>
+        <text x="365" y="54" fill="#f0c040" font-size="11" font-family="Georgia" font-style="italic">refocus &rarr; overshoot &rarr; near miss again</text>
       </svg>
-      <p class="caption">Each iteration tweaks a new direction. The space sprawls &mdash; nothing structurally pulls the model toward the goal.</p>
+      <p class="caption">Each prompt is sharp. Each shot is intentional. But nothing in the loop is structurally pulling the model toward the goal.</p>
     </div>
 
     <!-- RIGHT: Pipeline engineering -->
