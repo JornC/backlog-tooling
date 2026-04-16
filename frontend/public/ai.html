@@ -332,32 +332,44 @@
   </div>
 
   <p class="med"><code>list.contains(x)</code> in a loop. <code>LinkedList.get(i)</code> in a hot path.</p>
-  <p class="med">Looked fine. Tests passed. Prod fell over at scale.</p>
+  <p class="med">Looked fine. Tests passed. <span class="highlight">Broke under load.</span></p>
+
+  <svg width="460" height="180" viewBox="0 0 460 180" style="margin-top:1.5rem">
+    <line x1="40" y1="150" x2="240" y2="150" stroke="#444" stroke-width="1.5" />
+    <line x1="40" y1="150" x2="40" y2="20" stroke="#444" stroke-width="1.5" />
+    <text x="140" y="175" text-anchor="middle" fill="#666" font-size="12" font-family="monospace">n</text>
+    <text x="18" y="85" text-anchor="middle" fill="#666" font-size="12" font-family="monospace" transform="rotate(-90,18,85)">time</text>
+    <!-- O(1) / O(log n) - HashMap.get -->
+    <path d="M 40,130 Q 100,125 240,118" stroke="#5cdb95" stroke-width="2.5" fill="none" />
+    <text x="250" y="118" fill="#5cdb95" font-size="11" font-family="monospace" dominant-baseline="middle">HashMap.get</text>
+    <!-- O(n) - ArrayList.contains -->
+    <path d="M 40,140 L 240,60" stroke="#f0c040" stroke-width="2.5" fill="none" />
+    <text x="250" y="60" fill="#f0c040" font-size="11" font-family="monospace" dominant-baseline="middle">ArrayList.contains</text>
+    <!-- O(n²) - contains in a loop -->
+    <path d="M 40,148 Q 100,140 160,110 Q 200,80 240,25" stroke="#c55" stroke-width="2.5" fill="none" />
+    <text x="250" y="25" fill="#c55" font-size="11" font-family="monospace" dominant-baseline="middle">.contains() in a loop</text>
+  </svg>
 </div>
 
 <!-- SLIDE 1b: But AI Is Worse -->
 <div class="slide" id="slide-2">
   <span class="slide-number">01</span>
-  <h2>Same Dynamic. Worse Diagnostics.</h2>
+  <h2>Same Pattern. Different Failure.</h2>
 
   <div class="versus">
     <div class="vs-col">
       <h4 style="color:#4a9">Collections bloat</h4>
-      <p class="med">Performance problem.</p>
-      <p class="med">You can profile it.</p>
-      <p class="med">You can spot it in review.</p>
-      <p class="med" style="color:#5cdb95">It leaves traces.</p>
+      <p class="med">App gets slow. Server falls over.</p>
+      <p class="med">You can measure it and fix it.</p>
     </div>
     <div class="vs-col">
       <h4 style="color:#e06060">AI bloat</h4>
-      <p class="med">Architecture problem.</p>
-      <p class="med">Looks reasonable. Doesn't compose.</p>
-      <p class="med">Tests pass. Code rots slowly.</p>
-      <p class="med" style="color:#e06060">Nothing warns you until it's too late.</p>
+      <p class="med">App works fine. Code looks fine.</p>
+      <p class="med">Then you try to change something and everything fights you.</p>
     </div>
   </div>
 
-  <p class="punchline">Big-O you can measure.<br><span class="bad">This you can't.</span></p>
+  <p class="punchline">One problem shows up on a dashboard.<br><span class="bad">The other shows up six months later.</span></p>
 </div>
 
 <!-- SLIDE 2: The Job Changed -->
@@ -509,7 +521,7 @@
     <!-- Before label -->
     <text x="200" y="120" text-anchor="middle" fill="#555" font-size="24" font-family="Georgia">before</text>
     <text x="200" y="235" text-anchor="middle" fill="#777" font-size="22" font-family="Georgia">plan it right</text>
-    <text x="200" y="268" text-anchor="middle" fill="#555" font-size="18" font-family="Georgia">bottom-up</text>
+    <text x="200" y="268" text-anchor="middle" fill="#555" font-size="18" font-family="Georgia">organic</text>
     <circle cx="200" cy="180" r="14" fill="#555" />
 
     <!-- Now label -->
@@ -521,7 +533,7 @@
     <!-- Future label -->
     <text x="710" y="120" text-anchor="middle" fill="#f0c040" font-size="24" font-family="Georgia">future</text>
     <text x="710" y="235" text-anchor="middle" fill="#bbb" font-size="22" font-family="Georgia">refine it right</text>
-    <text x="710" y="268" text-anchor="middle" fill="#555" font-size="18" font-family="Georgia">top-down</text>
+    <text x="710" y="268" text-anchor="middle" fill="#555" font-size="18" font-family="Georgia">deliberate</text>
     <circle cx="710" cy="180" r="14" fill="#f0c040" />
   </svg>
 
