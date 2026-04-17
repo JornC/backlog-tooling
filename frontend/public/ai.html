@@ -666,9 +666,9 @@
     <!-- RIGHT: Pipeline engineering -->
     <div class="compare-col">
       <h4 style="color:#5cdb95">Pipeline engineering</h4>
-      <svg viewBox="0 0 560 320" style="max-width:100%;height:auto">
+      <svg viewBox="0 0 560 320" overflow="visible" style="max-width:100%;height:auto;overflow:visible">
         <defs>
-          <!-- Force arrow (red, on funnel walls pointing into channel) -->
+          <!-- Force arrow (red, on scaffolding walls pointing inward) -->
           <marker id="forceArrow" viewBox="0 0 10 10" refX="9" refY="5"
                   markerWidth="7" markerHeight="7" orient="auto">
             <path d="M 0,0 L 10,5 L 0,10 Z" fill="#c55" />
@@ -680,63 +680,87 @@
           </marker>
         </defs>
 
+        <!-- Rhythm header -->
+        <text x="280" y="22" text-anchor="middle" font-family="Georgia" font-style="italic" font-size="12">
+          <tspan fill="#999">unchecked LLM sprawls into chaos</tspan>
+          <tspan fill="#aaa" dx="6">&middot;</tspan>
+          <tspan fill="#c55" dx="6">scaffolding forces it back into order</tspan>
+        </text>
+
         <!-- Start -->
         <circle cx="25" cy="160" r="9" fill="#5cdb95" />
         <text x="25" y="184" text-anchor="middle" fill="#5cdb95" font-size="10" font-family="Georgia">input</text>
 
-        <!-- ========== STAGE 1 ========== -->
-        <!-- Divergent attempts (would-be fan), clipped by funnel -->
-        <g opacity="0.45">
-          <line x1="34" y1="160" x2="135" y2="60" stroke="#777" stroke-width="1" stroke-dasharray="2 2" />
-          <line x1="34" y1="160" x2="135" y2="105" stroke="#777" stroke-width="1" stroke-dasharray="2 2" />
-          <line x1="34" y1="160" x2="135" y2="215" stroke="#777" stroke-width="1" stroke-dasharray="2 2" />
-          <line x1="34" y1="160" x2="135" y2="260" stroke="#777" stroke-width="1" stroke-dasharray="2 2" />
+        <!-- ========== STAGE 1: chaos -> order ========== -->
+        <!-- Chaos zone (subtle bg fill) -->
+        <path d="M 34,160 L 140,50 L 140,270 Z" fill="rgba(140,140,140,0.06)" />
+        <!-- Chaotic sprawl: many multi-directional squiggles -->
+        <g stroke="#888" stroke-width="1.1" fill="none" opacity="0.55">
+          <path d="M 34,160 Q 58,112 82,95 Q 105,82 130,85" />
+          <path d="M 34,160 Q 68,136 90,118 Q 112,100 135,108" />
+          <path d="M 34,160 Q 55,148 82,138 Q 110,128 135,130" />
+          <path d="M 34,160 Q 72,168 104,162 Q 122,160 138,158" />
+          <path d="M 34,160 Q 58,192 88,186 Q 115,186 136,192" />
+          <path d="M 34,160 Q 78,208 108,216 Q 122,222 134,215" />
+          <path d="M 34,160 Q 54,228 80,238 Q 108,248 132,238" />
+          <path d="M 34,160 Q 62,258 96,254 Q 116,256 132,246" />
+          <path d="M 34,160 Q 82,155 106,144 Q 126,138 140,150" />
         </g>
-        <!-- Funnel walls with inward-pointing force arrows -->
+        <!-- Scaffolding walls: force chaos into order -->
         <line x1="65" y1="50" x2="155" y2="148" stroke="#c55" stroke-width="2.5" marker-end="url(#forceArrow)" />
         <line x1="65" y1="270" x2="155" y2="172" stroke="#c55" stroke-width="2.5" marker-end="url(#forceArrow)" />
-        <!-- Scaffolding annotation -->
-        <text x="38" y="38" fill="#c55" font-size="11" font-family="Georgia" font-style="italic">scaffolding</text>
-        <!-- Channel exit -->
-        <rect x="155" y="148" width="20" height="24" fill="rgba(240,192,64,0.12)" stroke="#f0c040" stroke-width="1.2" />
+        <!-- Orderly output channel -->
+        <rect x="155" y="148" width="22" height="24" fill="rgba(240,192,64,0.22)" stroke="#f0c040" stroke-width="1.4" />
         <text x="110" y="305" text-anchor="middle" fill="#aaa" font-size="11" font-family="Georgia" font-style="italic">retrieve</text>
 
         <!-- ========== STAGE 2 ========== -->
-        <g opacity="0.45">
-          <line x1="175" y1="160" x2="265" y2="75" stroke="#777" stroke-width="1" stroke-dasharray="2 2" />
-          <line x1="175" y1="160" x2="265" y2="115" stroke="#777" stroke-width="1" stroke-dasharray="2 2" />
-          <line x1="175" y1="160" x2="265" y2="205" stroke="#777" stroke-width="1" stroke-dasharray="2 2" />
-          <line x1="175" y1="160" x2="265" y2="245" stroke="#777" stroke-width="1" stroke-dasharray="2 2" />
+        <path d="M 180,160 L 285,50 L 285,270 Z" fill="rgba(140,140,140,0.06)" />
+        <g stroke="#888" stroke-width="1.1" fill="none" opacity="0.55">
+          <path d="M 180,160 Q 208,112 232,95 Q 255,82 278,86" />
+          <path d="M 180,160 Q 218,136 240,118 Q 260,100 282,110" />
+          <path d="M 180,160 Q 204,148 232,138 Q 258,128 282,132" />
+          <path d="M 180,160 Q 222,168 252,162 Q 270,160 284,158" />
+          <path d="M 180,160 Q 208,192 238,186 Q 263,186 282,192" />
+          <path d="M 180,160 Q 226,208 256,216 Q 270,222 280,215" />
+          <path d="M 180,160 Q 202,228 228,238 Q 256,248 280,238" />
+          <path d="M 180,160 Q 210,258 246,254 Q 264,256 280,246" />
+          <path d="M 180,160 Q 228,155 254,144 Q 272,138 284,150" />
         </g>
-        <line x1="200" y1="60" x2="290" y2="148" stroke="#c55" stroke-width="2.5" marker-end="url(#forceArrow)" />
-        <line x1="200" y1="260" x2="290" y2="172" stroke="#c55" stroke-width="2.5" marker-end="url(#forceArrow)" />
-        <rect x="290" y="148" width="20" height="24" fill="rgba(240,192,64,0.12)" stroke="#f0c040" stroke-width="1.2" />
+        <line x1="210" y1="50" x2="290" y2="148" stroke="#c55" stroke-width="2.5" marker-end="url(#forceArrow)" />
+        <line x1="210" y1="270" x2="290" y2="172" stroke="#c55" stroke-width="2.5" marker-end="url(#forceArrow)" />
+        <rect x="290" y="148" width="22" height="24" fill="rgba(240,192,64,0.22)" stroke="#f0c040" stroke-width="1.4" />
         <text x="245" y="305" text-anchor="middle" fill="#aaa" font-size="11" font-family="Georgia" font-style="italic">verify</text>
 
         <!-- ========== STAGE 3 ========== -->
-        <g opacity="0.45">
-          <line x1="310" y1="160" x2="400" y2="85" stroke="#777" stroke-width="1" stroke-dasharray="2 2" />
-          <line x1="310" y1="160" x2="400" y2="120" stroke="#777" stroke-width="1" stroke-dasharray="2 2" />
-          <line x1="310" y1="160" x2="400" y2="200" stroke="#777" stroke-width="1" stroke-dasharray="2 2" />
-          <line x1="310" y1="160" x2="400" y2="235" stroke="#777" stroke-width="1" stroke-dasharray="2 2" />
+        <path d="M 315,160 L 420,50 L 420,270 Z" fill="rgba(140,140,140,0.06)" />
+        <g stroke="#888" stroke-width="1.1" fill="none" opacity="0.55">
+          <path d="M 315,160 Q 343,112 367,95 Q 390,82 413,86" />
+          <path d="M 315,160 Q 353,136 375,118 Q 395,100 417,110" />
+          <path d="M 315,160 Q 339,148 367,138 Q 393,128 417,132" />
+          <path d="M 315,160 Q 357,168 387,162 Q 405,160 419,158" />
+          <path d="M 315,160 Q 343,192 373,186 Q 398,186 417,192" />
+          <path d="M 315,160 Q 361,208 391,216 Q 405,222 415,215" />
+          <path d="M 315,160 Q 337,228 363,238 Q 391,248 415,238" />
+          <path d="M 315,160 Q 345,258 381,254 Q 399,256 415,246" />
+          <path d="M 315,160 Q 363,155 389,144 Q 407,138 419,150" />
         </g>
-        <line x1="335" y1="70" x2="425" y2="148" stroke="#c55" stroke-width="2.5" marker-end="url(#forceArrow)" />
-        <line x1="335" y1="250" x2="425" y2="172" stroke="#c55" stroke-width="2.5" marker-end="url(#forceArrow)" />
-        <rect x="425" y="148" width="20" height="24" fill="rgba(240,192,64,0.12)" stroke="#f0c040" stroke-width="1.2" />
+        <line x1="345" y1="50" x2="425" y2="148" stroke="#c55" stroke-width="2.5" marker-end="url(#forceArrow)" />
+        <line x1="345" y1="270" x2="425" y2="172" stroke="#c55" stroke-width="2.5" marker-end="url(#forceArrow)" />
+        <rect x="425" y="148" width="22" height="24" fill="rgba(240,192,64,0.22)" stroke="#f0c040" stroke-width="1.4" />
         <text x="380" y="305" text-anchor="middle" fill="#aaa" font-size="11" font-family="Georgia" font-style="italic">refine</text>
 
-        <!-- Yellow path through all channel centers -->
-        <line x1="34" y1="160" x2="505" y2="160" stroke="#f0c040" stroke-width="2.5" marker-end="url(#pathArrow)" />
+        <!-- Yellow path through orderly channels -->
+        <line x1="34" y1="160" x2="510" y2="160" stroke="#f0c040" stroke-width="2.5" marker-end="url(#pathArrow)" />
 
         <!-- Goal -->
-        <g transform="translate(525, 160)">
+        <g transform="translate(530, 160)">
           <circle r="12" fill="none" stroke="#5cdb95" stroke-width="2" />
           <circle r="6" fill="none" stroke="#5cdb95" stroke-width="2" />
           <circle r="2.5" fill="#5cdb95" />
         </g>
-        <text x="525" y="190" text-anchor="middle" fill="#5cdb95" font-size="10" font-family="Georgia">goal</text>
+        <text x="530" y="190" text-anchor="middle" fill="#5cdb95" font-size="10" font-family="Georgia">goal</text>
       </svg>
-      <p class="caption">Many small steps. Scaffolding around the model forces the output back into a verified channel.</p>
+      <p class="caption">LLM outputs sprawl into chaos. The pipeline forces them back into order &mdash; stage after stage, all the way to the goal.</p>
     </div>
   </div>
 
