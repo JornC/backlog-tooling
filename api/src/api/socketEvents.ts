@@ -4,6 +4,7 @@ import { ActionType, RoomStateFragment, RoomStateManager } from "../data/roomSta
 import { ScratchboardState } from "../data/scratchboardmanager";
 import { sendSessionSummary } from "../email/sessionSummary";
 import { postEstimatesToJira } from "../jira/postEstimates";
+import { postScratchboardComments } from "../jira/postComments";
 
 const ADMIN_SECRET = process.env.ADMIN_SECRET;
 
@@ -193,8 +194,10 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
 
   async function finishSession(postToJira: boolean) {
     let jiraResults;
+    let commentResults;
     if (postToJira) {
       jiraResults = await postEstimatesToJira(schedule, roomStateManager);
+      commentResults = await postScratchboardComments(schedule, scratchboard);
       await sendSessionSummary(
         schedule,
         getDefaultScheduleCodes(),
@@ -205,6 +208,7 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
         lockedBy,
         jiraResults,
         sessionEmails,
+        commentResults,
       );
     }
 

@@ -2,6 +2,7 @@ import { createTransport } from "nodemailer";
 import { ActionType, RoomStateManager, RoomStateFragment } from "../data/roomStateManager";
 import { ScratchboardState } from "../data/scratchboardmanager";
 import { JiraItemResult } from "../jira/postEstimates";
+import { JiraCommentResult } from "../jira/postComments";
 
 interface ScheduleItem {
   title: string;
@@ -94,6 +95,7 @@ export function composeSessionSummary(
   lockedRooms: Set<string>,
   lockedBy: Map<string, string>,
   jiraResults?: JiraItemResult[],
+  commentResults?: JiraCommentResult[],
 ): string {
   const date = new Date().toISOString().slice(0, 10);
   const participants = [...new Set(roster.values())];
@@ -138,6 +140,14 @@ export function composeSessionSummary(
       if (jiraResult) {
         lines.push(formatJiraResult(jiraResult));
       }
+      const commentResult = commentResults?.find((r) => r.jiraKey === item.title);
+      if (commentResult) {
+        if (commentResult.posted) {
+          lines.push("  JIRA comment: posted scratchboard");
+        } else if (commentResult.error) {
+          lines.push(`  JIRA comment: failed (${commentResult.error})`);
+        }
+      }
     }
   }
 
@@ -160,6 +170,7 @@ export async function sendSessionSummary(
   lockedBy: Map<string, string>,
   jiraResults?: JiraItemResult[],
   sessionEmails?: Set<string>,
+  commentResults?: JiraCommentResult[],
 ): Promise<void> {
   const smtpUser = process.env.SMTP_USER;
   const smtpPass = process.env.SMTP_PASS;
@@ -186,6 +197,7 @@ export async function sendSessionSummary(
       lockedRooms,
       lockedBy,
       jiraResults,
+      commentResults,
     );
 
     const date = new Date().toISOString().slice(0, 10);
