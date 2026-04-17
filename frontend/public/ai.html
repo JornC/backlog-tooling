@@ -682,7 +682,7 @@
 
         <!-- Rhythm header -->
         <text x="280" y="22" text-anchor="middle" font-family="Georgia" font-style="italic" font-size="12">
-          <tspan fill="#999">unchecked LLM sprawls into chaos</tspan>
+          <tspan fill="#999">LLM outputs tend to sprawl into chaos</tspan>
           <tspan fill="#aaa" dx="6">&middot;</tspan>
           <tspan fill="#c55" dx="6">scaffolding forces it back into order</tspan>
         </text>
@@ -693,18 +693,21 @@
 
         <!-- ========== STAGE 1: chaos -> order ========== -->
         <!-- Chaos zone (subtle bg fill) -->
-        <path d="M 34,160 L 140,50 L 140,270 Z" fill="rgba(140,140,140,0.06)" />
-        <!-- Chaotic sprawl: many multi-directional squiggles -->
+        <path d="M 40,140 L 140,50 L 140,270 L 40,180 Z" fill="rgba(140,140,140,0.06)" />
+        <!-- Chaotic sprawl: scattered independent squiggles (no shared origin) -->
         <g stroke="#888" stroke-width="1.1" fill="none" opacity="0.55">
-          <path d="M 34,160 Q 58,112 82,95 Q 105,82 130,85" />
-          <path d="M 34,160 Q 68,136 90,118 Q 112,100 135,108" />
-          <path d="M 34,160 Q 55,148 82,138 Q 110,128 135,130" />
-          <path d="M 34,160 Q 72,168 104,162 Q 122,160 138,158" />
-          <path d="M 34,160 Q 58,192 88,186 Q 115,186 136,192" />
-          <path d="M 34,160 Q 78,208 108,216 Q 122,222 134,215" />
-          <path d="M 34,160 Q 54,228 80,238 Q 108,248 132,238" />
-          <path d="M 34,160 Q 62,258 96,254 Q 116,256 132,246" />
-          <path d="M 34,160 Q 82,155 106,144 Q 126,138 140,150" />
+          <path d="M 58,100 Q 75,85 98,96 Q 115,92 130,82" />
+          <path d="M 70,60 Q 90,75 115,68 Q 128,66 138,72" />
+          <path d="M 45,132 Q 70,120 92,112 Q 110,102 135,108" />
+          <path d="M 120,110 Q 102,118 82,126" />
+          <path d="M 50,155 Q 78,145 102,140 Q 118,134 135,130" />
+          <path d="M 62,172 Q 88,165 110,160 Q 125,158 138,156" />
+          <path d="M 48,188 Q 78,192 98,184 Q 118,188 136,194" />
+          <path d="M 135,205 Q 112,198 90,208" />
+          <path d="M 55,218 Q 85,212 110,220 Q 122,226 134,218" />
+          <path d="M 60,244 Q 90,238 115,244 Q 128,246 134,240" />
+          <path d="M 50,258 Q 82,252 108,256 Q 122,260 130,248" />
+          <path d="M 88,150 Q 108,144 128,152" />
         </g>
         <!-- Scaffolding walls: force chaos into order -->
         <line x1="65" y1="50" x2="155" y2="148" stroke="#c55" stroke-width="2.5" marker-end="url(#forceArrow)" />
@@ -714,17 +717,20 @@
         <text x="110" y="305" text-anchor="middle" fill="#aaa" font-size="11" font-family="Georgia" font-style="italic">retrieve</text>
 
         <!-- ========== STAGE 2 ========== -->
-        <path d="M 180,160 L 285,50 L 285,270 Z" fill="rgba(140,140,140,0.06)" />
+        <path d="M 186,140 L 286,50 L 286,270 L 186,180 Z" fill="rgba(140,140,140,0.06)" />
         <g stroke="#888" stroke-width="1.1" fill="none" opacity="0.55">
-          <path d="M 180,160 Q 208,112 232,95 Q 255,82 278,86" />
-          <path d="M 180,160 Q 218,136 240,118 Q 260,100 282,110" />
-          <path d="M 180,160 Q 204,148 232,138 Q 258,128 282,132" />
-          <path d="M 180,160 Q 222,168 252,162 Q 270,160 284,158" />
-          <path d="M 180,160 Q 208,192 238,186 Q 263,186 282,192" />
-          <path d="M 180,160 Q 226,208 256,216 Q 270,222 280,215" />
-          <path d="M 180,160 Q 202,228 228,238 Q 256,248 280,238" />
-          <path d="M 180,160 Q 210,258 246,254 Q 264,256 280,246" />
-          <path d="M 180,160 Q 228,155 254,144 Q 272,138 284,150" />
+          <path d="M 204,100 Q 221,85 244,96 Q 261,92 276,82" />
+          <path d="M 216,60 Q 236,75 261,68 Q 274,66 284,72" />
+          <path d="M 191,132 Q 216,120 238,112 Q 256,102 281,108" />
+          <path d="M 266,110 Q 248,118 228,126" />
+          <path d="M 196,155 Q 224,145 248,140 Q 264,134 281,130" />
+          <path d="M 208,172 Q 234,165 256,160 Q 271,158 284,156" />
+          <path d="M 194,188 Q 224,192 244,184 Q 264,188 282,194" />
+          <path d="M 281,205 Q 258,198 236,208" />
+          <path d="M 201,218 Q 231,212 256,220 Q 268,226 280,218" />
+          <path d="M 206,244 Q 236,238 261,244 Q 274,246 280,240" />
+          <path d="M 196,258 Q 228,252 254,256 Q 268,260 276,248" />
+          <path d="M 234,150 Q 254,144 274,152" />
         </g>
         <line x1="210" y1="50" x2="290" y2="148" stroke="#c55" stroke-width="2.5" marker-end="url(#forceArrow)" />
         <line x1="210" y1="270" x2="290" y2="172" stroke="#c55" stroke-width="2.5" marker-end="url(#forceArrow)" />
@@ -732,17 +738,20 @@
         <text x="245" y="305" text-anchor="middle" fill="#aaa" font-size="11" font-family="Georgia" font-style="italic">verify</text>
 
         <!-- ========== STAGE 3 ========== -->
-        <path d="M 315,160 L 420,50 L 420,270 Z" fill="rgba(140,140,140,0.06)" />
+        <path d="M 321,140 L 421,50 L 421,270 L 321,180 Z" fill="rgba(140,140,140,0.06)" />
         <g stroke="#888" stroke-width="1.1" fill="none" opacity="0.55">
-          <path d="M 315,160 Q 343,112 367,95 Q 390,82 413,86" />
-          <path d="M 315,160 Q 353,136 375,118 Q 395,100 417,110" />
-          <path d="M 315,160 Q 339,148 367,138 Q 393,128 417,132" />
-          <path d="M 315,160 Q 357,168 387,162 Q 405,160 419,158" />
-          <path d="M 315,160 Q 343,192 373,186 Q 398,186 417,192" />
-          <path d="M 315,160 Q 361,208 391,216 Q 405,222 415,215" />
-          <path d="M 315,160 Q 337,228 363,238 Q 391,248 415,238" />
-          <path d="M 315,160 Q 345,258 381,254 Q 399,256 415,246" />
-          <path d="M 315,160 Q 363,155 389,144 Q 407,138 419,150" />
+          <path d="M 339,100 Q 356,85 379,96 Q 396,92 411,82" />
+          <path d="M 351,60 Q 371,75 396,68 Q 409,66 419,72" />
+          <path d="M 326,132 Q 351,120 373,112 Q 391,102 416,108" />
+          <path d="M 401,110 Q 383,118 363,126" />
+          <path d="M 331,155 Q 359,145 383,140 Q 399,134 416,130" />
+          <path d="M 343,172 Q 369,165 391,160 Q 406,158 419,156" />
+          <path d="M 329,188 Q 359,192 379,184 Q 399,188 417,194" />
+          <path d="M 416,205 Q 393,198 371,208" />
+          <path d="M 336,218 Q 366,212 391,220 Q 403,226 415,218" />
+          <path d="M 341,244 Q 371,238 396,244 Q 409,246 415,240" />
+          <path d="M 331,258 Q 363,252 389,256 Q 403,260 411,248" />
+          <path d="M 369,150 Q 389,144 409,152" />
         </g>
         <line x1="345" y1="50" x2="425" y2="148" stroke="#c55" stroke-width="2.5" marker-end="url(#forceArrow)" />
         <line x1="345" y1="270" x2="425" y2="172" stroke="#c55" stroke-width="2.5" marker-end="url(#forceArrow)" />
@@ -760,7 +769,7 @@
         </g>
         <text x="530" y="190" text-anchor="middle" fill="#5cdb95" font-size="10" font-family="Georgia">goal</text>
       </svg>
-      <p class="caption">LLM outputs sprawl into chaos. The pipeline forces them back into order &mdash; stage after stage, all the way to the goal.</p>
+      <p class="caption">LLM outputs tend to sprawl into chaos. The pipeline forces them back into order &mdash; stage after stage, all the way to the goal.</p>
     </div>
   </div>
 
