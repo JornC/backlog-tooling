@@ -74,6 +74,12 @@ function formatJiraResult(result: JiraItemResult): string {
     lines.push("SP: skipped (tie in test)");
   }
 
+  if (result.sprintMoved) {
+    lines.push("Sprint: moved to Sprint planning meeting");
+  } else if (result.sprintMoveError) {
+    lines.push(`Sprint: move failed (${result.sprintMoveError})`);
+  }
+
   if (lines.length === 0) {
     if (result.skippedReasons.includes("no_dev_estimates")) {
       return "  JIRA: skipped (no dev estimates)";

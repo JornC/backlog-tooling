@@ -198,6 +198,14 @@ export const useSocketStore = defineStore("socket", {
       socket.emit("update_schedule", schedule);
     },
 
+    fetchJiraReadyItems(): Promise<{ items?: { key: string; summary: string }[]; error?: string }> {
+      return new Promise((resolve) => {
+        socket.emit("fetch_jira_ready_items", (response: { items?: { key: string; summary: string }[]; error?: string }) => {
+          resolve(response || { error: "No response" });
+        });
+      });
+    },
+
     emitNamed(name: string, value?: any) {
       socket.emit(name, value);
     },

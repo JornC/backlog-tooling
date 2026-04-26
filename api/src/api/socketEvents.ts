@@ -3,6 +3,7 @@ import { Socket, Server as SocketIOServer } from "socket.io";
 import { ActionType, RoomStateFragment, RoomStateManager } from "../data/roomStateManager";
 import { ScratchboardState } from "../data/scratchboardmanager";
 import { sendSessionSummary } from "../email/sessionSummary";
+import { fetchReadyForBacklogItems } from "../jira/fetchReadyItems";
 import { postEstimatesToJira } from "../jira/postEstimates";
 import { postScratchboardComments } from "../jira/postComments";
 
@@ -445,6 +446,20 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
 
       schedule = arr;
       broadcastSchedule();
+    });
+
+    socket.on("fetch_jira_ready_items", async (cb: unknown) => {
+      const respond = typeof cb === "function" ? (cb as (r: unknown) => void) : () => {};
+      if (moderatorUserId !== userId || !sessionPin) {
+        respond({ error: "Not authorised" });
+        return;
+      }
+      try {
+        const items = await fetchReadyForBacklogItems();
+        respond({ items });
+      } catch (err) {
+        respond({ error: String(err) });
+      }
     });
 
     socket.on("persist_drumroll", (type) => {

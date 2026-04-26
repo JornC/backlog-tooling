@@ -1,4 +1,5 @@
 import { ActionType, RoomStateManager, RoomStateFragment } from "../data/roomStateManager";
+import { JIRA_BASE, findSprintIdByName, jiraAuth, moveIssueToSprint } from "./jiraClient";
 
 export interface JiraItemResult {
   jiraKey: string;
@@ -6,6 +7,8 @@ export interface JiraItemResult {
   testSp: number | null;
   spPosted: number | null;
   spEstimatePosted: number | null;
+  sprintMoved: boolean;
+  sprintMoveError?: string;
   skippedReasons: string[];
   error?: string;
 }
@@ -15,15 +18,9 @@ interface FieldIds {
   spEstimate: string;
 }
 
-const JIRA_BASE = "https://aerius.atlassian.net";
+const TARGET_SPRINT_NAME = "Sprint planning meeting";
 
 let cachedFieldIds: FieldIds | undefined = undefined;
-
-function jiraAuth(): string {
-  const user = process.env.JIRA_USER!;
-  const token = process.env.JIRA_API_TOKEN!;
-  return "Basic " + Buffer.from(`${user}:${token}`).toString("base64");
-}
 
 export function getWinningEstimate(
   room: RoomStateFragment[] | undefined,
@@ -139,12 +136,17 @@ export async function postEstimatesToJira(
       testSp: null,
       spPosted: null,
       spEstimatePosted: null,
+      sprintMoved: false,
       skippedReasons: [],
       error: "JIRA not configured",
     }));
   }
 
   const fieldIds = await discoverFieldIds();
+  const targetSprintId = await findSprintIdByName(TARGET_SPRINT_NAME);
+  if (targetSprintId === null) {
+    console.warn(`JIRA sprint "${TARGET_SPRINT_NAME}" not found - skipping sprint moves`);
+  }
 
   const results: JiraItemResult[] = [];
 
@@ -165,6 +167,7 @@ export async function postEstimatesToJira(
       testSp,
       spPosted: null,
       spEstimatePosted: null,
+      sprintMoved: false,
       skippedReasons: [],
     };
 
@@ -234,6 +237,16 @@ export async function postEstimatesToJira(
           result.error = `Failed to update: ${putRes.status} ${body}`;
           result.spPosted = null;
           result.spEstimatePosted = null;
+        }
+      }
+
+      const spWasWritten = result.spPosted !== null || result.spEstimatePosted !== null;
+      if (targetSprintId !== null && !result.error && spWasWritten) {
+        try {
+          await moveIssueToSprint(jiraKey, targetSprintId);
+          result.sprintMoved = true;
+        } catch (err) {
+          result.sprintMoveError = String(err);
         }
       }
 
