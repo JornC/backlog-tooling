@@ -6,6 +6,7 @@ import { sendSessionSummary } from "../email/sessionSummary";
 import { fetchReadyForBacklogItems } from "../jira/fetchReadyItems";
 import { postEstimatesToJira } from "../jira/postEstimates";
 import { postScratchboardComments } from "../jira/postComments";
+import { findEpicKeys } from "../jira/checkEpics";
 
 const ADMIN_SECRET = process.env.ADMIN_SECRET;
 
@@ -72,6 +73,7 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
   }
 
   let schedule: any[] = getDefaultSchedule();
+  let scheduleUpdateVersion = 0;
 
   /*
   interface ScheduleItem {
@@ -438,14 +440,44 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
       broadcastScratchboard();
     });
 
-    socket.on("update_schedule", (arr) => {
+    socket.on("update_schedule", async (arr) => {
       if (moderatorUserId !== userId || !sessionPin) {
         return;
       }
       if (!Array.isArray(arr)) { return; }
 
-      schedule = arr;
+      const myVersion = ++scheduleUpdateVersion;
+
+      const aerKeys = arr
+        .filter(
+          (item) =>
+            item &&
+            typeof item.code === "string" &&
+            item.code.startsWith("aer-") &&
+            typeof item.title === "string",
+        )
+        .map((item) => item.title as string);
+
+      const epicKeys = await findEpicKeys(aerKeys);
+
+      // Discard if a newer update has arrived while we were checking
+      if (myVersion !== scheduleUpdateVersion) {
+        return;
+      }
+
+      const excluded =
+        epicKeys.size > 0
+          ? arr.filter((item) => item && epicKeys.has(item.title)).map((i) => i.title)
+          : [];
+      const cleaned =
+        epicKeys.size > 0 ? arr.filter((item) => !item || !epicKeys.has(item.title)) : arr;
+
+      schedule = cleaned;
       broadcastSchedule();
+
+      if (excluded.length > 0) {
+        socket.emit("schedule_excluded", { reason: "epic", keys: excluded });
+      }
     });
 
     socket.on("fetch_jira_ready_items", async (cb: unknown) => {

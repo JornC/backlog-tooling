@@ -23,6 +23,7 @@ export const useSocketStore = defineStore("socket", {
     sessionPin: null as string | null,
     hasPin: false,
     sessionEmails: [] as string[],
+    excludedFromSchedule: { reason: "", keys: [] as string[] },
   }),
 
   getters: {
@@ -160,6 +161,10 @@ export const useSocketStore = defineStore("socket", {
         scheduleStore.setSchedule(schedule);
       });
 
+      socket.on("schedule_excluded", (info: { reason: string; keys: string[] }) => {
+        this.excludedFromSchedule = info;
+      });
+
       socket.on("room_state", (roomState) => {
         if (!this.currentRoom) {
           return;
@@ -195,6 +200,7 @@ export const useSocketStore = defineStore("socket", {
     },
 
     updateSchedule(schedule: ScheduleItem[]) {
+      this.excludedFromSchedule = { reason: "", keys: [] };
       socket.emit("update_schedule", schedule);
     },
 

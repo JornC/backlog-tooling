@@ -15,6 +15,10 @@
       </button>
     </div>
     <p class="error" v-if="jiraError">{{ jiraError }}</p>
+    <p v-if="excludedKeys.length" class="excluded">
+      Excluded epic{{ excludedKeys.length > 1 ? "s" : "" }} ({{ excludedKeys.length }}):
+      {{ excludedKeys.join(", ") }}
+    </p>
     <ul>
       <li>
         <strong>Group Titles</strong>: Lines starting with "# " mark the beginning of a new group.
@@ -50,6 +54,11 @@ const scheduleStore = useScheduleStore();
 const schedule = ref("");
 const loadingJira = ref(false);
 const jiraError = ref("");
+const excludedKeys = computed(() =>
+  socketStore.excludedFromSchedule.reason === "epic"
+    ? socketStore.excludedFromSchedule.keys
+    : [],
+);
 
 function updateSchedule() {
   const scheduleArr = parseSchedule(schedule.value);
@@ -227,6 +236,13 @@ button.subtle {
   padding: var(--spacer);
   background: red;
   color: white;
+}
+.excluded {
+  padding: var(--spacer);
+  background: rgba(255, 180, 0, 0.15);
+  border-left: 3px solid #f0c040;
+  color: #f0c040;
+  font-size: 0.9em;
 }
 
 p {
