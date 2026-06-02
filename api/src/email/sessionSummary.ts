@@ -61,6 +61,8 @@ function formatJiraResult(result: JiraItemResult): string {
     lines.push("SP Estimate: skipped (already set)");
   } else if (result.skippedReasons.includes("tie_in_test")) {
     lines.push("SP Estimate: skipped (tie)");
+  } else if (result.skippedReasons.includes("no_test_votes")) {
+    lines.push("SP Estimate: skipped (no test votes)");
   }
 
   // Story points (dev + test)
@@ -125,15 +127,16 @@ export function composeSessionSummary(
       if (lockedByName) {
         lines.push(`  Locked by: ${lockedByName}`);
       }
-      const room = roomStateManager.getRoomState(item.code);
-      lines.push(
-        `  Dev estimates: ${formatEstimates(room, ActionType.POKER_DEV_ESTIMATE)}`,
-      );
-      lines.push(
-        `  Test estimates: ${formatEstimates(room, ActionType.POKER_TEST_ESTIMATE)}`,
-      );
     } else {
       lines.push("  (not locked - discussion incomplete)");
+    }
+
+    const room = roomStateManager.getRoomState(item.code);
+    const devEstimates = formatEstimates(room, ActionType.POKER_DEV_ESTIMATE);
+    const testEstimates = formatEstimates(room, ActionType.POKER_TEST_ESTIMATE);
+    if (locked || devEstimates !== "None" || testEstimates !== "None") {
+      lines.push(`  Dev estimates: ${devEstimates}`);
+      lines.push(`  Test estimates: ${testEstimates}`);
     }
 
     const scratch = scratchboard.get(item.code);

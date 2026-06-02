@@ -205,8 +205,10 @@ export async function postEstimatesToJira(
           fieldsToUpdate[fieldIds.spEstimate] = testSp;
           result.spEstimatePosted = testSp;
         }
-      } else {
+      } else if (testSp === null) {
         result.skippedReasons.push("tie_in_test");
+      } else {
+        result.skippedReasons.push("no_test_votes");
       }
 
       // Story Points = dev SP + test SP (needs both)

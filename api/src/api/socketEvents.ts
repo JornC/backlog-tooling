@@ -105,6 +105,9 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
   const roster = new Map();
   const scratchboard = new Map();
 
+  const PURGE_DELAY_MS = 10 * 60 * 1000;
+  const pendingPurges = new Map<string, ReturnType<typeof setTimeout>>();
+
   function getUserRoom(socket: Socket): string | undefined {
     return Array.from(socket.rooms).find((r) => r !== socket.id);
   }
@@ -218,6 +221,7 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
     sessionPin = undefined;
     clearPinTimer();
     cancelModeratorGrace();
+    cancelAllPurges();
     moderatorUserId = undefined;
     sessionEmails.clear();
     lockedRooms = new Set<string>();
@@ -635,12 +639,7 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
     });
 
     socket.on("disconnecting", () => {
-      roomStateManager.purgeUser(userId, lockedRooms);
-
-      const roomName = getUserRoom(socket);
-      if (roomName) {
-        broadcastRoom(roomName);
-      }
+      schedulePurge(userId);
 
       if (moderatorUserId === userId) {
         startModeratorGrace(userId);
@@ -725,6 +724,28 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
     }
     moderatorGraceName = undefined;
     moderatorReconnecting = false;
+  }
+
+  function schedulePurge(disconnectedUserId: string) {
+    const existing = pendingPurges.get(disconnectedUserId);
+    if (existing) {
+      clearTimeout(existing);
+    }
+    const timer = setTimeout(() => {
+      pendingPurges.delete(disconnectedUserId);
+      roomStateManager.purgeUser(disconnectedUserId, lockedRooms);
+      for (const roomName of roomStateManager.roomKeys()) {
+        broadcastRoom(roomName);
+      }
+    }, PURGE_DELAY_MS);
+    pendingPurges.set(disconnectedUserId, timer);
+  }
+
+  function cancelAllPurges() {
+    for (const timer of pendingPurges.values()) {
+      clearTimeout(timer);
+    }
+    pendingPurges.clear();
   }
 
   function clearModerator(broadcast: boolean = true) {
