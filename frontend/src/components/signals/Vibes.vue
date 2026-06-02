@@ -6,7 +6,11 @@
       type="button"
       class="vibe"
       :disabled="locked"
-      :style="{ '--vibe-color': rgb(vibe) }"
+      :style="{
+        '--vibe-color': rgb(vibe),
+        '--vibe-level': (vibePercents[vibe] || 0) / 100,
+        zIndex: vibePercents[vibe] || 0,
+      }"
       :title="VIBE_META[vibe].label"
       @click="send(vibe, $event)">
       <span v-if="vibePercents[vibe]" class="percent-badge">{{ vibePercents[vibe] }}%</span>
@@ -64,7 +68,12 @@ function send(vibe: Vibe, event: MouseEvent): void {
   border-radius: var(--radius);
   padding: 10px 6px;
   font-size: 0.8em;
-  transition: all 0.15s ease-out;
+  /* Grows slightly with its own vibe magnitude (like the estimate buttons). */
+  transform: scale(calc(1 + var(--vibe-level, 0) * 0.12));
+  transition:
+    transform 0.3s ease-out,
+    background 0.15s ease-out,
+    color 0.15s ease-out;
 
   .percent-badge {
     position: absolute;

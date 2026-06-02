@@ -107,6 +107,7 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
     "skeptical",
     "mindblown",
     "love",
+    "ready",
   ];
   // Sanity cap: a user can stack vibes (10 clicks = a strong vibe) but not flood the room.
   const VIBE_RATE_MAX = 12;

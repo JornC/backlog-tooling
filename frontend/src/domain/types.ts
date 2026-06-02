@@ -11,7 +11,8 @@ export type Vibe =
   | "confused"
   | "skeptical"
   | "mindblown"
-  | "love";
+  | "love"
+  | "ready";
 
 export interface VibeMeta {
   label: string;
@@ -28,6 +29,7 @@ export const VIBE_META: Record<Vibe, VibeMeta> = {
   skeptical: { label: "Skeptical", icon: "sentiment_dissatisfied", color: [240, 147, 43] },
   mindblown: { label: "Mind blown", icon: "auto_awesome", color: [68, 212, 212] },
   love: { label: "Love it", icon: "favorite", color: [255, 77, 141] },
+  ready: { label: "Ready to size", icon: "check_circle", color: [25, 130, 196] },
 };
 
 export const VIBES: Vibe[] = Object.keys(VIBE_META) as Vibe[];
