@@ -33,7 +33,7 @@ export const VIBE_META: Record<Vibe, VibeMeta> = {
 export const VIBES: Vibe[] = Object.keys(VIBE_META) as Vibe[];
 
 /** How long a single vibe contributes to the room mood before it fully decays. */
-export const MOOD_WINDOW_MS = 10000;
+export const MOOD_WINDOW_MS = 25000;
 
 export interface RoomStateFragment {
   type: ActionType;

@@ -398,6 +398,18 @@ const changelog = ref<ChangelogEntry[]>([
       { type: "Added", description: "Reconnecting state shown in nav and home page during grace period" },
     ],
   },
+  {
+    version: "v2.5",
+    date: new Date("2026-06-02"),
+    changes: [
+      { type: "Added", description: "Vibes replace signals: lightweight agree, disagree, boring, confused, skeptical, mind blown, and love it reactions" },
+      { type: "Added", description: "Ambient room mood: the background tints toward the room's recent vibe and fades back to neutral over time" },
+      { type: "Added", description: "Per-vibe magnitude badge showing how strongly each vibe is being felt; repeated clicks build a stronger, longer mood" },
+      { type: "Added", description: "Collapsible navigation sidebar, animated and remembered across sessions" },
+      { type: "Updated", description: "Your state now survives brief disconnects (10 minute grace before purge)" },
+      { type: "Removed", description: "The old signal buttons (Ready, Question, Thinking, Pass, Wrap up, Coffee) and the Reset signals control" },
+    ],
+  },
 ]);
 
 const formatDate = (date: Date): string => {
