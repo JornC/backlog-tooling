@@ -212,46 +212,58 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
     }
   }
 
+  let finishing = false;
   async function finishSession(postToJira: boolean) {
-    let jiraResults;
-    let commentResults;
-    if (postToJira) {
-      jiraResults = await postEstimatesToJira(schedule, roomStateManager);
-      commentResults = await postScratchboardComments(schedule, scratchboard);
-      await sendSessionSummary(
-        schedule,
-        getDefaultScheduleCodes(),
-        roomStateManager,
-        scratchboard,
-        roster,
-        lockedRooms,
-        lockedBy,
-        jiraResults,
-        sessionEmails,
-        commentResults,
-      );
+    // Re-entrancy guard: posting/emailing happens before the session state is
+    // cleared, so without this a second trigger (double-click, or a reset racing
+    // the auto-reset) would post comments and send the summary email twice.
+    if (finishing) {
+      return;
     }
+    finishing = true;
+    try {
+      let jiraResults;
+      let commentResults;
+      if (postToJira) {
+        jiraResults = await postEstimatesToJira(schedule, roomStateManager);
+        commentResults = await postScratchboardComments(schedule, scratchboard);
+        await sendSessionSummary(
+          schedule,
+          getDefaultScheduleCodes(),
+          roomStateManager,
+          scratchboard,
+          roster,
+          lockedRooms,
+          lockedBy,
+          jiraResults,
+          sessionEmails,
+          commentResults,
+        );
+      }
 
-    sessionPin = undefined;
-    clearPinTimer();
-    cancelModeratorGrace();
-    cancelAllPurges();
-    moderatorUserId = undefined;
-    sessionEmails.clear();
-    lockedRooms = new Set<string>();
-    lockedBy.clear();
-    schedule = getDefaultSchedule();
-    playSounds = true;
-    drumrollType = "random";
-    Array.from(roomStateManager.roomKeys()).forEach((key: string) => {
-      roomStateManager.purgePoker(key);
-    });
-    roster.clear();
-    scratchboard.clear();
+      sessionPin = undefined;
+      clearPinTimer();
+      cancelModeratorGrace();
+      cancelAllPurges();
+      moderatorUserId = undefined;
+      sessionEmails.clear();
+      lockedRooms = new Set<string>();
+      lockedBy.clear();
+      schedule = getDefaultSchedule();
+      playSounds = true;
+      drumrollType = "random";
+      Array.from(roomStateManager.roomKeys()).forEach((key: string) => {
+        roomStateManager.purgePoker(key);
+      });
+      roster.clear();
+      scratchboard.clear();
 
-    for (const [, s] of apiNamespace.sockets) {
-      s.emit("session_ended");
-      s.disconnect(true);
+      for (const [, s] of apiNamespace.sockets) {
+        s.emit("session_ended");
+        s.disconnect(true);
+      }
+    } finally {
+      finishing = false;
     }
   }
 
