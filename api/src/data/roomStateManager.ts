@@ -2,12 +2,6 @@ export enum ActionType {
   POKER_DEV_ESTIMATE = "POKER_DEV_ESTIMATE",
   POKER_TEST_ESTIMATE = "POKER_TEST_ESTIMATE",
   POKER_REVEAL = "POKER_REVEAL",
-  SIGNAL_ESTIMATE = "SIGNAL_ESTIMATE",
-  SIGNAL_SNOOZE = "SIGNAL_SNOOZE",
-  SIGNAL_QUESTIONS = "SIGNAL_QUESTIONS",
-  SIGNAL_COFFEE = "SIGNAL_COFFEE",
-  SIGNAL_THINKING = "SIGNAL_THINKING",
-  SIGNAL_TAPOUT = "SIGNAL_TAPOUT",
 }
 
 export interface RoomStateFragment {
@@ -119,11 +113,6 @@ export class RoomStateManager {
         delete roomState[userId];
       }
     });
-  }
-
-  purgeSignal(roomName: string) {
-    const room = this.roomStates.get(roomName) || {};
-    this.purgeRoom(room, (v) => v.startsWith("SIGNAL_"));
   }
 
   purgePoker(roomName: string) {

@@ -49,18 +49,12 @@
     </div>
 
     <div class="group">
-      <div class="row">
-        <button class="subtle small" @click="flash($event, resetSignals)">
-          <span class="material-symbols-rounded button-icon">device_reset</span>
-          Reset signals
-        </button>
-        <button class="subtle small" @click="flash($event, muteSounds)">
-          <span class="material-symbols-rounded button-icon">{{
-            socketStore.playSounds ? "volume_up" : "volume_off"
-          }}</span>
-          {{ socketStore.playSounds ? "Mute sounds" : "Unmute sounds" }}
-        </button>
-      </div>
+      <button class="subtle small" @click="flash($event, muteSounds)">
+        <span class="material-symbols-rounded button-icon">{{
+          socketStore.playSounds ? "volume_up" : "volume_off"
+        }}</span>
+        {{ socketStore.playSounds ? "Mute sounds" : "Unmute sounds" }}
+      </button>
     </div>
     </template>
   </section>
@@ -99,9 +93,6 @@ function drumroll() {
 
 const isModerator = computed(() => socketStore.isModerator);
 
-function resetSignals() {
-  socketStore.emitNamed("reset_room_signals");
-}
 function resetPoker() {
   socketStore.emitNamed("reset_room_poker");
 }

@@ -40,11 +40,8 @@
       </div>
       <div class="secondary-row" v-if="scheduleItem">
         <fieldset class="secondary-section">
-          <legend>Signals</legend>
-          <simple-signals
-            :user-id="socketStore.userId"
-            :roomState="currentRoomState"
-            @send-action="sendAction($event)" />
+          <legend>Vibe</legend>
+          <vibes :locked="scheduleItem?.locked || false" />
         </fieldset>
         <fieldset class="secondary-section scratchboard-field">
           <legend>Scratchboard</legend>

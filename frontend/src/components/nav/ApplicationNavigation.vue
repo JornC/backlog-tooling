@@ -1,5 +1,14 @@
 <template>
-  <div class="nav-section">
+  <div class="nav-section" :class="{ collapsed: contextStore.navCollapsed }">
+    <button
+      class="collapse-toggle"
+      :title="contextStore.navCollapsed ? 'Expand sidebar' : 'Collapse sidebar'"
+      @click="contextStore.toggleNavCollapsed()">
+      <span class="material-symbols-rounded">{{
+        contextStore.navCollapsed ? "chevron_right" : "chevron_left"
+      }}</span>
+    </button>
+    <div class="nav-body">
     <section class="moderator">
       <template v-if="socketStore.moderator">
         <span class="name">{{ socketStore.moderator }}</span> is moderating
@@ -145,6 +154,7 @@
         {{ wsStatus }}
       </div>
     </nav>
+    </div>
   </div>
 </template>
 
@@ -226,6 +236,49 @@ watch(route, () => {
 <style lang="scss" scoped>
 .nav-section {
   width: 300px;
+  overflow: hidden;
+  transition: width 0.3s var(--transition-timing);
+
+  &.collapsed {
+    width: 44px;
+  }
+}
+
+.collapse-toggle {
+  all: unset;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  margin: var(--nav-gap);
+  border-radius: var(--radius);
+  cursor: pointer;
+  color: var(--brand-color-1);
+  transition: background var(--anim);
+
+  &:hover {
+    background: var(--brand-color-4);
+    color: white;
+  }
+
+  .material-symbols-rounded {
+    font-size: 24px;
+  }
+}
+
+.nav-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  transition: opacity 0.2s ease-out;
+
+  .collapsed & {
+    opacity: 0;
+    pointer-events: none;
+  }
 }
 .moderator {
   display: flex;
@@ -556,5 +609,20 @@ watch(route, () => {
 }
 button {
   width: 100%;
+}
+
+@media (max-width: 1024px) {
+  .collapse-toggle {
+    display: none;
+  }
+
+  .nav-section.collapsed {
+    width: auto;
+  }
+
+  .nav-body {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
 }
 </style>

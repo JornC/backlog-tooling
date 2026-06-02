@@ -1,4 +1,10 @@
-import { ConnectionStatus, type RoomStateFragment, type ScratchboardState } from "@/domain/types";
+import {
+  ConnectionStatus,
+  MOOD_WINDOW_MS,
+  type RoomStateFragment,
+  type ScratchboardState,
+  type Vibe,
+} from "@/domain/types";
 import router from "@/router";
 import { useContextStore } from "@/stores/contextStore";
 import { useScheduleStore, type ScheduleItem } from "@/stores/scheduleStore";
@@ -24,6 +30,7 @@ export const useSocketStore = defineStore("socket", {
     hasPin: false,
     sessionEmails: [] as string[],
     excludedFromSchedule: { reason: "", keys: [] as string[] },
+    recentVibes: [] as { vibe: Vibe; t: number }[],
   }),
 
   getters: {
@@ -102,6 +109,7 @@ export const useSocketStore = defineStore("socket", {
         this.moderatorReconnecting = false;
         this.moderatorGraceName = undefined;
         this.sessionEmails = [];
+        this.recentVibes = [];
         const scheduleStore = useScheduleStore();
         scheduleStore.setSchedule([]);
       });
@@ -176,6 +184,18 @@ export const useSocketStore = defineStore("socket", {
       socket.on("scratchboard_update", (scratchboard) => {
         this.scratchboard = new Map<string, ScratchboardState>(scratchboard);
       });
+
+      socket.on("vibe", (vibe: Vibe) => {
+        const now = Date.now();
+        this.recentVibes = [
+          ...this.recentVibes.filter((v) => now - v.t < MOOD_WINDOW_MS),
+          { vibe, t: now },
+        ];
+      });
+    },
+
+    emitVibe(vibe: Vibe) {
+      socket.emit("vibe", vibe);
     },
 
     updateName(name: string | undefined) {
@@ -225,6 +245,7 @@ export const useSocketStore = defineStore("socket", {
         socket.emit("leave_room", this.currentRoom);
       }
       this.currentRoom = roomName;
+      this.recentVibes = [];
       socket.emit("join_room", roomName);
     },
 
@@ -233,6 +254,7 @@ export const useSocketStore = defineStore("socket", {
         socket.emit("leave_room", this.currentRoom);
         this.currentRoom = undefined;
       }
+      this.recentVibes = [];
     },
 
     emitEvent(event: RoomStateFragment) {

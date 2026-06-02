@@ -3,6 +3,10 @@
   <session-ended v-else-if="isSessionEnded" />
   <pin-gate v-else-if="isPinRequired" />
   <template v-else>
+  <div
+    class="mood-overlay"
+    aria-hidden="true"
+    :style="{ '--mood-color': moodColor, '--mood-intensity': moodIntensity }"></div>
   <div class="mobile-nav">
     <div class="item" :class="{ active: isView(View.Menu) }" @click="setView(View.Menu)">
       Agenda
@@ -34,10 +38,13 @@
 import { ConnectionStatus } from "./domain/types";
 import { useContextStore } from "./stores/contextStore";
 import { useSocketStore } from "./ws/socketManager";
+import { useRoomMood } from "./composables/useRoomMood";
 
 const route = useRoute();
 const contextStore = useContextStore();
 const socketStore = useSocketStore();
+
+const { moodColor, moodIntensity } = useRoomMood();
 const isAdminRoute = computed(() => route.path === "/admin");
 const isSessionEnded = computed(() => socketStore.status === ConnectionStatus.SessionEnded);
 const isPinRequired = computed(() => socketStore.status === ConnectionStatus.PinRequired);
@@ -67,6 +74,8 @@ function isView(view: View): boolean {
 
 <style lang="scss" scoped>
 .app {
+  position: relative;
+  z-index: 1;
   display: grid;
   grid-template-areas: "nav main";
   grid-template-columns: minmax(auto, auto) 1fr;
@@ -77,6 +86,18 @@ function isView(view: View): boolean {
     grid-template-areas: "nav main user";
     grid-template-columns: minmax(auto, auto) 1fr minmax(auto, auto);
   }
+}
+
+.mood-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 40%, var(--mood-color, transparent), transparent 75%);
+  opacity: var(--mood-intensity, 0);
+  transition:
+    opacity 0.8s ease-out,
+    background 0.8s ease-out;
 }
 
 .mobile-nav {

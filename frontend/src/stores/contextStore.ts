@@ -5,6 +5,7 @@ export type Theme = "modern" | "fun" | "funner";
 const THEME_KEY = "backlog-theme";
 const PLAY_SOUNDS_KEY = "backlog-play-sounds";
 const SILENT_SIGNALS_KEY = "backlog-silent-signals";
+const NAV_COLLAPSED_KEY = "backlog-nav-collapsed";
 
 function loadTheme(): Theme {
   const stored = localStorage.getItem(THEME_KEY);
@@ -25,6 +26,7 @@ export const useContextStore = defineStore("contextStore", {
   state: () => ({
     playSounds: loadBool(PLAY_SOUNDS_KEY, true),
     silentSignals: loadBool(SILENT_SIGNALS_KEY, false),
+    navCollapsed: loadBool(NAV_COLLAPSED_KEY, false),
     userPanelActive: false as boolean,
     theme: loadTheme() as Theme,
     soundEmbargo: false as boolean,
@@ -66,6 +68,15 @@ export const useContextStore = defineStore("contextStore", {
     setSilentSignals(val: boolean) {
       this.silentSignals = val;
       localStorage.setItem(SILENT_SIGNALS_KEY, String(val));
+    },
+
+    setNavCollapsed(val: boolean) {
+      this.navCollapsed = val;
+      localStorage.setItem(NAV_COLLAPSED_KEY, String(val));
+    },
+
+    toggleNavCollapsed() {
+      this.setNavCollapsed(!this.navCollapsed);
     },
 
     setTheme(theme: Theme) {

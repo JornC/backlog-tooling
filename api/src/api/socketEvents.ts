@@ -99,6 +99,19 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
   ];
   let drumrollType = "random";
 
+  const VALID_VIBES = [
+    "agree",
+    "disagree",
+    "boring",
+    "confused",
+    "skeptical",
+    "mindblown",
+    "love",
+  ];
+  // Sanity cap: a user can stack vibes (10 clicks = a strong vibe) but not flood the room.
+  const VIBE_RATE_MAX = 12;
+  const VIBE_RATE_WINDOW_MS = 4000;
+
   const roomTimers = new Map();
 
   const roomStateManager = new RoomStateManager();
@@ -230,7 +243,6 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
     playSounds = true;
     drumrollType = "random";
     Array.from(roomStateManager.roomKeys()).forEach((key: string) => {
-      roomStateManager.purgeSignal(key);
       roomStateManager.purgePoker(key);
     });
     roster.clear();
@@ -294,6 +306,7 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
     clearPinTimer();
     console.log("Connection.");
     const userId = socket.id;
+    let vibeTimestamps: number[] = [];
 
     socket.emit("user_socket_id", socket.id);
     broadcastSchedule();
@@ -374,17 +387,6 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
       }
     });
 
-    socket.on("reset_room_signals", () => {
-      if (moderatorUserId !== userId) {
-        return;
-      }
-
-      const roomName = getUserRoom(socket);
-      if (roomName) {
-        roomStateManager.purgeSignal(roomName);
-        broadcastRoom(roomName);
-      }
-    });
     socket.on("fetch_all_room_state", () => {
       if (!sessionPin) { return; }
       const fullRoomState = Array.from(roomStateManager.roomKeys()).map((v) => [
@@ -636,6 +638,24 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
         roomStateManager.setRoomStateFragment(roomName, userId, fragment);
         broadcastRoom(roomName);
       }
+    });
+
+    socket.on("vibe", (vibe) => {
+      if (!sessionPin) { return; }
+      if (!VALID_VIBES.includes(vibe)) { return; }
+
+      const now = Date.now();
+      vibeTimestamps = vibeTimestamps.filter((t) => now - t < VIBE_RATE_WINDOW_MS);
+      if (vibeTimestamps.length >= VIBE_RATE_MAX) { return; }
+      vibeTimestamps.push(now);
+
+      const roomName = getUserRoom(socket);
+      if (!roomName || isRoomLocked(roomName)) {
+        return;
+      }
+      // Ephemeral fire-and-forget: re-broadcast to the room (incl. sender), never persisted.
+      // Stacking is intentional: repeated clicks accumulate into a stronger, longer mood.
+      apiNamespace.to(roomName).emit("vibe", vibe);
     });
 
     socket.on("disconnecting", () => {
