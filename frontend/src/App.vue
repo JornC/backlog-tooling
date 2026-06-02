@@ -3,10 +3,13 @@
   <session-ended v-else-if="isSessionEnded" />
   <pin-gate v-else-if="isPinRequired" />
   <template v-else>
-  <div
-    class="mood-overlay"
-    aria-hidden="true"
-    :style="{ '--mood-color': moodColor, '--mood-intensity': moodIntensity }"></div>
+  <div class="mood-overlay" aria-hidden="true">
+    <div
+      v-for="vibe in VIBES"
+      :key="vibe"
+      class="mood-layer"
+      :style="{ '--layer-color': rgb(vibe), opacity: layerOpacity(vibe) }"></div>
+  </div>
   <div class="mobile-nav">
     <div class="item" :class="{ active: isView(View.Menu) }" @click="setView(View.Menu)">
       Agenda
@@ -35,7 +38,7 @@
 </template>
 
 <script setup lang="ts">
-import { ConnectionStatus } from "./domain/types";
+import { ConnectionStatus, VIBES, VIBE_META, type Vibe } from "./domain/types";
 import { useContextStore } from "./stores/contextStore";
 import { useSocketStore } from "./ws/socketManager";
 import { useRoomMood } from "./composables/useRoomMood";
@@ -44,7 +47,20 @@ const route = useRoute();
 const contextStore = useContextStore();
 const socketStore = useSocketStore();
 
-const { moodColor, moodIntensity } = useRoomMood();
+const { vibePercents } = useRoomMood();
+
+// Each vibe gets a fixed-colour layer; only opacity animates (GPU-composited,
+// no per-frame repaint). Capped so a saturated room never fully hides content.
+const MAX_LAYER_OPACITY = 0.45;
+
+function rgb(vibe: Vibe): string {
+  const [r, g, b] = VIBE_META[vibe].color;
+  return `rgb(${r}, ${g}, ${b})`;
+}
+
+function layerOpacity(vibe: Vibe): number {
+  return ((vibePercents.value[vibe] || 0) / 100) * MAX_LAYER_OPACITY;
+}
 const isAdminRoute = computed(() => route.path === "/admin");
 const isSessionEnded = computed(() => socketStore.status === ConnectionStatus.SessionEnded);
 const isPinRequired = computed(() => socketStore.status === ConnectionStatus.PinRequired);
@@ -93,11 +109,15 @@ function isView(view: View): boolean {
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  background: radial-gradient(circle at 50% 40%, var(--mood-color, transparent), transparent 75%);
-  opacity: var(--mood-intensity, 0);
-  transition:
-    opacity 0.8s ease-out,
-    background 0.8s ease-out;
+}
+
+.mood-layer {
+  position: absolute;
+  inset: 0;
+  /* Painted once; the gradient never changes, only opacity animates. */
+  background: radial-gradient(circle at 50% 40%, var(--layer-color), transparent 75%);
+  opacity: 0;
+  transition: opacity 0.8s ease-out;
 }
 
 .mobile-nav {
