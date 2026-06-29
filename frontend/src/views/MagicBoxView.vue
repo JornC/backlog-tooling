@@ -731,10 +731,13 @@ function burstConfetti() {
     piece.style.background = themePalette[i % themePalette.length];
     piece.style.setProperty("--dx", `${(Math.random() * 2 - 1) * 280}px`);
     piece.style.setProperty("--dr", `${Math.random() * 720 - 360}deg`);
-    // Front-load the launches (a dense burst up front, then a thinning trail)
-    // and widen the fall-time spread, so the finishes fan out and the burst
-    // tapers off instead of all pieces clearing the screen at once.
-    piece.style.animationDelay = `${Math.pow(Math.random(), 1.7) * 2.6}s`;
+    // Each piece fades out at a different height so they don't all vanish along
+    // one line at the bottom.
+    piece.style.setProperty("--ty", `${82 + Math.random() * 36}vh`);
+    // Exponential launch delay: a dense burst up front, then a tail that thins
+    // smoothly with no hard cutoff, so the stragglers are scattered in time
+    // rather than forming a second horizontal edge where the fall stops.
+    piece.style.animationDelay = `${-Math.log(1 - Math.random()) * 0.75}s`;
     piece.style.animationDuration = `${2.8 + Math.random() * 2.8}s`;
     host.appendChild(piece);
     piece.addEventListener("animationend", () => piece.remove());
@@ -802,7 +805,7 @@ onUnmounted(() => {
     opacity: 1;
   }
   100% {
-    transform: translate(var(--dx, 0), 100vh) rotate(var(--dr, 360deg));
+    transform: translate(var(--dx, 0), var(--ty, 100vh)) rotate(var(--dr, 360deg));
     opacity: 0;
   }
 }
