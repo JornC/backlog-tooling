@@ -1,5 +1,5 @@
 <template>
-  <RouterView v-if="isAdminRoute" />
+  <RouterView v-if="isStandaloneRoute" />
   <session-ended v-else-if="isSessionEnded" />
   <pin-gate v-else-if="isPinRequired" />
   <template v-else>
@@ -61,7 +61,7 @@ function rgb(vibe: Vibe): string {
 function layerOpacity(vibe: Vibe): number {
   return ((vibePercents.value[vibe] || 0) / 100) * MAX_LAYER_OPACITY;
 }
-const isAdminRoute = computed(() => route.path === "/admin");
+const isStandaloneRoute = computed(() => route.path === "/admin" || route.path === "/magicbox");
 const isSessionEnded = computed(() => socketStore.status === ConnectionStatus.SessionEnded);
 const isPinRequired = computed(() => socketStore.status === ConnectionStatus.PinRequired);
 

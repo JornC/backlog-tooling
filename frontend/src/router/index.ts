@@ -23,6 +23,11 @@ const router = createRouter({
       name: "admin",
       component: () => import("../views/AdminView.vue"),
     },
+    {
+      path: "/magicbox",
+      name: "magicbox",
+      component: () => import("../views/MagicBoxView.vue"),
+    },
   ],
 });
 
