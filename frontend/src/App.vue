@@ -61,7 +61,7 @@ function rgb(vibe: Vibe): string {
 function layerOpacity(vibe: Vibe): number {
   return ((vibePercents.value[vibe] || 0) / 100) * MAX_LAYER_OPACITY;
 }
-const isStandaloneRoute = computed(() => route.path === "/admin" || route.path === "/magicbox");
+const isStandaloneRoute = computed(() => route.path === "/admin" || route.path === "/epicwheel");
 const isSessionEnded = computed(() => socketStore.status === ConnectionStatus.SessionEnded);
 const isPinRequired = computed(() => socketStore.status === ConnectionStatus.PinRequired);
 

@@ -24,8 +24,8 @@ const router = createRouter({
       component: () => import("../views/AdminView.vue"),
     },
     {
-      path: "/magicbox",
-      name: "magicbox",
+      path: "/epicwheel",
+      name: "epicwheel",
       component: () => import("../views/MagicBoxView.vue"),
     },
   ],
