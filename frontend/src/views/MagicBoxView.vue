@@ -731,9 +731,11 @@ function burstConfetti() {
     piece.style.background = themePalette[i % themePalette.length];
     piece.style.setProperty("--dx", `${(Math.random() * 2 - 1) * 280}px`);
     piece.style.setProperty("--dr", `${Math.random() * 720 - 360}deg`);
-    // Stagger the launch and vary the fall so the celebration sustains longer.
-    piece.style.animationDelay = `${Math.random() * 0.8}s`;
-    piece.style.animationDuration = `${3 + Math.random() * 2.2}s`;
+    // Front-load the launches (a dense burst up front, then a thinning trail)
+    // and widen the fall-time spread, so the finishes fan out and the burst
+    // tapers off instead of all pieces clearing the screen at once.
+    piece.style.animationDelay = `${Math.pow(Math.random(), 1.7) * 2.6}s`;
+    piece.style.animationDuration = `${2.8 + Math.random() * 2.8}s`;
     host.appendChild(piece);
     piece.addEventListener("animationend", () => piece.remove());
   }
