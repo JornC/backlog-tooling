@@ -444,7 +444,9 @@ defineExpose({ spinTo, spinRandom, clearSelection, isSpinning: () => spinning.va
   width: 100%;
   height: 100%;
   transform-origin: 50% 50%;
-  border-radius: 50%;
+  /* The SVG clips to its viewport by default; allow a hovered slice to grow
+     past the rim without being cut off. */
+  overflow: visible;
   /* The transition (duration + easing) is driven from script. */
 }
 
