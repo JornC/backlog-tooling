@@ -40,36 +40,49 @@
     </header>
 
     <div class="name-bar">
-      <label for="presenter">{{ t.nameLabel }}</label>
-      <input
-        id="presenter"
-        ref="nameInput"
-        v-model="name"
-        type="text"
-        :placeholder="t.placeholder"
-        autocomplete="off"
-        spellcheck="false"
-        @keyup.enter="spin" />
+      <template v-if="isNameStep">
+        <label for="presenter">{{ t.nameLabel }}</label>
+        <input
+          id="presenter"
+          ref="nameInput"
+          v-model="name"
+          type="text"
+          :placeholder="t.placeholder"
+          autocomplete="off"
+          spellcheck="false"
+          @keyup.enter="goToTopicStep" />
+        <button class="ghost" :disabled="spinning || !canContinue" @click="goToTopicStep">
+          {{ t.manualContinue }}
+        </button>
+      </template>
+      <template v-else>
+        <span class="presenter-tag">{{ t.nameLabel }} <strong>{{ displayName }}</strong></span>
+        <button class="ghost" :disabled="spinning" @click="restart">{{ t.restart }}</button>
+      </template>
     </div>
 
     <div class="columns">
       <div class="wheel-col">
         <p class="spin-caption" :class="{ live: spinning }">
-          <template v-if="spinning">{{ t.spinPre }}<strong>{{ displayName }}</strong>{{ t.spinPost }}</template>
+          <template v-if="isNameStep">{{ spinning ? t.nameStepSpin : t.nameStepIdle }}</template>
+          <template v-else-if="spinning">{{ t.spinPre }}<strong>{{ displayName }}</strong>{{ t.spinPost }}</template>
           <template v-else>{{ t.idlePre }}<strong>{{ displayName }}</strong>{{ t.idlePost }}</template>
         </p>
 
-        <div class="stage">
-          <SpinWheel
-            ref="themeWheel"
-            :items="themeTitles"
-            :size="wheelSize"
-            :palette="themePalette"
-            :empty-label="t.empty"
-            @scroll="onScroll"
-            @ticks="onTicks"
-            @preview="onPreview"
-            @settled="onSettled" />
+        <div class="stage" :style="{ minHeight: wheelSize + 'px' }">
+          <transition name="wheel-swap" mode="out-in">
+            <SpinWheel
+              :key="step"
+              ref="themeWheel"
+              :items="wheelItems"
+              :size="wheelSize"
+              :palette="themePalette"
+              :empty-label="isNameStep ? t.namesEmpty : t.empty"
+              @scroll="onScroll"
+              @ticks="onTicks"
+              @preview="onPreview"
+              @settled="onSettled" />
+          </transition>
 
           <button class="spin-btn" :disabled="!canSpin" @click="spin">
             {{ spinning ? "…" : t.spinBtn }}
@@ -83,8 +96,16 @@
             v-if="showCard"
             ref="resultEl"
             class="result"
-            :class="{ live: spinning, preview: cardMode === 'preview' }">
-            <template v-if="cardMode === 'result'">
+            :class="{ live: spinning, preview: cardMode === 'preview', name: cardMode === 'name' }">
+            <template v-if="cardMode === 'name'">
+              <span class="result-label">{{ t.namePicked }}</span>
+              <p class="result-line">
+                <strong class="who">{{ cardPerson }}</strong>
+              </p>
+              <button class="topic-cta" @click="goToTopicStep">{{ t.topicCta }}</button>
+            </template>
+
+            <template v-else-if="cardMode === 'result'">
               <span class="result-label">{{ spinning ? t.resultSpinning : t.resultDone }}</span>
               <p class="result-line">
                 <strong class="who">{{ cardPerson }}</strong>
@@ -106,7 +127,10 @@
 
             <p v-else class="preview-title">{{ card?.title }}</p>
 
-            <div class="result-desc-wrap" :class="{ open: revealed && card }">
+            <div
+              v-if="cardMode !== 'name'"
+              class="result-desc-wrap"
+              :class="{ open: revealed && card }">
               <div class="result-desc-inner">
                 <p class="result-desc">{{ card?.description }}</p>
               </div>
@@ -115,25 +139,51 @@
         </transition>
 
         <div class="controls">
-          <button v-if="showCard" class="ghost" @click="clearSelection">{{ t.clear }}</button>
-          <button class="ghost" @click="showEdit = !showEdit">
-            {{ showEdit ? t.manageClose : t.manage }}
+          <button v-if="showCard" class="ghost" @click="clearSelection">
+            {{ t.clear }}
+          </button>
+          <button v-if="!showEdit" class="ghost" @click="showEdit = true">
+            {{ t.manage }}
           </button>
         </div>
 
         <transition name="fade">
           <div v-if="showEdit" class="editor">
-            <div class="edit-head">
-              <label>{{ t.editorHead }}</label>
-              <button class="link" @click="resetThemes">{{ t.reset }}</button>
+            <div class="edit-tabs">
+              <button :class="{ active: editTab === 'team' }" @click="editTab = 'team'">
+                {{ t.tabTeam }}
+              </button>
+              <button :class="{ active: editTab === 'topics' }" @click="editTab = 'topics'">
+                {{ t.tabTopics }}
+              </button>
             </div>
-            <textarea
-              v-model="themesText"
-              class="edit-area"
-              :class="{ invalid: parseError }"
-              spellcheck="false"></textarea>
-            <p v-if="parseError" class="edit-error">{{ parseError }}</p>
-            <p class="edit-hint">{{ t.editorHint }}</p>
+
+            <template v-if="editTab === 'team'">
+              <div class="edit-head">
+                <label>{{ t.teamHead }}</label>
+              </div>
+              <textarea
+                v-model="namesText"
+                class="edit-area"
+                :placeholder="t.namesPlaceholder"
+                spellcheck="false"></textarea>
+              <p class="edit-hint">{{ t.namesHint }}</p>
+            </template>
+
+            <template v-else>
+              <div class="edit-head edit-head-reset">
+                <button class="link" @click="resetThemes">{{ t.reset }}</button>
+              </div>
+              <textarea
+                v-model="themesText"
+                class="edit-area"
+                :class="{ invalid: parseError }"
+                spellcheck="false"></textarea>
+              <p v-if="parseError" class="edit-error">{{ parseError }}</p>
+              <p class="edit-hint">{{ t.editorHint }}</p>
+            </template>
+
+            <button class="ghost edit-close" @click="showEdit = false">{{ t.manageClose }}</button>
           </div>
         </transition>
       </div>
@@ -170,10 +220,22 @@ interface Copy {
   resultSpinning: string;
   resultDone: string;
   presents: string;
-  editorHead: string;
   reset: string;
   editorHint: string;
   empty: string;
+  // Two-step flow: pick a presenter, then a topic.
+  nameStepIdle: string;
+  nameStepSpin: string;
+  namePicked: string;
+  topicCta: string;
+  manualContinue: string;
+  restart: string;
+  tabTopics: string;
+  tabTeam: string;
+  teamHead: string;
+  namesHint: string;
+  namesPlaceholder: string;
+  namesEmpty: string;
 }
 
 const STRINGS: Record<Lang, Copy> = {
@@ -188,16 +250,27 @@ const STRINGS: Record<Lang, Copy> = {
     spinPost: "…",
     spinBtn: "DRAAI",
     clear: "selectie wissen",
-    manage: "thema's beheren",
+    manage: "beheer openen",
     manageClose: "sluit beheer",
     resultSpinning: "het rad draait…",
     resultDone: "en het lot bepaalt…",
     presents: "presenteert",
-    editorHead: "Inhoud - regels met een nummer ('1.') zijn thema's, de regel eronder is de toelichting",
     reset: "terug naar standaard",
     editorHint:
       "Eén regel per thema, beginnend met een nummer (bijv. '1.'). De regel eronder is de toelichting (mag weg). Gebruik #nl / #en secties voor twee talen - met evenveel thema's - of laat ze weg voor één taal. Wijzigingen blijven alleen lokaal in deze browser bewaard.",
     empty: "voeg thema's toe",
+    nameStepIdle: "Draai om te bepalen wie presenteert",
+    nameStepSpin: "Het lot kiest een presentator…",
+    namePicked: "het lot koos",
+    topicCta: "draai voor het thema →",
+    manualContinue: "verder →",
+    restart: "andere presentator",
+    tabTopics: "Thema's",
+    tabTeam: "Team",
+    teamHead: "Teamleden - één naam per regel",
+    namesHint: "Eén teamlid per regel. Blijft alleen lokaal in deze browser bewaard.",
+    namesPlaceholder: "Zet hier alle teamleden,\néén naam per regel…",
+    namesEmpty: "voeg teamleden toe",
   },
   en: {
     title: "The Epic Wheel of Fortune",
@@ -210,16 +283,27 @@ const STRINGS: Record<Lang, Copy> = {
     spinPost: "…",
     spinBtn: "SPIN",
     clear: "clear selection",
-    manage: "edit topics",
+    manage: "open editor",
     manageClose: "close editor",
     resultSpinning: "the wheel is spinning…",
     resultDone: "and fate decides…",
     presents: "presents",
-    editorHead: "Content - lines starting with a number ('1.') are topics, the line below is the description",
     reset: "reset to defaults",
     editorHint:
       "One line per topic, starting with a number (e.g. '1.'). The line below it is the description (optional). Use #nl / #en sections for two languages - with equal counts - or omit them for one. Changes are kept only locally in this browser.",
     empty: "add some topics",
+    nameStepIdle: "Spin to pick who presents",
+    nameStepSpin: "Picking a presenter…",
+    namePicked: "the wheel chose",
+    topicCta: "spin for their topic →",
+    manualContinue: "continue →",
+    restart: "pick another presenter",
+    tabTopics: "Topics",
+    tabTeam: "Team",
+    teamHead: "Team members - one name per line",
+    namesHint: "One team member per line. Kept only locally in this browser.",
+    namesPlaceholder: "List all team members here,\none name per line…",
+    namesEmpty: "add team members",
   },
 };
 
@@ -407,6 +491,17 @@ interface SavedState {
   themes: ThemesByLang;
   lang: Lang;
   sound: boolean;
+  // Team-mate names for the presenter wheel. User-entered, browser-local only
+  // (never sent anywhere) - same as themes.
+  names: string[];
+}
+
+// A plain list of names, one per line, normalized; empties dropped.
+function sanitizeNames(value: unknown): string[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+  return value.map((n) => String(n ?? "").trim()).filter(Boolean);
 }
 
 // Accepts only a non-empty array of theme-like objects, normalized; else null.
@@ -442,7 +537,14 @@ function load(): SavedState {
         };
       }
       const sound = typeof parsed.sound === "boolean" ? parsed.sound : true;
-      return { name: typeof parsed.name === "string" ? parsed.name : "", themes, lang, sound };
+      const names = sanitizeNames(parsed.names);
+      return {
+        name: typeof parsed.name === "string" ? parsed.name : "",
+        themes,
+        lang,
+        sound,
+        names,
+      };
     }
   } catch {
     // fall through to defaults
@@ -452,7 +554,20 @@ function load(): SavedState {
     themes: { nl: cloneDefaults("nl"), en: cloneDefaults("en") },
     lang: "nl",
     sound: true,
+    names: [],
   };
+}
+
+// Team names live in their own editor tab: one name per line, no numbering.
+function serializeNames(list: string[]): string {
+  return list.join("\n");
+}
+
+function parseNames(text: string): string[] {
+  return text
+    .split("\n")
+    .map((s) => s.trim())
+    .filter(Boolean);
 }
 
 // In the editor each theme is a line starting with its number ("1. ..."); that
@@ -603,6 +718,14 @@ const themes = computed(() => themesByLang.value[lang.value]);
 const themesText = ref(serializeCombined(themesByLang.value));
 const parseError = ref("");
 
+// Two-step flow: spin the wheel for a presenter (step "name"), then for a topic
+// (step "topic"). The same wheel is fed names, then topics.
+const step = ref<"name" | "topic">("name");
+const names = ref<string[]>(initial.names);
+const namesText = ref(serializeNames(initial.names));
+// Editor has two tabs: the topics list and the team-names list.
+const editTab = ref<"topics" | "team">("topics");
+
 const themeWheel = ref<InstanceType<typeof SpinWheel> | null>(null);
 const confettiHost = ref<HTMLElement | null>(null);
 const nameInput = ref<HTMLInputElement | null>(null);
@@ -613,9 +736,9 @@ const showEdit = ref(false);
 const showCard = ref(false);
 const revealed = ref(false);
 const cardPerson = ref("");
-// "result" = a spin landed (full "fate picked" framing); "preview" = a slice was
-// clicked to explore it (just the option's title + description, no framing).
-const cardMode = ref<"result" | "preview">("result");
+// "name" = a presenter was picked (step 1); "result" = a topic spin landed (full
+// "fate picked" framing); "preview" = a slice was clicked to explore it.
+const cardMode = ref<"name" | "result" | "preview">("result");
 // The result is stored as the wheel index (not a snapshot) so the card follows
 // the active language: switching NL/EN re-derives the same theme, translated.
 const cardIndex = ref(-1);
@@ -666,11 +789,32 @@ const wheelOrder = computed(() => seededPermutation(themes.value.length, dataSee
 const wheelThemes = computed(() => wheelOrder.value.map((i) => themes.value[i]));
 const themeTitles = computed(() => wheelThemes.value.map((t) => t.title));
 
+// The names wheel, shuffled deterministically (same list -> same order) just like
+// the topics wheel.
+const nameSeed = computed(() => hashString(names.value.join("\n")));
+const wheelNames = computed(() =>
+  seededPermutation(names.value.length, nameSeed.value).map((i) => names.value[i]),
+);
+
+// The same wheel shows names in step 1, topics in step 2.
+const isNameStep = computed(() => step.value === "name");
+const wheelItems = computed(() => (isNameStep.value ? wheelNames.value : themeTitles.value));
+
 const displayName = computed(() => name.value.trim() || "…");
 
-const canSpin = computed(
-  () => !spinning.value && wheelThemes.value.length > 0 && name.value.trim().length > 0,
-);
+// Step 1 spins the name wheel (needs names, not a typed name); step 2 spins the
+// topic wheel for the chosen presenter.
+const canSpin = computed(() => {
+  if (spinning.value) {
+    return false;
+  }
+  return isNameStep.value
+    ? wheelNames.value.length > 0
+    : wheelThemes.value.length > 0 && name.value.trim().length > 0;
+});
+
+// In the name step the override box just needs a typed name to continue.
+const canContinue = computed(() => isNameStep.value && name.value.trim().length > 0);
 
 const { enabled: soundOn, ensure: ensureAudio, setEnabled: setSoundEnabled, playTick, scheduleTicks, playDing } =
   useWheelSounds();
@@ -688,21 +832,29 @@ let pendingIndex = -1;
 
 function spin() {
   if (!canSpin.value) {
-    if (!name.value.trim()) {
+    if (!isNameStep.value && !name.value.trim()) {
       nameInput.value?.focus();
     }
     return;
   }
   ensureAudio(); // resume the AudioContext within this click gesture
+  spinning.value = true;
+
+  if (isNameStep.value) {
+    // Step 1: pick a presenter. The result card appears on settle.
+    showCard.value = false;
+    pendingIndex = Math.floor(Math.random() * wheelNames.value.length);
+    themeWheel.value?.spinTo(pendingIndex);
+    return;
+  }
+
+  // Step 2: pick a topic for the chosen presenter.
   cardMode.value = "result";
   cardPerson.value = name.value.trim();
   revealed.value = false;
   showCard.value = true;
-  spinning.value = true;
-
   pendingIndex = Math.floor(Math.random() * wheelThemes.value.length);
   themeWheel.value?.spinTo(pendingIndex);
-
   nextTick(() => resultEl.value?.scrollIntoView({ behavior: "smooth", block: "center" }));
 }
 
@@ -718,10 +870,17 @@ function onTicks(offsetsMs: number[]) {
   scheduleTicks(offsetsMs);
 }
 
-// A slice was clicked to explore it: surface what the option is, without the
-// "fate picked" framing, confetti or sounds.
+// A slice was clicked. In the name step this picks that person; in the topic step
+// it previews the topic (title + description), without the "fate picked" framing.
 function onPreview(index: number) {
   if (spinning.value) {
+    return;
+  }
+  if (isNameStep.value) {
+    name.value = wheelNames.value[index] ?? "";
+    cardPerson.value = name.value;
+    cardMode.value = "name";
+    showCard.value = true;
     return;
   }
   cardMode.value = "preview";
@@ -730,23 +889,63 @@ function onPreview(index: number) {
   showCard.value = true;
 }
 
-// Dismiss the card and glide the wheel back to a neutral boundary, so no topic
-// is selected.
+// Dismiss the card and glide the wheel back to a neutral boundary, so nothing is
+// selected.
 function clearSelection() {
   showCard.value = false;
   revealed.value = false;
   cardIndex.value = -1;
+  // In the name step the "selection" is the chosen presenter - clear it too.
+  if (isNameStep.value) {
+    name.value = "";
+  }
   themeWheel.value?.clearSelection();
 }
 
 function onSettled(_title: string, index: number) {
   spinning.value = false;
   reelPos.value = index;
-  cardIndex.value = index;
-  revealed.value = true;
+  if (isNameStep.value) {
+    // Step 1 landed on a presenter: show the name card and wait for the user to
+    // continue to the topic step.
+    name.value = wheelNames.value[index] ?? "";
+    cardPerson.value = name.value;
+    cardMode.value = "name";
+    showCard.value = true;
+  } else {
+    cardIndex.value = index;
+    cardMode.value = "result";
+    revealed.value = true;
+  }
   playDing();
   burstConfetti();
   nextTick(() => resultEl.value?.scrollIntoView({ behavior: "smooth", block: "center" }));
+}
+
+// Step 1 -> 2: lock in the presenter (typed or spun) and switch the wheel to
+// topics. The user then spins again for the topic. (No step changes mid-spin -
+// the wheel items must not swap while it's animating.)
+function goToTopicStep() {
+  if (spinning.value || !name.value.trim()) {
+    return;
+  }
+  step.value = "topic";
+  showCard.value = false;
+  revealed.value = false;
+  cardMode.value = "result";
+}
+
+// Back to step 1 for a fresh round.
+function restart() {
+  if (spinning.value) {
+    return;
+  }
+  step.value = "name";
+  name.value = "";
+  showCard.value = false;
+  revealed.value = false;
+  cardIndex.value = -1;
+  cardMode.value = "result";
 }
 
 function burstConfetti() {
@@ -798,8 +997,13 @@ watch(themesText, (text) => {
   themesByLang.value = result.themes!;
 });
 
+// The team-names textarea: one name per line, no validation needed.
+watch(namesText, (text) => {
+  names.value = parseNames(text);
+});
+
 watch(
-  [name, themesByLang, lang, soundOn],
+  [name, themesByLang, lang, soundOn, names],
   () => {
     localStorage.setItem(
       STORAGE_KEY,
@@ -808,6 +1012,7 @@ watch(
         themes: themesByLang.value,
         lang: lang.value,
         sound: soundOn.value,
+        names: names.value,
       } satisfies SavedState),
     );
   },
@@ -816,6 +1021,12 @@ watch(
 
 onMounted(() => {
   window.addEventListener("resize", onResize);
+  // Clean start (no team members yet): open the editor on the Team tab so the
+  // first thing the facilitator does is list the team.
+  if (names.value.length === 0) {
+    editTab.value = "team";
+    showEdit.value = true;
+  }
 });
 
 onUnmounted(() => {
@@ -1016,6 +1227,19 @@ onUnmounted(() => {
       border-bottom-color: #ff595e;
     }
   }
+
+  .presenter-tag {
+    font-size: clamp(1rem, 2.6vw, 1.3rem);
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    opacity: 0.7;
+
+    strong {
+      color: #66e0d0;
+      letter-spacing: normal;
+      text-transform: none;
+    }
+  }
 }
 
 .spin-caption {
@@ -1051,6 +1275,17 @@ onUnmounted(() => {
   // Gives the wheel's slight 3D tilt/wobble depth (the wheel is the only
   // 3D-transformed child; the centered SPIN button stays face-on).
   perspective: 1300px;
+}
+
+// Fade the wheel out and the new one in when switching between the name and
+// topic steps. Opacity only - the wheel's own 3D tilt owns its transform.
+.wheel-swap-enter-active,
+.wheel-swap-leave-active {
+  transition: opacity 0.3s ease;
+}
+.wheel-swap-enter-from,
+.wheel-swap-leave-to {
+  opacity: 0;
 }
 
 .spin-btn {
@@ -1160,6 +1395,24 @@ onUnmounted(() => {
     color: #ffca3a;
   }
 
+  // Step 1 -> 2 call to action on the name card.
+  .topic-cta {
+    margin-top: 18px;
+    padding: 10px 22px;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #11151a;
+    background: radial-gradient(circle at 35% 30%, #ffe27a, #ffca3a 55%, #ff924c 100%);
+    border: none;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: transform 0.12s ease-out;
+
+    &:hover {
+      transform: translateY(-1px);
+    }
+  }
+
   // The description expands the card height smoothly (grid-rows 0fr -> 1fr)
   // instead of the card jumping when the text appears.
   .result-desc-wrap {
@@ -1248,6 +1501,39 @@ onUnmounted(() => {
   padding: 18px;
 }
 
+.edit-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 3px;
+  align-self: center;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+
+  button {
+    border: none;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    padding: 5px 16px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition:
+      background 0.15s ease-out,
+      color 0.15s ease-out;
+
+    &.active {
+      background: #ffca3a;
+      color: #11151a;
+    }
+    &:hover:not(.active) {
+      color: #f3f6fb;
+    }
+  }
+}
+
 .edit-area {
   width: 100%;
   box-sizing: border-box;
@@ -1285,6 +1571,17 @@ onUnmounted(() => {
     letter-spacing: 0.1em;
     opacity: 0.7;
   }
+}
+
+// Topics tab: the reset link sits alone on its row, aligned right.
+.edit-head-reset {
+  justify-content: flex-end;
+}
+
+// Close button anchored at the bottom of the editor panel.
+.edit-close {
+  align-self: center;
+  margin-top: 4px;
 }
 
 .link {

@@ -30,7 +30,12 @@
         <text :x="c" :y="c" class="empty-text">{{ emptyLabel }}</text>
       </g>
       <g v-for="(seg, i) in segments" :key="i" class="slice-group">
-        <path :d="seg.path" :fill="seg.color" class="slice" @click="onSliceClick(i)" />
+        <path
+          :d="seg.path"
+          :fill="seg.color"
+          class="slice"
+          :class="{ dim: isDimmed(i) }"
+          @click="onSliceClick(i)" />
         <text :transform="seg.numTransform" class="num" :style="{ fontSize: numberSize + 'px' }">
           {{ seg.num }}
         </text>
@@ -109,6 +114,11 @@ const SNAP_EASE = "cubic-bezier(0.3, 0, 0.2, 1)";
 const MOVE_MS = 600;
 const MOVE_EASE = "cubic-bezier(0.4, 0, 0.2, 1)";
 
+// Where the pointer sits, in degrees clockwise from the top. 270 = left (9
+// o'clock), pointing right into the wheel. The winner is centred here, ticks
+// fire as boundaries cross here, and the neutral rest leaves a boundary here.
+const POINTER_ANGLE = 270;
+
 // Cubic value with end points 0 and 1 and the two given control values.
 function cubic(c1: number, c2: number, s: number): number {
   const u = 1 - s;
@@ -141,11 +151,30 @@ function neutralStart(): number {
     return Math.random() * 360;
   }
   const seg = 360 / n;
-  return Math.floor(Math.random() * n) * seg;
+  return Math.floor(Math.random() * n) * seg + POINTER_ANGLE;
 }
 const rotation = ref(neutralStart());
 const spinning = ref(false);
+// The slice currently chosen (a settled spin or a clicked preview), or -1 for
+// none. Once set and the wheel is at rest, the other slices are desaturated so
+// the winner stands out. Cleared on a new spin, on clear, or when items change.
+const selectedIndex = ref(-1);
 const transition = ref("none");
+
+// A slice is dimmed when something is selected, the wheel is at rest, and this
+// isn't the chosen slice.
+function isDimmed(i: number): boolean {
+  return selectedIndex.value >= 0 && !spinning.value && i !== selectedIndex.value;
+}
+
+// Reset the highlight whenever the wheel's contents change (e.g. switching from
+// the names wheel to the topics wheel).
+watch(
+  () => props.items,
+  () => {
+    selectedIndex.value = -1;
+  },
+);
 const discEl = ref<SVGSVGElement | null>(null);
 
 let pendingIndex = -1;
@@ -220,7 +249,7 @@ function spinTo(index: number) {
   const n = props.items.length;
   const seg = 360 / n;
   // Base distance brings the slice centre exactly under the pointer.
-  const targetMod = (((-(index * seg + seg / 2)) % 360) + 360) % 360;
+  const targetMod = (((POINTER_ANGLE - (index * seg + seg / 2)) % 360) + 360) % 360;
   const currentMod = ((rotation.value % 360) + 360) % 360;
   const delta = ((targetMod - currentMod) % 360 + 360) % 360;
   const extraTurns = 3 + Math.floor(Math.random() * 2);
@@ -232,13 +261,13 @@ function spinTo(index: number) {
   // snap (and guarantees the phase-2 transitionend fires).
   const fuzz = (Math.random() < 0.5 ? -1 : 1) * seg * (0.16 + Math.random() * 0.24);
 
-  // A peg is crossed every `seg` degrees, at the slice *boundaries* (rotation
-  // ≡ 0 mod seg). Offset the first tick to the next boundary so ticks land on
-  // boundaries, not slice centres, then map each through the easing to its exact
-  // time so they decelerate on the same curve as the wheel.
+  // A peg is crossed every `seg` degrees, at the slice *boundaries* (which sit
+  // under the pointer when rotation ≡ POINTER_ANGLE mod seg). Offset the first
+  // tick to the next such boundary so ticks land on boundaries, not slice
+  // centres, then map each through the easing to its exact time so they
+  // decelerate on the same curve as the wheel.
   const totalDist = extraTurns * 360 + delta + fuzz;
-  const startMod = ((rotation.value % seg) + seg) % seg;
-  const firstPeg = (seg - startMod) % seg;
+  const firstPeg = (((POINTER_ANGLE - rotation.value) % seg) + seg) % seg;
   const tickTimes: number[] = [];
   for (let adv = firstPeg; adv <= totalDist; adv += seg) {
     if (adv > 0.001) {
@@ -250,6 +279,7 @@ function spinTo(index: number) {
   pendingIndex = index;
   phase = 1;
   spinning.value = true;
+  selectedIndex.value = -1; // all slices vibrant while spinning
   transition.value = `transform ${CURVE_MS}ms ${CURVE_EASE}`;
   rotation.value = centerTarget + fuzz;
   startTracking();
@@ -271,7 +301,7 @@ function onSliceClick(index: number) {
   }
   const n = props.items.length;
   const seg = 360 / n;
-  const targetMod = (((-(index * seg + seg / 2)) % 360) + 360) % 360;
+  const targetMod = (((POINTER_ANGLE - (index * seg + seg / 2)) % 360) + 360) % 360;
   const currentMod = ((rotation.value % 360) + 360) % 360;
   let delta = (((targetMod - currentMod) % 360) + 360) % 360;
   if (delta > 180) {
@@ -279,6 +309,7 @@ function onSliceClick(index: number) {
   }
   transition.value = `transform ${MOVE_MS}ms ${MOVE_EASE}`;
   rotation.value = rotation.value + delta;
+  selectedIndex.value = index;
   emit("preview", index);
 }
 
@@ -289,12 +320,13 @@ function clearSelection() {
     return;
   }
   const seg = 360 / props.items.length;
-  const nearest = Math.round(rotation.value / seg) * seg;
+  const nearest = Math.round((rotation.value - POINTER_ANGLE) / seg) * seg + POINTER_ANGLE;
   if (Math.abs(nearest - rotation.value) < 0.001) {
     return;
   }
   transition.value = `transform ${MOVE_MS}ms ${MOVE_EASE}`;
   rotation.value = nearest;
+  selectedIndex.value = -1;
 }
 
 function onTransitionEnd(e: TransitionEvent) {
@@ -315,6 +347,7 @@ function onTransitionEnd(e: TransitionEvent) {
     const i = pendingIndex;
     pendingIndex = -1;
     if (i >= 0 && i < props.items.length) {
+      selectedIndex.value = i; // dim the rest now that a winner is locked in
       emit("scroll", i);
       emit("settled", props.items[i], i);
     }
@@ -322,9 +355,9 @@ function onTransitionEnd(e: TransitionEvent) {
 }
 
 // Continuous fractional pointer position (0..n) read from the live transform,
-// so the reel scrolls in step with the wheel. (-angle)/seg equals index+0.5
-// when slice `index` is dead under the pointer, so subtract 0.5 to align the
-// reel exactly with the arrow.
+// so the reel scrolls in step with the wheel. (POINTER_ANGLE-angle)/seg equals
+// index+0.5 when slice `index` is dead under the pointer, so subtract 0.5 to
+// align the reel exactly with the arrow.
 function pointerPosition(): number {
   const el = discEl.value;
   const n = props.items.length;
@@ -338,7 +371,7 @@ function pointerPosition(): number {
     angle = (Math.atan2(m.b, m.a) * 180) / Math.PI;
   }
   const seg = 360 / n;
-  const raw = ((((-angle) % 360) + 360) % 360) / seg - 0.5;
+  const raw = ((((POINTER_ANGLE - angle) % 360) + 360) % 360) / seg - 0.5;
   return ((raw % n) + n) % n;
 }
 
@@ -483,6 +516,15 @@ defineExpose({ spinTo, spinRandom, clearSelection, isSpinning: () => spinning.va
   stroke: rgba(0, 0, 0, 0.35);
   stroke-width: 1.5;
   cursor: pointer;
+  transition:
+    filter 0.45s ease-out,
+    opacity 0.45s ease-out;
+}
+
+/* Once a winner is locked in, fade the rest back so the chosen slice pops. */
+.slice.dim {
+  filter: saturate(0.4) brightness(0.85);
+  opacity: 0.85;
 }
 
 .num {
@@ -528,15 +570,15 @@ defineExpose({ spinTo, spinRandom, clearSelection, isSpinning: () => spinning.va
 
 .pointer {
   position: absolute;
-  top: -6px;
-  left: 50%;
+  top: 50%;
+  left: -6px;
   z-index: 3;
   width: 0;
   height: 0;
-  transform: translateX(-50%);
-  border-left: 16px solid transparent;
-  border-right: 16px solid transparent;
-  border-top: 30px solid #ffffff;
-  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.5));
+  transform: translateY(-50%);
+  border-top: 16px solid transparent;
+  border-bottom: 16px solid transparent;
+  border-left: 30px solid #ffffff;
+  filter: drop-shadow(2px 0 3px rgba(0, 0, 0, 0.5));
 }
 </style>
