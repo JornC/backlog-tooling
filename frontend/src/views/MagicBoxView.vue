@@ -1,8 +1,37 @@
 <template>
   <div class="magicbox">
-    <div class="lang-switch">
-      <button :class="{ active: lang === 'nl' }" @click="lang = 'nl'">NL</button>
-      <button :class="{ active: lang === 'en' }" @click="lang = 'en'">EN</button>
+    <div class="top-controls">
+      <button
+        class="sound-toggle"
+        :class="{ off: !soundOn }"
+        :aria-label="soundOn ? 'Geluid uit' : 'Geluid aan'"
+        @click="toggleSound">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor" />
+          <template v-if="soundOn">
+            <path
+              d="M15.5 9a3.5 3.5 0 010 6"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round" />
+            <path
+              d="M18 6.5a7 7 0 010 11"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round" />
+          </template>
+          <g v-else stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+            <line x1="16" y1="9.5" x2="21" y2="14.5" />
+            <line x1="21" y1="9.5" x2="16" y2="14.5" />
+          </g>
+        </svg>
+      </button>
+      <div class="lang-switch">
+        <button :class="{ active: lang === 'nl' }" @click="lang = 'nl'">NL</button>
+        <button :class="{ active: lang === 'en' }" @click="lang = 'en'">EN</button>
+      </div>
     </div>
 
     <header class="mb-header">
@@ -38,6 +67,7 @@
             :palette="themePalette"
             :empty-label="t.empty"
             @scroll="onScroll"
+            @ticks="onTicks"
             @settled="onSettled" />
 
           <button class="spin-btn" :disabled="!canSpin" @click="spin">
@@ -105,6 +135,7 @@
 
 <script setup lang="ts">
 import SpinWheel from "@/components/magicbox/SpinWheel.vue";
+import { useWheelSounds } from "@/components/magicbox/useWheelSounds";
 
 interface Theme {
   title: string;
@@ -136,7 +167,7 @@ interface Copy {
 
 const STRINGS: Record<Lang, Copy> = {
   nl: {
-    title: "Het Magische Rad",
+    title: "Het Epische Rad van Fortuin",
     tagline: "Wie is aan de beurt - en welk thema kiest het lot?",
     nameLabel: "Wie presenteert?",
     placeholder: "Henkie",
@@ -153,11 +184,11 @@ const STRINGS: Record<Lang, Copy> = {
     editorHead: "Inhoud - secties #nl / #en, oneven regel = thema, even regel = toelichting",
     reset: "terug naar standaard",
     editorHint:
-      "Per taal een #nl / #en sectie. Eén regel per thema, de regel eronder de toelichting. Beide talen moeten evenveel thema's hebben. Alles wordt automatisch bewaard.",
+      "Per taal een #nl / #en sectie. Eén regel per thema, de regel eronder de toelichting. Beide talen moeten evenveel thema's hebben. Wijzigingen blijven alleen lokaal in deze browser bewaard.",
     empty: "voeg thema's toe",
   },
   en: {
-    title: "The Magic Wheel",
+    title: "The Epic Wheel of Fortune",
     tagline: "Whose turn is it - and which topic will fate choose?",
     nameLabel: "Who's presenting?",
     placeholder: "name…",
@@ -174,7 +205,7 @@ const STRINGS: Record<Lang, Copy> = {
     editorHead: "Content - #nl / #en sections, odd line = topic, even line = description",
     reset: "reset to defaults",
     editorHint:
-      "One #nl / #en section per language. One line per topic, the line below it the description. Both languages need the same number of topics. Saved automatically.",
+      "One #nl / #en section per language. One line per topic, the line below it the description. Both languages need the same number of topics. Changes are kept only locally in this browser.",
     empty: "add some topics",
   },
 };
@@ -362,6 +393,7 @@ interface SavedState {
   name: string;
   themes: ThemesByLang;
   lang: Lang;
+  sound: boolean;
 }
 
 // Accepts only a non-empty array of theme-like objects, normalized; else null.
@@ -396,12 +428,18 @@ function load(): SavedState {
           en: sanitizeThemes(parsed.themes) ?? cloneDefaults("en"),
         };
       }
-      return { name: typeof parsed.name === "string" ? parsed.name : "", themes, lang };
+      const sound = typeof parsed.sound === "boolean" ? parsed.sound : true;
+      return { name: typeof parsed.name === "string" ? parsed.name : "", themes, lang, sound };
     }
   } catch {
     // fall through to defaults
   }
-  return { name: "", themes: { nl: cloneDefaults("nl"), en: cloneDefaults("en") }, lang: "nl" };
+  return {
+    name: "",
+    themes: { nl: cloneDefaults("nl"), en: cloneDefaults("en") },
+    lang: "nl",
+    sound: true,
+  };
 }
 
 // The editor is a single textarea: odd lines are theme titles, the even line
@@ -595,6 +633,18 @@ const canSpin = computed(
   () => !spinning.value && wheelThemes.value.length > 0 && name.value.trim().length > 0,
 );
 
+const { enabled: soundOn, ensure: ensureAudio, setEnabled: setSoundEnabled, playTick, scheduleTicks, playDing } =
+  useWheelSounds();
+soundOn.value = initial.sound;
+
+function toggleSound() {
+  const on = !soundOn.value;
+  setSoundEnabled(on);
+  if (on) {
+    playTick(); // brief audible confirmation
+  }
+}
+
 let pendingIndex = -1;
 
 function spin() {
@@ -604,6 +654,7 @@ function spin() {
     }
     return;
   }
+  ensureAudio(); // resume the AudioContext within this click gesture
   cardPerson.value = name.value.trim();
   revealed.value = false;
   showCard.value = true;
@@ -621,11 +672,18 @@ function onScroll(position: number) {
   }
 }
 
+// The wheel emits the exact peg-crossing times for this spin; schedule the ticks
+// so they follow its deceleration curve precisely.
+function onTicks(offsetsMs: number[]) {
+  scheduleTicks(offsetsMs);
+}
+
 function onSettled(_title: string, index: number) {
   spinning.value = false;
   reelPos.value = index;
   cardIndex.value = index;
   revealed.value = true;
+  playDing();
   burstConfetti();
   nextTick(() => resultEl.value?.scrollIntoView({ behavior: "smooth", block: "center" }));
 }
@@ -635,21 +693,24 @@ function burstConfetti() {
   if (!host) {
     return;
   }
-  const count = 130;
+  // Count scales with viewport width (~1 piece per 5px) so density stays even
+  // on any screen; clamped to keep huge displays sane.
+  const vw = window.innerWidth;
+  const count = Math.min(520, Math.max(160, Math.round(vw * 0.2)));
   for (let i = 0; i < count; i++) {
     const piece = document.createElement("span");
     piece.className = "confetti-piece";
-    const left = 20 + Math.random() * 60;
+    const left = Math.random() * 100; // full viewport width
     const size = 6 + Math.random() * 9;
     piece.style.left = `${left}%`;
     piece.style.width = `${size}px`;
     piece.style.height = `${size * (0.4 + Math.random() * 0.6)}px`;
     piece.style.background = themePalette[i % themePalette.length];
-    piece.style.setProperty("--dx", `${(Math.random() * 2 - 1) * 260}px`);
+    piece.style.setProperty("--dx", `${(Math.random() * 2 - 1) * 280}px`);
     piece.style.setProperty("--dr", `${Math.random() * 720 - 360}deg`);
-    // Stagger a little and fall longer so the celebration lasts ~1.5s more.
-    piece.style.animationDelay = `${Math.random() * 0.5}s`;
-    piece.style.animationDuration = `${2.4 + Math.random() * 1.6}s`;
+    // Stagger the launch and vary the fall so the celebration sustains longer.
+    piece.style.animationDelay = `${Math.random() * 0.8}s`;
+    piece.style.animationDuration = `${3 + Math.random() * 2.2}s`;
     host.appendChild(piece);
     piece.addEventListener("animationend", () => piece.remove());
   }
@@ -672,7 +733,7 @@ watch(themesText, (text) => {
 });
 
 watch(
-  [name, themesByLang, lang],
+  [name, themesByLang, lang, soundOn],
   () => {
     localStorage.setItem(
       STORAGE_KEY,
@@ -680,6 +741,7 @@ watch(
         name: name.value,
         themes: themesByLang.value,
         lang: lang.value,
+        sound: soundOn.value,
       } satisfies SavedState),
     );
   },
@@ -787,11 +849,40 @@ onUnmounted(() => {
   }
 }
 
-.lang-switch {
+.top-controls {
   position: fixed;
   top: 16px;
   right: 16px;
   z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sound-toggle {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border-radius: 50%;
+  color: #ffca3a;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  cursor: pointer;
+  transition:
+    background 0.15s ease-out,
+    color 0.15s ease-out;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.12);
+  }
+  &.off {
+    color: rgba(255, 255, 255, 0.4);
+  }
+}
+
+.lang-switch {
   display: flex;
   gap: 2px;
   padding: 3px;

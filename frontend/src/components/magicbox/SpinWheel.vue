@@ -79,6 +79,9 @@ const emit = defineEmits<{
   // Continuous fractional pointer position (0..n) emitted every frame during a
   // spin, so the parent can scroll its title reel in sync with the wheel.
   scroll: [position: number];
+  // Peg-crossing times (ms from spin start) for the whole curve, so the parent
+  // can schedule tick sounds that follow the deceleration exactly.
+  ticks: [offsetsMs: number[]];
 }>();
 
 // Two chained CSS transitions (CSS keeps animating even if the tab is hidden,
@@ -89,8 +92,33 @@ const emit = defineEmits<{
 const CURVE_MS = 6500;
 const HOLD_MS = 130;
 const SNAP_MS = 300;
-const CURVE_EASE = "cubic-bezier(0.25, 0.4, 0.55, 1)";
+const CURVE_BEZIER = [0.25, 0.4, 0.55, 1] as const;
+const CURVE_EASE = `cubic-bezier(${CURVE_BEZIER.join(", ")})`;
 const SNAP_EASE = "cubic-bezier(0.3, 0, 0.2, 1)";
+
+// Cubic value with end points 0 and 1 and the two given control values.
+function cubic(c1: number, c2: number, s: number): number {
+  const u = 1 - s;
+  return 3 * u * u * s * c1 + 3 * u * s * s * c2 + s * s * s;
+}
+
+// Invert the curve easing: given an output progress y (0..1), return the time
+// fraction x (0..1). Binary search on the Bézier parameter (y is monotonic).
+function easeTimeForProgress(y: number): number {
+  const [x1, y1, x2, y2] = CURVE_BEZIER;
+  let lo = 0;
+  let hi = 1;
+  let s = y;
+  for (let i = 0; i < 28; i++) {
+    s = (lo + hi) / 2;
+    if (cubic(y1, y2, s) < y) {
+      lo = s;
+    } else {
+      hi = s;
+    }
+  }
+  return cubic(x1, x2, s);
+}
 
 // Random resting orientation on load, so the wheel doesn't always start the same.
 const rotation = ref(Math.random() * 360);
@@ -181,6 +209,21 @@ function spinTo(index: number) {
   // "fuzz"; the snap distance equals this offset. Min magnitude keeps a visible
   // snap (and guarantees the phase-2 transitionend fires).
   const fuzz = (Math.random() < 0.5 ? -1 : 1) * seg * (0.16 + Math.random() * 0.24);
+
+  // A peg is crossed every `seg` degrees, at the slice *boundaries* (rotation
+  // ≡ 0 mod seg). Offset the first tick to the next boundary so ticks land on
+  // boundaries, not slice centres, then map each through the easing to its exact
+  // time so they decelerate on the same curve as the wheel.
+  const totalDist = extraTurns * 360 + delta + fuzz;
+  const startMod = ((rotation.value % seg) + seg) % seg;
+  const firstPeg = (seg - startMod) % seg;
+  const tickTimes: number[] = [];
+  for (let adv = firstPeg; adv <= totalDist; adv += seg) {
+    if (adv > 0.001) {
+      tickTimes.push(CURVE_MS * easeTimeForProgress(adv / totalDist));
+    }
+  }
+  emit("ticks", tickTimes);
 
   pendingIndex = index;
   phase = 1;
