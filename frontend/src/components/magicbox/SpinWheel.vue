@@ -1,5 +1,8 @@
 <template>
-  <div class="wheel" :style="{ width: size + 'px', height: size + 'px' }">
+  <div class="wheel" :class="{ spinning }" :style="{ width: size + 'px', height: size + 'px' }">
+    <!-- A non-spinning circle behind the disc; its stacked box-shadows form the
+         wheel's thick "coin" edge, giving it depth under the tilt. -->
+    <div class="disc-base" aria-hidden="true"></div>
     <div class="pointer" ></div>
     <svg
       ref="discEl"
@@ -26,7 +29,7 @@
         <circle :cx="c" :cy="c" :r="r" class="empty-disc" />
         <text :x="c" :y="c" class="empty-text">{{ emptyLabel }}</text>
       </g>
-      <g v-for="(seg, i) in segments" :key="i">
+      <g v-for="(seg, i) in segments" :key="i" class="slice-group">
         <path :d="seg.path" :fill="seg.color" class="slice" @click="onSliceClick(i)" />
         <text :transform="seg.numTransform" class="num" :style="{ fontSize: numberSize + 'px' }">
           {{ seg.num }}
@@ -47,6 +50,9 @@
       </g>
       <circle :cx="c" :cy="c" :r="hubR" class="hub" />
     </svg>
+    <!-- Glossy dome highlight + edge vignette overlay; doesn't rotate with the
+         disc (fixed light), and lets clicks through to the slices. -->
+    <div class="disc-sheen" aria-hidden="true"></div>
   </div>
 </template>
 
@@ -363,15 +369,112 @@ defineExpose({ spinTo, spinRandom, clearSelection, isSpinning: () => spinning.va
   position: relative;
   display: grid;
   place-items: center;
+  // A fixed 3D tilt (with the extruded edge below, this gives the wheel real
+  // depth at rest). The tilt lives on the container so pointer and disc tilt
+  // together and stay aligned; the disc keeps its own 2D spin inside this frame.
+  // No `preserve-3d` - the children are flat and it makes hit-testing the SVG
+  // slices through the tilt unreliable.
+  transform-origin: 50% 50%;
+  transform: rotateX(16deg);
+  transition: transform 0.5s ease-out;
+  will-change: transform;
+  // Clicking slices shouldn't select the SVG numbers/titles as text.
+  user-select: none;
+}
+
+// The wobble only runs during a spin; at rest the wheel is static, so clicking
+// slices is reliable. The keyframes pass through the rest tilt (0/50/100%) so it
+// blends in and out, and the transition eases any leftover when it stops.
+.wheel.spinning {
+  animation: wheel-wobble 2.8s ease-in-out infinite;
+}
+
+@keyframes wheel-wobble {
+  0%,
+  100% {
+    transform: rotateX(16deg);
+  }
+  25% {
+    transform: rotateX(14.5deg) rotateY(2.6deg) rotateZ(0.6deg);
+  }
+  75% {
+    transform: rotateX(17.5deg) rotateY(-2.6deg) rotateZ(-0.6deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wheel.spinning {
+    animation: none;
+  }
+}
+
+// The wheel's thickness: stacked hard box-shadows step straight down to form a
+// solid dark "side wall" under the disc, darkening with depth, plus a soft cast
+// shadow on the ground. It doesn't spin, so the edge stays put under the tilt.
+.disc-base {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: 50%;
+  pointer-events: none;
+  background: #1b1f27;
+  box-shadow:
+    0 1px 0 #1a1e26,
+    0 2px 0 #191d25,
+    0 3px 0 #181c23,
+    0 4px 0 #171b22,
+    0 5px 0 #161920,
+    0 6px 0 #15181f,
+    0 7px 0 #14171e,
+    0 8px 0 #13161c,
+    0 9px 0 #12151b,
+    0 10px 0 #111419,
+    0 11px 0 #101318,
+    0 12px 0 #0f1217,
+    0 13px 0 #0e1116,
+    0 14px 0 #0d1014,
+    0 15px 0 #0c0f13,
+    0 16px 0 #0b0e12,
+    0 26px 30px rgba(0, 0, 0, 0.55);
 }
 
 .disc {
+  position: relative;
+  z-index: 1;
   width: 100%;
   height: 100%;
   transform-origin: 50% 50%;
-  filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.45));
   border-radius: 50%;
   /* The transition (duration + easing) is driven from script. */
+}
+
+.disc-sheen {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: 50%;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      135% 110% at 30% 22%,
+      rgba(255, 255, 255, 0.38) 0%,
+      rgba(255, 255, 255, 0.1) 22%,
+      rgba(255, 255, 255, 0) 43%
+    ),
+    radial-gradient(circle at 50% 54%, rgba(0, 0, 0, 0) 58%, rgba(0, 0, 0, 0.34) 100%);
+}
+
+// Hovering a slice grows it outward from the wheel centre, so it juts past the
+// rim within its own wedge (no neighbour overlap, so nothing covers it). Gated
+// to the resting wheel - no hover-grow mid-spin.
+.slice-group {
+  transform-box: view-box;
+  transform-origin: 50% 50%;
+  transition: transform 0.16s ease-out;
+}
+
+.wheel:not(.spinning) .slice-group:hover {
+  transform: scale(1.065);
 }
 
 .slice {
@@ -425,7 +528,7 @@ defineExpose({ spinTo, spinRandom, clearSelection, isSpinning: () => spinning.va
   position: absolute;
   top: -6px;
   left: 50%;
-  z-index: 2;
+  z-index: 3;
   width: 0;
   height: 0;
   transform: translateX(-50%);

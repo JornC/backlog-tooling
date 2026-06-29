@@ -1048,6 +1048,9 @@ onUnmounted(() => {
   position: relative;
   display: grid;
   place-items: center;
+  // Gives the wheel's slight 3D tilt/wobble depth (the wheel is the only
+  // 3D-transformed child; the centered SPIN button stays face-on).
+  perspective: 1300px;
 }
 
 .spin-btn {
