@@ -40,7 +40,7 @@
         </div>
 
         <label class="group-label">Schedule</label>
-        <textarea class="schedule-area" readonly :value="scheduleText" />
+        <textarea class="schedule-area" readonly :value="scheduleText" ></textarea>
 
         <button
           class="danger"
