@@ -181,10 +181,10 @@ const STRINGS: Record<Lang, Copy> = {
     resultSpinning: "het rad draait…",
     resultDone: "en het lot bepaalt…",
     presents: "presenteert",
-    editorHead: "Inhoud - secties #nl / #en, oneven regel = thema, even regel = toelichting",
+    editorHead: "Inhoud - regels met een nummer ('1.') zijn thema's, de regel eronder is de toelichting",
     reset: "terug naar standaard",
     editorHint:
-      "Per taal een #nl / #en sectie. Eén regel per thema, de regel eronder de toelichting. Beide talen moeten evenveel thema's hebben. Wijzigingen blijven alleen lokaal in deze browser bewaard.",
+      "Eén regel per thema, beginnend met een nummer (bijv. '1.'). De regel eronder is de toelichting (mag weg). Gebruik #nl / #en secties voor twee talen - met evenveel thema's - of laat ze weg voor één taal. Wijzigingen blijven alleen lokaal in deze browser bewaard.",
     empty: "voeg thema's toe",
   },
   en: {
@@ -202,10 +202,10 @@ const STRINGS: Record<Lang, Copy> = {
     resultSpinning: "the wheel is spinning…",
     resultDone: "and fate decides…",
     presents: "presents",
-    editorHead: "Content - #nl / #en sections, odd line = topic, even line = description",
+    editorHead: "Content - lines starting with a number ('1.') are topics, the line below is the description",
     reset: "reset to defaults",
     editorHint:
-      "One #nl / #en section per language. One line per topic, the line below it the description. Both languages need the same number of topics. Changes are kept only locally in this browser.",
+      "One line per topic, starting with a number (e.g. '1.'). The line below it is the description (optional). Use #nl / #en sections for two languages - with equal counts - or omit them for one. Changes are kept only locally in this browser.",
     empty: "add some topics",
   },
 };
@@ -442,21 +442,32 @@ function load(): SavedState {
   };
 }
 
-// The editor is a single textarea: odd lines are theme titles, the even line
-// right below each is that theme's description.
+// In the editor each theme is a line starting with its number ("1. ..."); that
+// numbered line is the title (number included - the wheel shows it). The very
+// next line, if it isn't blank or another numbered theme, is its description.
+const THEME_LINE = /^\s*\d+\.\s*\S/;
+
 function serializeThemes(list: Theme[]): string {
-  return list.map((t) => `${t.title}\n${t.description}`).join("\n");
+  return list.map((t) => (t.description ? `${t.title}\n${t.description}` : t.title)).join("\n");
 }
 
 function parseThemes(text: string): Theme[] {
   const lines = text.split("\n");
   const out: Theme[] = [];
-  for (let i = 0; i < lines.length; i += 2) {
-    const title = (lines[i] ?? "").trim();
-    const description = (lines[i + 1] ?? "").trim();
-    if (title) {
-      out.push({ title, description });
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i] ?? "";
+    if (!THEME_LINE.test(line)) {
+      continue; // only numbered lines start a theme
     }
+    const title = line.trim();
+    // The next line is the description unless it's blank or another theme.
+    const next = lines[i + 1];
+    let description = "";
+    if (next !== undefined && next.trim() && !THEME_LINE.test(next)) {
+      description = next.trim();
+      i += 1;
+    }
+    out.push({ title, description });
   }
   return out;
 }
@@ -468,9 +479,21 @@ function serializeCombined(byLang: ThemesByLang): string {
 
 function parseCombined(text: string): { themes?: ThemesByLang; error?: string } {
   const nl = lang.value === "nl";
+  const lines = text.split("\n");
+
+  // No #nl / #en markers -> single language: one list, used for both languages,
+  // with no per-section count validation.
+  if (!lines.some((l) => l.trim().startsWith("#"))) {
+    const list = parseThemes(text);
+    if (list.length === 0) {
+      return { error: nl ? "Voeg minstens één thema toe." : "Add at least one topic." };
+    }
+    return { themes: { nl: list, en: list.map((x) => ({ ...x })) } };
+  }
+
   const sections: Partial<Record<Lang, string[]>> = {};
   let current: Lang | null = null;
-  for (const line of text.split("\n")) {
+  for (const line of lines) {
     const trimmed = line.trim();
     if (trimmed.startsWith("#")) {
       const tag = trimmed.slice(1).trim().toLowerCase();
