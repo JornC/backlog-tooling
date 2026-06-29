@@ -27,7 +27,7 @@
         <text :x="c" :y="c" class="empty-text">{{ emptyLabel }}</text>
       </g>
       <g v-for="(seg, i) in segments" :key="i">
-        <path :d="seg.path" :fill="seg.color" class="slice" />
+        <path :d="seg.path" :fill="seg.color" class="slice" @click="onSliceClick(i)" />
         <text :transform="seg.numTransform" class="num" :style="{ fontSize: numberSize + 'px' }">
           {{ seg.num }}
         </text>
@@ -82,6 +82,9 @@ const emit = defineEmits<{
   // Peg-crossing times (ms from spin start) for the whole curve, so the parent
   // can schedule tick sounds that follow the deceleration exactly.
   ticks: [offsetsMs: number[]];
+  // A slice was clicked to explore it: the parent surfaces what the option is,
+  // without the "fate picked" framing.
+  preview: [index: number];
 }>();
 
 // Two chained CSS transitions (CSS keeps animating even if the tab is hidden,
@@ -95,6 +98,10 @@ const SNAP_MS = 300;
 const CURVE_BEZIER = [0.25, 0.4, 0.55, 1] as const;
 const CURVE_EASE = `cubic-bezier(${CURVE_BEZIER.join(", ")})`;
 const SNAP_EASE = "cubic-bezier(0.3, 0, 0.2, 1)";
+
+// A short, direct glide for clicking a slice to explore it (no spin theatrics).
+const MOVE_MS = 600;
+const MOVE_EASE = "cubic-bezier(0.4, 0, 0.2, 1)";
 
 // Cubic value with end points 0 and 1 and the two given control values.
 function cubic(c1: number, c2: number, s: number): number {
@@ -120,8 +127,17 @@ function easeTimeForProgress(y: number): number {
   return cubic(x1, x2, s);
 }
 
-// Random resting orientation on load, so the wheel doesn't always start the same.
-const rotation = ref(Math.random() * 360);
+// Rest on a random slice *boundary* (pointer between two slices), so the wheel
+// varies on load but no single topic looks selected.
+function neutralStart(): number {
+  const n = props.items.length;
+  if (n === 0) {
+    return Math.random() * 360;
+  }
+  const seg = 360 / n;
+  return Math.floor(Math.random() * n) * seg;
+}
+const rotation = ref(neutralStart());
 const spinning = ref(false);
 const transition = ref("none");
 const discEl = ref<SVGSVGElement | null>(null);
@@ -240,6 +256,41 @@ function spinRandom() {
   spinTo(Math.floor(Math.random() * props.items.length));
 }
 
+// Click a slice to glide it under the pointer for a closer look. This is not a
+// spin: a short move along the shortest path, no extra turns, fuzz, ticks or
+// `settled`. The parent shows the option's info via the `preview` event.
+function onSliceClick(index: number) {
+  if (props.items.length === 0 || spinning.value) {
+    return;
+  }
+  const n = props.items.length;
+  const seg = 360 / n;
+  const targetMod = (((-(index * seg + seg / 2)) % 360) + 360) % 360;
+  const currentMod = ((rotation.value % 360) + 360) % 360;
+  let delta = (((targetMod - currentMod) % 360) + 360) % 360;
+  if (delta > 180) {
+    delta -= 360; // take the shortest way round
+  }
+  transition.value = `transform ${MOVE_MS}ms ${MOVE_EASE}`;
+  rotation.value = rotation.value + delta;
+  emit("preview", index);
+}
+
+// Glide to the nearest slice boundary (pointer between slices), so nothing is
+// selected. Used by the parent's "clear selection" button.
+function clearSelection() {
+  if (props.items.length === 0 || spinning.value) {
+    return;
+  }
+  const seg = 360 / props.items.length;
+  const nearest = Math.round(rotation.value / seg) * seg;
+  if (Math.abs(nearest - rotation.value) < 0.001) {
+    return;
+  }
+  transition.value = `transform ${MOVE_MS}ms ${MOVE_EASE}`;
+  rotation.value = nearest;
+}
+
 function onTransitionEnd(e: TransitionEvent) {
   if (e.propertyName !== "transform") {
     return;
@@ -304,7 +355,7 @@ function stopTracking() {
 
 onUnmounted(stopTracking);
 
-defineExpose({ spinTo, spinRandom, isSpinning: () => spinning.value });
+defineExpose({ spinTo, spinRandom, clearSelection, isSpinning: () => spinning.value });
 </script>
 
 <style lang="scss" scoped>
@@ -326,6 +377,7 @@ defineExpose({ spinTo, spinRandom, isSpinning: () => spinning.value });
 .slice {
   stroke: rgba(0, 0, 0, 0.35);
   stroke-width: 1.5;
+  cursor: pointer;
 }
 
 .num {

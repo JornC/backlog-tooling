@@ -68,6 +68,7 @@
             :empty-label="t.empty"
             @scroll="onScroll"
             @ticks="onTicks"
+            @preview="onPreview"
             @settled="onSettled" />
 
           <button class="spin-btn" :disabled="!canSpin" @click="spin">
@@ -78,24 +79,32 @@
 
       <div class="panel">
         <transition name="reveal">
-          <div v-if="showCard" ref="resultEl" class="result" :class="{ live: spinning }">
-            <span class="result-label">{{ spinning ? t.resultSpinning : t.resultDone }}</span>
-            <p class="result-line">
-              <strong class="who">{{ cardPerson }}</strong>
-              <span class="arrow">{{ t.presents }}</span>
-            </p>
+          <div
+            v-if="showCard"
+            ref="resultEl"
+            class="result"
+            :class="{ live: spinning, preview: cardMode === 'preview' }">
+            <template v-if="cardMode === 'result'">
+              <span class="result-label">{{ spinning ? t.resultSpinning : t.resultDone }}</span>
+              <p class="result-line">
+                <strong class="who">{{ cardPerson }}</strong>
+                <span class="arrow">{{ t.presents }}</span>
+              </p>
 
-            <div class="reel" :style="{ height: REEL_LINE + 'px' }">
-              <div class="reel-strip" :style="{ transform: `translateY(${reelOffset}px)` }">
-                <div
-                  v-for="(title, i) in reelLines"
-                  :key="i"
-                  class="reel-line"
-                  :style="{ height: REEL_LINE + 'px' }">
-                  {{ title }}
+              <div class="reel" :style="{ height: REEL_LINE + 'px' }">
+                <div class="reel-strip" :style="{ transform: `translateY(${reelOffset}px)` }">
+                  <div
+                    v-for="(title, i) in reelLines"
+                    :key="i"
+                    class="reel-line"
+                    :style="{ height: REEL_LINE + 'px' }">
+                    {{ title }}
+                  </div>
                 </div>
               </div>
-            </div>
+            </template>
+
+            <p v-else class="preview-title">{{ card?.title }}</p>
 
             <div class="result-desc-wrap" :class="{ open: revealed && card }">
               <div class="result-desc-inner">
@@ -106,6 +115,7 @@
         </transition>
 
         <div class="controls">
+          <button v-if="showCard" class="ghost" @click="clearSelection">{{ t.clear }}</button>
           <button class="ghost" @click="showEdit = !showEdit">
             {{ showEdit ? t.manageClose : t.manage }}
           </button>
@@ -154,6 +164,7 @@ interface Copy {
   spinPre: string;
   spinPost: string;
   spinBtn: string;
+  clear: string;
   manage: string;
   manageClose: string;
   resultSpinning: string;
@@ -176,6 +187,7 @@ const STRINGS: Record<Lang, Copy> = {
     spinPre: "Het rad draait voor ",
     spinPost: "…",
     spinBtn: "DRAAI",
+    clear: "selectie wissen",
     manage: "thema's beheren",
     manageClose: "sluit beheer",
     resultSpinning: "het rad draait…",
@@ -197,6 +209,7 @@ const STRINGS: Record<Lang, Copy> = {
     spinPre: "The wheel is spinning for ",
     spinPost: "…",
     spinBtn: "SPIN",
+    clear: "clear selection",
     manage: "edit topics",
     manageClose: "close editor",
     resultSpinning: "the wheel is spinning…",
@@ -600,6 +613,9 @@ const showEdit = ref(false);
 const showCard = ref(false);
 const revealed = ref(false);
 const cardPerson = ref("");
+// "result" = a spin landed (full "fate picked" framing); "preview" = a slice was
+// clicked to explore it (just the option's title + description, no framing).
+const cardMode = ref<"result" | "preview">("result");
 // The result is stored as the wheel index (not a snapshot) so the card follows
 // the active language: switching NL/EN re-derives the same theme, translated.
 const cardIndex = ref(-1);
@@ -678,6 +694,7 @@ function spin() {
     return;
   }
   ensureAudio(); // resume the AudioContext within this click gesture
+  cardMode.value = "result";
   cardPerson.value = name.value.trim();
   revealed.value = false;
   showCard.value = true;
@@ -699,6 +716,27 @@ function onScroll(position: number) {
 // so they follow its deceleration curve precisely.
 function onTicks(offsetsMs: number[]) {
   scheduleTicks(offsetsMs);
+}
+
+// A slice was clicked to explore it: surface what the option is, without the
+// "fate picked" framing, confetti or sounds.
+function onPreview(index: number) {
+  if (spinning.value) {
+    return;
+  }
+  cardMode.value = "preview";
+  cardIndex.value = index;
+  revealed.value = true;
+  showCard.value = true;
+}
+
+// Dismiss the card and glide the wheel back to a neutral boundary, so no topic
+// is selected.
+function clearSelection() {
+  showCard.value = false;
+  revealed.value = false;
+  cardIndex.value = -1;
+  themeWheel.value?.clearSelection();
 }
 
 function onSettled(_title: string, index: number) {
@@ -1109,6 +1147,14 @@ onUnmounted(() => {
     text-transform: uppercase;
     letter-spacing: 0.2em;
     opacity: 0.6;
+  }
+
+  .preview-title {
+    margin: 0;
+    font-size: clamp(1.3rem, 3.2vw, 1.9rem);
+    font-weight: 800;
+    line-height: 1.25;
+    color: #ffca3a;
   }
 
   // The description expands the card height smoothly (grid-rows 0fr -> 1fr)
