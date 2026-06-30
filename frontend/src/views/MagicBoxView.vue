@@ -265,7 +265,7 @@ const STRINGS: Record<Lang, Copy> = {
     presents: "presenteert",
     reset: "terug naar standaard",
     editorHint:
-      "Eén regel per thema, beginnend met een nummer (bijv. '1.'). De regel eronder is de toelichting (mag weg). Gebruik #nl / #en secties voor twee talen - met evenveel thema's - of laat ze weg voor één taal. Wijzigingen blijven alleen lokaal in deze browser bewaard.",
+      "Eén regel per thema, beginnend met een nummer (bijv. '1.'). De regels eronder zijn de toelichting, één regel per alinea (mag weg). Gebruik #nl / #en secties voor twee talen - met evenveel thema's - of laat ze weg voor één taal. Wijzigingen blijven alleen lokaal in deze browser bewaard.",
     empty: "voeg thema's toe",
     nameStepIdle: "Draai om te bepalen wie presenteert",
     nameStepEmpty: "Nog geen teamleden - voeg ze eerst toe om te kunnen draaien",
@@ -299,7 +299,7 @@ const STRINGS: Record<Lang, Copy> = {
     presents: "presents",
     reset: "reset to defaults",
     editorHint:
-      "One line per topic, starting with a number (e.g. '1.'). The line below it is the description (optional). Use #nl / #en sections for two languages - with equal counts - or omit them for one. Changes are kept only locally in this browser.",
+      "One line per topic, starting with a number (e.g. '1.'). The lines below it are the description, one line per paragraph (optional). Use #nl / #en sections for two languages - with equal counts - or omit them for one. Changes are kept only locally in this browser.",
     empty: "add some topics",
     nameStepIdle: "Spin to pick who presents",
     nameStepEmpty: "No team members yet - add them first to spin",
@@ -324,74 +324,104 @@ const DEFAULT_THEMES_EN: Theme[] = [
       "Pick a recent PR, module, or refactor and walk through it. What's clean and worth copying, what's fragile or confusing, what you'd do differently. Less “judging someone,” more “here's a concrete example we can all learn from.”",
   },
   {
-    title: "2. Technical debt",
-    description:
-      "Name one specific piece of debt. Why does it slow us down or cause bugs? What would it cost to pay down versus the cost of continuing to carry it? Make the trade-off visible so we can decide deliberately instead of by default.",
-  },
-  {
-    title: "3. Architecture",
+    title: "2. Architecture",
     description:
       "Take one recent or upcoming design choice and explain the trade-offs: what we picked, what we rejected, and why. Good for surfacing assumptions early and making sure the reasoning is shared, not locked in one person's head.",
   },
   {
-    title: "4. Defensibility",
+    title: "3. Tech debt",
     description:
-      "Can we reliably reproduce a past calculation given its version and input data? Is our versioning and data-lineage tooling solid enough that an old result can be regenerated exactly? This is output traceability as an engineering property - critical for a system whose results get cited and contested.",
+      "Name one specific piece of debt, or an area that's ripe for cleanup. Why does it slow us down or cause bugs, and what would paying it down unlock? Weigh that against the cost of carrying it, so we decide deliberately instead of by default.",
   },
   {
-    title: "5. Incident retro",
-    description:
-      "Take one notable defect or production incident. What happened, what was the root cause (not just the symptom), how was it fixed, and what would have caught it earlier? Blameless - the goal is prevention, not fault.",
-  },
-  {
-    title: "6. Tests",
-    description:
-      "Where are we flying blind? Coverage gaps, flaky tests, areas of the calculation engine that aren't well validated. Point at the risk: what could break without a test catching it?",
-  },
-  {
-    title: "7. Performance",
+    title: "4. Performance",
     description:
       "Highlight a slow path, a heavy computation, or something that works now but won't age well as data or load grows. Especially relevant for spatial/calculation-heavy work. What's the bottleneck and when does it bite?",
   },
   {
-    title: "8. Observability",
-    description:
-      "Can we actually see what the system is doing in production? Look at logging, monitoring, and alerting. Where would we be blind if something went wrong right now, and what would we wish we'd been recording?",
-  },
-  {
-    title: "9. Release",
-    description:
-      "Look ahead to the next version or data cutover. Technical dependencies, migration risks, rollback plan. Are we ready, and what could go wrong at the moment of switchover? The deadline is usually externally fixed, so surprises are expensive.",
-  },
-  {
-    title: "10. CI/CD",
-    description:
-      "One source of friction in build, deploy, or local setup. The thing that makes everyone sigh when they hit it. What's the fix, and is it worth doing now?",
-  },
-  {
-    title: "11. Ways of working",
-    description:
-      "A bottleneck in how we work: review latency, handoffs, branching strategy, meeting load. Name one and propose a concrete tweak. Small, specific, testable changes beat grand reorganizations.",
-  },
-  {
-    title: "12. Documentation",
-    description:
-      "A gap in technical docs, onboarding material, or runbooks that's currently costing the team time. Where does knowledge live only in someone's head? What would you have wanted documented when you last got stuck?",
-  },
-  {
-    title: "13. Security",
+    title: "5. Security",
     description:
       "A vulnerability, an aging or unmaintained dependency, an auth/access concern, or whatever the latest scan flagged. What's our exposure, and what's the cost of patching versus the risk of waiting?",
   },
   {
-    title: "14. Refactoring",
+    title: "6. Tests",
     description:
-      "A specific area ripe for cleanup, with the case for doing it now rather than later. What makes it painful to work in, and what would the cleanup unlock? Tie it to real friction, not just aesthetics.",
+      "Where are we flying blind? Coverage gaps, flaky tests, regression risk, parts of the calculation engine that aren't well validated. Which scenarios deserve the most testing, what's worth automating, and what would make the hard-to-test areas easier to test?",
   },
   {
-    title: "15. Science & data",
+    title: "7. Incidents",
     description:
-      "The seam where RIVM's models and data meet our software. Where do mismatches, undocumented assumptions, or ambiguous specs bite us? A lot of real defects originate at this handoff rather than in our own code - so it's worth inspecting deliberately.",
+      "Take one defect or production incident that escaped. What happened, what was the root cause (not just the symptom), how was it fixed, and what - a test, a check, a clearer requirement - would have caught it earlier? Blameless: the goal is prevention, not fault.",
+  },
+  {
+    title: "8. Monitoring",
+    description:
+      "Can we actually see what the system is doing in production? Look at logging, monitoring, and alerting. Where would we be blind if something went wrong right now, and what would we wish we'd been recording?",
+  },
+  {
+    title: "9. Reproducibility",
+    description:
+      "Could we reliably reproduce a past result given its version and inputs? Is our versioning and data-lineage solid enough to regenerate an old result exactly, even long after the fact? That kind of output traceability matters most when results get scrutinised.",
+  },
+  {
+    title: "10. Requirements",
+    description:
+      "Pick a recent story that was hard to pin down. What made it ambiguous, what questions came up during build or test, and were the acceptance criteria specific enough to tell when it was done? The aim is writing the next one more clearly.",
+  },
+  {
+    title: "11. Business value",
+    description:
+      "Pick a recently delivered feature: what problem was it meant to solve, and did it? How do we know? Bring a piece of recent customer feedback too - is it a one-off or a signal of something bigger? Outcomes over outputs.",
+  },
+  {
+    title: "12. Assumptions",
+    description:
+      "Name an assumption behind upcoming work, or the biggest unknown the team is carrying. How confident are we that it holds, how could we validate it early, and what happens if we're wrong?",
+  },
+  {
+    title: "13. Prioritization",
+    description:
+      "How do we decide what's next? Walk through how the roadmap is sequenced, what we're deliberately saying no to, and whether the most valuable work is actually at the top. Makes the \"why this, why now\" shared instead of assumed.",
+  },
+  {
+    title: "14. Scope",
+    description:
+      "Pick a feature whose scope shifted, or one that leaned on another team or external system. What triggered the change or the dependency, what did it cost, and how could we spot similar risks - and coordinate - earlier?",
+  },
+  {
+    title: "15. Release",
+    description:
+      "Look ahead to the next version or data cutover. Technical dependencies, migration risks, rollback plan. Are we ready, and what could go wrong at the moment of switchover? The deadline is usually externally fixed, so surprises are expensive.",
+  },
+  {
+    title: "16. Estimation",
+    description:
+      "Where do our estimates drift from reality? How we size and forecast work, and plan capacity against a fixed deadline. Aim at the systematic misses and what would make planning more honest - not individual guesses.",
+  },
+  {
+    title: "17. Stakeholders",
+    description:
+      "How aligned are we with the people outside the team we depend on or serve - those who set the standards we follow, those who rely on our results? Where are expectations drifting, what isn't being said, and how could the handshake outward be tighter?",
+  },
+  {
+    title: "18. Ways of working",
+    description:
+      "One bottleneck in how we work: review latency, branching, build/deploy/setup friction, meeting load, or a docs gap where knowledge lives in one person's head. Name it, propose one small concrete tweak, and flag a lesson worth repeating or avoiding.",
+  },
+  {
+    title: "19. Team health",
+    description:
+      "How sustainable is our pace right now? Workload, focus time, context-switching, morale. What's quietly draining the team, and what small change would protect our energy for the long haul?",
+  },
+  {
+    title: "20. Models & data",
+    description:
+      "The seam where the external models, standards, and data we build on meet our software. Where do version changes, shifting inputs, undocumented assumptions, or ambiguous specs bite? A lot of real defects originate at this handoff rather than in our own code, so it's worth a deliberate look.",
+  },
+  {
+    title: "21. Cloud & Infra",
+    description:
+      "The cloud platform underneath everything: infrastructure-as-code, environments, deploy pipelines, access and identity. Where's the friction or the risk - something brittle, manual, or held by too few?",
   },
 ];
 
@@ -402,74 +432,104 @@ const DEFAULT_THEMES_NL: Theme[] = [
       "Pak een recente PR, module of refactor en loop er samen doorheen. Wat is netjes en het kopiëren waard, wat is broos of verwarrend, wat zou je anders doen? Minder “iemand beoordelen”, meer “hier is een concreet voorbeeld waar we allemaal van kunnen leren.”",
   },
   {
-    title: "2. Technische schuld",
-    description:
-      "Benoem één concreet stuk technische schuld. Waarom vertraagt het ons of veroorzaakt het bugs? Wat kost het om af te lossen versus de kosten van het blijven meedragen? Maak de afweging zichtbaar zodat we bewust kunnen kiezen in plaats van uit gewoonte.",
-  },
-  {
-    title: "3. Architectuur",
+    title: "2. Architectuur",
     description:
       "Neem één recente of aankomende ontwerpkeuze en leg de afwegingen uit: wat we kozen, wat we verwierpen en waarom. Goed om aannames vroeg boven tafel te krijgen en te zorgen dat de redenering gedeeld wordt, niet opgesloten in één hoofd.",
   },
   {
-    title: "4. Verdedigbaarheid",
+    title: "3. Tech debt",
     description:
-      "Kunnen we een eerdere berekening betrouwbaar reproduceren op basis van versie en invoerdata? Is onze versionering en data-lineage degelijk genoeg om een oud resultaat exact te herproduceren? Dit is traceerbaarheid van output als technische eigenschap - cruciaal voor een systeem waarvan de resultaten worden aangehaald en aangevochten.",
+      "Benoem één concreet stuk technische schuld, of een gebied dat rijp is voor opschoning. Waarom vertraagt het ons of veroorzaakt het bugs, en wat zou aflossen ontsluiten? Weeg dat af tegen de kosten van blijven meedragen, zodat we bewust kiezen in plaats van uit gewoonte.",
   },
   {
-    title: "5. Incidentretro",
-    description:
-      "Neem één opvallende fout of productie-incident. Wat gebeurde er, wat was de grondoorzaak (niet alleen het symptoom), hoe is het opgelost en wat had het eerder kunnen onderscheppen? Zonder schuldvraag - het doel is preventie, niet schuld.",
-  },
-  {
-    title: "6. Tests",
-    description:
-      "Waar vliegen we blind? Gaten in dekking, flaky tests, delen van de rekenmotor die slecht gevalideerd zijn. Wijs het risico aan: wat kan stuk zonder dat een test het opmerkt?",
-  },
-  {
-    title: "7. Prestaties",
+    title: "4. Prestaties",
     description:
       "Licht een traag pad uit, een zware berekening of iets dat nu werkt maar slecht veroudert naarmate data of belasting groeit. Vooral relevant voor ruimtelijk en rekenintensief werk. Wat is de bottleneck en wanneer gaat het pijn doen?",
   },
   {
-    title: "8. Observeerbaarheid",
-    description:
-      "Kunnen we daadwerkelijk zien wat het systeem in productie doet? Kijk naar logging, monitoring en alerting. Waar zouden we blind zijn als er nú iets misging, en wat zouden we willen dat we hadden vastgelegd?",
-  },
-  {
-    title: "9. Release",
-    description:
-      "Kijk vooruit naar de volgende versie of dataovergang. Technische afhankelijkheden, migratierisico's, terugrolplan. Zijn we klaar, en wat kan er misgaan op het moment van omschakelen? De deadline ligt meestal extern vast, dus verrassingen zijn duur.",
-  },
-  {
-    title: "10. CI/CD",
-    description:
-      "Eén bron van wrijving in build, deploy of lokale setup. Dat ding waar iedereen van zucht als ze het tegenkomen. Wat is de oplossing, en is het de moeite waard om het nu te doen?",
-  },
-  {
-    title: "11. Werkwijze",
-    description:
-      "Een knelpunt in hoe we werken: reviewdoorlooptijd, overdrachten, branchingstrategie, vergaderdruk. Benoem er één en stel een concrete aanpassing voor. Kleine, specifieke, toetsbare veranderingen verslaan grote reorganisaties.",
-  },
-  {
-    title: "12. Documentatie",
-    description:
-      "Een gat in technische docs, inwerkmateriaal of runbooks dat het team nu tijd kost. Waar zit kennis alleen in iemands hoofd? Wat had je gedocumenteerd willen hebben toen je laatst vastliep?",
-  },
-  {
-    title: "13. Beveiliging",
+    title: "5. Beveiliging",
     description:
       "Een kwetsbaarheid, een verouderde of niet-onderhouden dependency, een auth-/toegangskwestie, of wat de laatste scan ook markeerde. Wat is onze blootstelling, en wat kost patchen versus het risico van wachten?",
   },
   {
-    title: "14. Refactoring",
+    title: "6. Tests",
     description:
-      "Een specifiek gebied dat rijp is voor opschoning, met het argument om het nu te doen in plaats van later. Wat maakt het pijnlijk om erin te werken, en wat zou de opschoning ontsluiten? Koppel het aan echte wrijving, niet alleen esthetiek.",
+      "Waar vliegen we blind? Gaten in dekking, flaky tests, regressierisico, delen van de rekenmotor die slecht gevalideerd zijn. Welke scenario's verdienen de meeste tests, wat is het automatiseren waard, en wat maakt de lastig testbare delen makkelijker te testen?",
   },
   {
-    title: "15. Wetenschap & data",
+    title: "7. Incidenten",
     description:
-      "De naad waar RIVM's modellen en data onze software ontmoeten. Waar bijten mismatches, ongedocumenteerde aannames of dubbelzinnige specs ons? Veel echte defects ontstaan bij deze overdracht in plaats van in onze eigen code - dus het is de moeite waard om er bewust naar te kijken.",
+      "Neem één defect of productie-incident dat is ontsnapt. Wat gebeurde er, wat was de grondoorzaak (niet alleen het symptoom), hoe is het opgelost, en wat - een test, een check, een duidelijkere requirement - had het eerder kunnen onderscheppen? Zonder schuldvraag: het doel is preventie.",
+  },
+  {
+    title: "8. Monitoring",
+    description:
+      "Kunnen we daadwerkelijk zien wat het systeem in productie doet? Kijk naar logging, monitoring en alerting. Waar zouden we blind zijn als er nú iets misging, en wat zouden we willen dat we hadden vastgelegd?",
+  },
+  {
+    title: "9. Reproduceerbaar",
+    description:
+      "Kunnen we een eerder resultaat betrouwbaar reproduceren op basis van versie en invoer? Is onze versionering en data-lineage degelijk genoeg om een oud resultaat exact te herproduceren, ook lang achteraf? Dat soort traceerbaarheid telt vooral als resultaten onder de loep gaan.",
+  },
+  {
+    title: "10. Requirements",
+    description:
+      "Pak een recente story die lastig vast te krijgen was. Wat maakte 'm dubbelzinnig, welke vragen kwamen op tijdens bouwen of testen, en waren de acceptatiecriteria specifiek genoeg om te bepalen wanneer het klaar was? Doel: de volgende helderder opschrijven.",
+  },
+  {
+    title: "11. Businesswaarde",
+    description:
+      "Pak een recent opgeleverde feature: welk probleem moest het oplossen, en is dat gelukt? Hoe weten we dat? Neem ook een stuk recente klantfeedback mee - is het eenmalig of een signaal van iets groters? Uitkomsten boven output.",
+  },
+  {
+    title: "12. Aannames",
+    description:
+      "Benoem een aanname achter aankomend werk, of de grootste onzekerheid die het team meedraagt. Hoe zeker zijn we dat het klopt, hoe kunnen we het vroeg valideren, en wat gebeurt er als we het mis hebben?",
+  },
+  {
+    title: "13. Prioritering",
+    description:
+      "Hoe bepalen we wat er als volgende komt? Loop door hoe de roadmap is geordend, waar we bewust nee tegen zeggen, en of het meest waardevolle werk echt bovenaan staat. Maakt \"waarom dit, waarom nu\" gedeeld in plaats van aangenomen.",
+  },
+  {
+    title: "14. Scope",
+    description:
+      "Pak een feature waarvan de scope verschoof, of die leunde op een ander team of extern systeem. Wat veroorzaakte de wijziging of de afhankelijkheid, wat kostte het, en hoe hadden we vergelijkbare risico's - en de afstemming - eerder kunnen zien?",
+  },
+  {
+    title: "15. Release",
+    description:
+      "Kijk vooruit naar de volgende versie of dataovergang. Technische afhankelijkheden, migratierisico's, terugrolplan. Zijn we klaar, en wat kan er misgaan op het moment van omschakelen? De deadline ligt meestal extern vast, dus verrassingen zijn duur.",
+  },
+  {
+    title: "16. Inschatten",
+    description:
+      "Waar wijken onze schattingen af van de werkelijkheid? Hoe we werk inschatten en voorspellen, en capaciteit plannen tegen een vaste deadline. Richt je op de systematische missers en wat het plannen eerlijker maakt - niet op losse gissingen.",
+  },
+  {
+    title: "17. Stakeholders",
+    description:
+      "Hoe goed zijn we afgestemd met de mensen buiten het team waar we van afhangen of voor werken - degenen die de kaders stellen die wij volgen, degenen die op onze resultaten leunen? Waar lopen verwachtingen uiteen, wat blijft ongezegd, en hoe kan de afstemming naar buiten strakker?",
+  },
+  {
+    title: "18. Werkwijze",
+    description:
+      "Eén knelpunt in hoe we werken: reviewdoorlooptijd, branching, wrijving in build/deploy/setup, vergaderdruk, of een docs-gat waar kennis in één hoofd zit. Benoem het, stel één kleine concrete aanpassing voor, en licht een les uit die het herhalen of vermijden waard is.",
+  },
+  {
+    title: "19. Teamwelzijn",
+    description:
+      "Hoe houdbaar is ons tempo nu? Werkdruk, focustijd, context-switchen, moraal. Wat put het team stilletjes uit, en welke kleine verandering zou onze energie voor de lange termijn beschermen?",
+  },
+  {
+    title: "20. Modellen & Data",
+    description:
+      "De naad waar de externe modellen, standaarden en data waarop we bouwen onze software ontmoeten. Waar bijten versiewijzigingen, verschuivende invoer, ongedocumenteerde aannames of vage specs? Veel echte defects ontstaan bij deze overdracht in plaats van in onze eigen code - dus het is een bewuste blik waard.",
+  },
+  {
+    title: "21. Cloud & Infra",
+    description:
+      "Het cloudplatform onder alles: infrastructure-as-code, omgevingen, deploypijplijnen, toegang en identiteit. Waar zit de wrijving of het risico - iets broos, handmatig, of dat bij te weinig mensen zit?",
   },
 ];
 
@@ -586,12 +646,21 @@ function parseNames(text: string): string[] {
 }
 
 // In the editor each theme is a line starting with its number ("1. ..."); that
-// numbered line is the title (number included - the wheel shows it). The very
-// next line, if it isn't blank or another numbered theme, is its description.
+// numbered line is the title (number included - the wheel shows it). The lines
+// after it, until the next numbered theme or a blank line, are its description -
+// one line per paragraph (stored joined with a blank line between paragraphs).
 const THEME_LINE = /^\s*\d+\.\s*\S/;
 
 function serializeThemes(list: Theme[]): string {
-  return list.map((t) => (t.description ? `${t.title}\n${t.description}` : t.title)).join("\n");
+  return list
+    .map((t) => {
+      if (!t.description) {
+        return t.title;
+      }
+      const paras = t.description.split(/\n{2,}/).map((p) => p.trim());
+      return [t.title, ...paras].join("\n");
+    })
+    .join("\n");
 }
 
 function parseThemes(text: string): Theme[] {
@@ -603,14 +672,19 @@ function parseThemes(text: string): Theme[] {
       continue; // only numbered lines start a theme
     }
     const title = line.trim();
-    // The next line is the description unless it's blank or another theme.
-    const next = lines[i + 1];
-    let description = "";
-    if (next !== undefined && next.trim() && !THEME_LINE.test(next)) {
-      description = next.trim();
-      i += 1;
+    // Collect each following non-blank, non-theme line as a paragraph.
+    const paras: string[] = [];
+    let j = i + 1;
+    while (j < lines.length) {
+      const l = lines[j] ?? "";
+      if (!l.trim() || THEME_LINE.test(l)) {
+        break;
+      }
+      paras.push(l.trim());
+      j += 1;
     }
-    out.push({ title, description });
+    i = j - 1;
+    out.push({ title, description: paras.join("\n\n") });
   }
   return out;
 }
@@ -1501,6 +1575,8 @@ onUnmounted(() => {
     line-height: 1.55;
     opacity: 0;
     text-align: left;
+    // Honour the blank line between paragraphs in multi-paragraph descriptions.
+    white-space: pre-line;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     padding-top: 14px;
     transition: opacity 0.45s ease-out 0.12s;
