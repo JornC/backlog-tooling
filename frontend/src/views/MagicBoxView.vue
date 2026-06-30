@@ -35,7 +35,7 @@
     </div>
 
     <header class="mb-header">
-      <h1>{{ t.title }}</h1>
+      <h1 :style="{ backgroundImage: titleGradient }">{{ t.title }}</h1>
       <p class="tagline">{{ t.tagline }}</p>
     </header>
 
@@ -489,6 +489,11 @@ const themePalette = [
   "#f15bb5", // pink
   "#ffb703", // amber
 ];
+
+// Title gradient drawn from the same slice palette so the heading matches the
+// wheel. Repeated once so it tiles seamlessly as the background-position drifts
+// (the subtle animation lives in CSS).
+const titleGradient = `linear-gradient(90deg, ${[...themePalette, ...themePalette].join(", ")})`;
 
 function cloneDefaults(l: Lang): Theme[] {
   return DEFAULTS[l].map((t) => ({ ...t }));
@@ -1144,10 +1149,25 @@ onUnmounted(() => {
     margin: 0;
     font-size: clamp(1.8rem, 5.5vw, 3rem);
     letter-spacing: 0.02em;
-    background: linear-gradient(90deg, #ffca3a, #ff595e, #f15bb5, #6a4c93, #1982c4);
+    // background-image is set inline from the slice palette; the doubled gradient
+    // tiles, so drifting the position one tile-width loops seamlessly.
+    background-size: 200% auto;
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
+    animation: title-drift 24s linear infinite;
+  }
+
+  @keyframes title-drift {
+    to {
+      background-position: 100% center;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    h1 {
+      animation: none;
+    }
   }
 
   .tagline {
