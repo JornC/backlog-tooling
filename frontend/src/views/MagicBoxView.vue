@@ -63,8 +63,13 @@
 
     <div class="columns">
       <div class="wheel-col">
-        <p class="spin-caption" :class="{ live: spinning }">
-          <template v-if="isNameStep">{{ spinning ? t.nameStepSpin : t.nameStepIdle }}</template>
+        <p
+          class="spin-caption"
+          :class="{ live: spinning, hint: needsTeam }"
+          @click="needsTeam && openTeamEditor()">
+          <template v-if="isNameStep">{{
+            needsTeam ? t.nameStepEmpty : spinning ? t.nameStepSpin : t.nameStepIdle
+          }}</template>
           <template v-else-if="spinning">{{ t.spinPre }}<strong>{{ displayName }}</strong>{{ t.spinPost }}</template>
           <template v-else>{{ t.idlePre }}<strong>{{ displayName }}</strong>{{ t.idlePost }}</template>
         </p>
@@ -84,7 +89,9 @@
               @settled="onSettled" />
           </transition>
 
-          <button class="spin-btn" :disabled="!canSpin" @click="spin">
+          <!-- No team yet -> no button at all (nothing to spin); the golden
+               caption is the tap target that opens the team editor instead. -->
+          <button v-if="!needsTeam" class="spin-btn" :disabled="!canSpin" @click="spin">
             {{ spinning ? "…" : t.spinBtn }}
           </button>
         </div>
@@ -148,7 +155,7 @@
         </div>
 
         <transition name="fade">
-          <div v-if="showEdit" class="editor">
+          <div v-if="showEdit" ref="editorEl" class="editor">
             <div class="edit-tabs">
               <button :class="{ active: editTab === 'team' }" @click="editTab = 'team'">
                 {{ t.tabTeam }}
@@ -225,6 +232,7 @@ interface Copy {
   empty: string;
   // Two-step flow: pick a presenter, then a topic.
   nameStepIdle: string;
+  nameStepEmpty: string;
   nameStepSpin: string;
   namePicked: string;
   topicCta: string;
@@ -260,6 +268,7 @@ const STRINGS: Record<Lang, Copy> = {
       "Eén regel per thema, beginnend met een nummer (bijv. '1.'). De regel eronder is de toelichting (mag weg). Gebruik #nl / #en secties voor twee talen - met evenveel thema's - of laat ze weg voor één taal. Wijzigingen blijven alleen lokaal in deze browser bewaard.",
     empty: "voeg thema's toe",
     nameStepIdle: "Draai om te bepalen wie presenteert",
+    nameStepEmpty: "Nog geen teamleden - voeg ze eerst toe om te kunnen draaien",
     nameStepSpin: "Het lot kiest een presentator…",
     namePicked: "het lot koos",
     topicCta: "draai voor het thema →",
@@ -293,6 +302,7 @@ const STRINGS: Record<Lang, Copy> = {
       "One line per topic, starting with a number (e.g. '1.'). The line below it is the description (optional). Use #nl / #en sections for two languages - with equal counts - or omit them for one. Changes are kept only locally in this browser.",
     empty: "add some topics",
     nameStepIdle: "Spin to pick who presents",
+    nameStepEmpty: "No team members yet - add them first to spin",
     nameStepSpin: "Picking a presenter…",
     namePicked: "the wheel chose",
     topicCta: "spin for their topic →",
@@ -730,6 +740,7 @@ const themeWheel = ref<InstanceType<typeof SpinWheel> | null>(null);
 const confettiHost = ref<HTMLElement | null>(null);
 const nameInput = ref<HTMLInputElement | null>(null);
 const resultEl = ref<HTMLElement | null>(null);
+const editorEl = ref<HTMLElement | null>(null);
 
 const spinning = ref(false);
 const showEdit = ref(false);
@@ -815,6 +826,10 @@ const canSpin = computed(() => {
 
 // In the name step the override box just needs a typed name to continue.
 const canContinue = computed(() => isNameStep.value && name.value.trim().length > 0);
+
+// The name step can't spin until the team is filled in. When that's the case we
+// guide the user to add members instead of leaving a dead disabled button.
+const needsTeam = computed(() => isNameStep.value && names.value.length === 0);
 
 const { enabled: soundOn, ensure: ensureAudio, setEnabled: setSoundEnabled, playTick, scheduleTicks, playDing } =
   useWheelSounds();
@@ -933,6 +948,14 @@ function goToTopicStep() {
   showCard.value = false;
   revealed.value = false;
   cardMode.value = "result";
+}
+
+// Open the editor straight to the Team tab and bring it into view - used by the
+// "add team members" prompt that appears while the team is empty.
+function openTeamEditor() {
+  editTab.value = "team";
+  showEdit.value = true;
+  nextTick(() => editorEl.value?.scrollIntoView({ behavior: "smooth", block: "center" }));
 }
 
 // Back to step 1 for a fresh round.
@@ -1106,6 +1129,14 @@ onUnmounted(() => {
   }
 }
 
+// On phones the sound/language controls are fixed top-right; give the centered
+// header room so it doesn't collide with them.
+@media (max-width: 600px) {
+  .magicbox {
+    padding-top: 56px;
+  }
+}
+
 .mb-header {
   text-align: center;
 
@@ -1255,6 +1286,19 @@ onUnmounted(() => {
 
   &.live {
     animation: caption-pulse 0.9s ease-in-out infinite;
+  }
+
+  // Empty-team prompt: solid, tinted and tappable - it's the affordance that
+  // opens the team editor (there's no spin button while the team is empty).
+  &.hint {
+    opacity: 1;
+    color: #ffca3a;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:hover {
+      color: #ffe27a;
+    }
   }
 }
 

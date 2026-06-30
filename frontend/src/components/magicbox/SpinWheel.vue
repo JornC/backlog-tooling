@@ -25,7 +25,9 @@
           <rect x="0" y="0" :width="size" :height="size" fill="url(#mb-title-fade-grad)" />
         </mask>
       </defs>
-      <g v-if="items.length === 0">
+      <!-- Counter-rotate by the disc's current rotation so the prompt stays
+           upright even though the disc rests at an arbitrary angle. -->
+      <g v-if="items.length === 0" :transform="`rotate(${-rotation} ${c} ${c})`">
         <circle :cx="c" :cy="c" :r="r" class="empty-disc" />
         <text :x="c" :y="c" class="empty-text">{{ emptyLabel }}</text>
       </g>
@@ -53,7 +55,7 @@
           {{ seg.title }}
         </text>
       </g>
-      <circle :cx="c" :cy="c" :r="hubR" class="hub" />
+      <circle v-if="items.length > 0" :cx="c" :cy="c" :r="hubR" class="hub" />
     </svg>
     <!-- Glossy dome highlight + edge vignette overlay; doesn't rotate with the
          disc (fixed light), and lets clicks through to the slices. -->
