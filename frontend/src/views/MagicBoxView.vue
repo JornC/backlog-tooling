@@ -1,6 +1,18 @@
 <template>
   <div class="magicbox">
     <div class="top-controls">
+      <button class="info-toggle" :aria-label="t.infoAria" @click="showInfo = true">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8" />
+          <circle cx="12" cy="7.6" r="1.2" fill="currentColor" />
+          <path
+            d="M12 10.8v6"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round" />
+        </svg>
+      </button>
       <button
         class="sound-toggle"
         :class="{ off: !soundOn }"
@@ -197,6 +209,23 @@
     </div>
 
     <div ref="confettiHost" class="confetti-host" aria-hidden="true"></div>
+
+    <transition name="fade">
+      <div v-if="showInfo" class="info-overlay" @click.self="showInfo = false">
+        <div class="info-card" role="dialog" aria-modal="true" :aria-label="t.infoTitle">
+          <button class="info-x" :aria-label="t.infoClose" @click="showInfo = false">×</button>
+          <span class="info-eyebrow">{{ t.infoEyebrow }}</span>
+          <h2 class="info-title">{{ t.infoTitle }}</h2>
+          <p class="info-when">{{ t.infoWhen }}</p>
+          <p class="info-what">{{ t.infoWhat }}</p>
+          <div class="info-key">
+            <span class="info-key-label">{{ t.infoKeyLabel }}</span>
+            <p>{{ t.infoKey }}</p>
+          </div>
+          <p class="info-why">{{ t.infoWhy }}</p>
+        </div>
+      </div>
+    </transition>
   </div>
 </template>
 
@@ -244,6 +273,16 @@ interface Copy {
   namesHint: string;
   namesPlaceholder: string;
   namesEmpty: string;
+  // Info panel explaining the ritual.
+  infoAria: string;
+  infoEyebrow: string;
+  infoTitle: string;
+  infoWhen: string;
+  infoWhat: string;
+  infoKeyLabel: string;
+  infoKey: string;
+  infoWhy: string;
+  infoClose: string;
 }
 
 const STRINGS: Record<Lang, Copy> = {
@@ -280,6 +319,19 @@ const STRINGS: Record<Lang, Copy> = {
     namesHint: "Eén teamlid per regel. Blijft alleen lokaal in deze browser bewaard.",
     namesPlaceholder: "Zet hier alle teamleden,\néén naam per regel…",
     namesEmpty: "voeg teamleden toe",
+    infoAria: "Uitleg openen",
+    infoEyebrow: "Hoe het werkt",
+    infoTitle: "Het Epische Rad van Fortuin",
+    infoWhen:
+      "Twee keer per week, op dinsdag en donderdag, kiest het rad willekeurig twee dingen: wie presenteert, en welk thema diegene krijgt.",
+    infoWhat:
+      "Diegene geeft een korte, voorbereide reflectie op het thema - een inzicht, een observatie, een gedachte. Eén tot vijf minuten, van tevoren voorbereid.",
+    infoKeyLabel: "De clou",
+    infoKey:
+      "Je presenteert óók als je niets van het thema afweet. Het niet snappen is geen excuus - dát is juist de oefening. Je duikt erin, vormt een beeld en deelt wat je vond.",
+    infoWhy:
+      "Zo verspreidt kennis zich over het team, komen blinde vlekken boven, en raakt iedereen gewend om over elk onderwerp op het bord iets te kunnen zeggen.",
+    infoClose: "Sluiten",
   },
   en: {
     title: "The Epic Wheel of Fortune",
@@ -314,6 +366,19 @@ const STRINGS: Record<Lang, Copy> = {
     namesHint: "One team member per line. Kept only locally in this browser.",
     namesPlaceholder: "List all team members here,\none name per line…",
     namesEmpty: "add team members",
+    infoAria: "Open the explanation",
+    infoEyebrow: "How it works",
+    infoTitle: "The Epic Wheel of Fortune",
+    infoWhen:
+      "Twice a week, on Tuesday and Thursday, the wheel picks two things at random: who presents, and which topic they get.",
+    infoWhat:
+      "That person gives a short, prepared reflection on the topic - an insight, an observation, a thought. One to five minutes, prepared in advance.",
+    infoKeyLabel: "The whole point",
+    infoKey:
+      "You present even if you know nothing about the topic. Not understanding it isn't an excuse - that's exactly the exercise. You dig in, form a view, and share what you found.",
+    infoWhy:
+      "It spreads knowledge across the team, surfaces blind spots, and gets everyone comfortable speaking to anything on the board.",
+    infoClose: "Close",
   },
 };
 
@@ -822,6 +887,7 @@ const resultEl = ref<HTMLElement | null>(null);
 const editorEl = ref<HTMLElement | null>(null);
 
 const spinning = ref(false);
+const showInfo = ref(false);
 const showEdit = ref(false);
 const showCard = ref(false);
 const revealed = ref(false);
@@ -1121,8 +1187,15 @@ watch(
   { deep: true },
 );
 
+function onKeydown(e: KeyboardEvent) {
+  if (e.key === "Escape") {
+    showInfo.value = false;
+  }
+}
+
 onMounted(() => {
   window.addEventListener("resize", onResize);
+  window.addEventListener("keydown", onKeydown);
   // Clean start (no team members yet): open the editor on the Team tab so the
   // first thing the facilitator does is list the team.
   if (names.value.length === 0) {
@@ -1133,6 +1206,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   window.removeEventListener("resize", onResize);
+  window.removeEventListener("keydown", onKeydown);
 });
 </script>
 
@@ -1261,7 +1335,8 @@ onUnmounted(() => {
   gap: 8px;
 }
 
-.sound-toggle {
+.sound-toggle,
+.info-toggle {
   display: grid;
   place-items: center;
   width: 34px;
@@ -1279,9 +1354,10 @@ onUnmounted(() => {
   &:hover {
     background: rgba(255, 255, 255, 0.12);
   }
-  &.off {
-    color: rgba(255, 255, 255, 0.4);
-  }
+}
+
+.sound-toggle.off {
+  color: rgba(255, 255, 255, 0.4);
 }
 
 .lang-switch {
@@ -1746,6 +1822,109 @@ onUnmounted(() => {
   pointer-events: none;
   z-index: 50;
   overflow: hidden;
+}
+
+.info-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: grid;
+  place-items: center;
+  padding: clamp(16px, 4vw, 40px);
+  background: rgba(6, 9, 14, 0.72);
+  backdrop-filter: blur(3px);
+  overflow-y: auto;
+}
+
+.info-card {
+  position: relative;
+  width: min(560px, 100%);
+  box-sizing: border-box;
+  padding: clamp(22px, 4vw, 34px);
+  border-radius: 20px;
+  background: linear-gradient(180deg, #1a2636 0%, #121821 100%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+  color: #f3f6fb;
+
+  .info-x {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    width: 32px;
+    height: 32px;
+    display: grid;
+    place-items: center;
+    font-size: 1.4rem;
+    line-height: 1;
+    color: rgba(255, 255, 255, 0.6);
+    background: transparent;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    transition:
+      background 0.15s ease-out,
+      color 0.15s ease-out;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+  }
+
+  .info-eyebrow {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.24em;
+    opacity: 0.55;
+  }
+
+  .info-title {
+    margin: 6px 0 16px;
+    font-size: clamp(1.4rem, 4vw, 1.9rem);
+    line-height: 1.2;
+    background-image: v-bind(titleGradient);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  p {
+    margin: 0 0 14px;
+    font-size: clamp(0.9rem, 2.4vw, 1rem);
+    line-height: 1.6;
+    opacity: 0.86;
+  }
+
+  .info-key {
+    margin: 18px 0;
+    padding: 14px 16px;
+    border-radius: 12px;
+    background: rgba(255, 202, 58, 0.1);
+    border: 1px solid rgba(255, 202, 58, 0.28);
+
+    .info-key-label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: #ffca3a;
+    }
+
+    p {
+      margin: 0;
+      opacity: 0.95;
+    }
+  }
+
+  .info-why {
+    margin-bottom: 0;
+    opacity: 0.7;
+    font-size: clamp(0.82rem, 2.2vw, 0.92rem);
+  }
 }
 
 .reveal-enter-active {
