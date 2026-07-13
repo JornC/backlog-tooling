@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Releases</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Georgia', serif;
+    background: #0a0a0a;
+    color: #e8e8e8;
+    line-height: 1.5;
+  }
+  #slide-indicator {
+    position: fixed;
+    top: 2rem;
+    left: 2.5rem;
+    font-family: monospace;
+    font-size: 1rem;
+    color: #666;
+    z-index: 100;
+    transition: color 0.3s;
+  }
+  #slide-indicator a { color: inherit; text-decoration: none; transition: color 0.2s; }
+  #slide-indicator a:hover { color: #f0c040; }
+  #slide-indicator .current { color: #f0c040; font-weight: 700; }
+  .slide {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 4rem;
+    border-bottom: 1px solid #222;
+    position: relative;
+    text-align: center;
+  }
+  .slide-number {
+    position: absolute;
+    top: 2rem;
+    right: 3rem;
+    font-size: 0.85rem;
+    color: #444;
+    font-family: monospace;
+  }
+
+  /* Typography scale */
+  h1 { font-size: 6rem; font-weight: 300; letter-spacing: -0.03em; margin-bottom: 0.5rem; color: #fff; }
+  .subtitle { font-size: 1.4rem; color: #777; font-style: italic; letter-spacing: 0.05em; }
+  h2 { font-size: 3.4rem; font-weight: 300; margin-bottom: 2.5rem; color: #fff; letter-spacing: -0.02em; }
+  h1 a, h2 a { color: inherit; text-decoration: none; transition: color 0.2s; }
+  h1 a:hover, h2 a:hover { color: #f0c040; }
+  .big { font-size: 2rem; max-width: 48rem; margin-bottom: 0.6rem; color: #ddd; }
+  .med { font-size: 1.4rem; max-width: 48rem; margin-bottom: 0.5rem; color: #bbb; }
+  .sm { font-size: 1.1rem; max-width: 48rem; color: #888; }
+  .highlight { color: #f0c040; }
+  .good { color: #5cdb95; }
+  .bad { color: #e06060; }
+  code {
+    font-family: monospace;
+    font-size: 0.92em;
+    color: #e0a54a;
+    background: rgba(240,192,64,0.08);
+    padding: 0.1rem 0.35rem;
+    border-radius: 3px;
+  }
+  .punchline {
+    font-size: 2.4rem;
+    color: #f0c040;
+    margin-top: 2rem;
+    font-style: italic;
+    max-width: 50rem;
+    font-weight: 300;
+  }
+
+  /* Side-by-side comparison (from /ai) */
+  .compare {
+    display: flex;
+    gap: 3rem;
+    margin: 0.5rem 0 1.5rem;
+    max-width: 88rem;
+    width: 100%;
+    align-items: stretch;
+  }
+  .compare-col {
+    flex: 1;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .compare-col h4 {
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: 1rem;
+    font-weight: 600;
+  }
+  .compare-col svg { max-width: 100%; height: auto; }
+  .compare-col .caption {
+    font-size: 1.05rem;
+    color: #aaa;
+    margin-top: 1rem;
+    font-style: italic;
+    max-width: 30rem;
+    line-height: 1.5;
+  }
+
+  /* Slide 3: PR gate flow */
+  .gate-row {
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0;
+    margin: 1.5rem 0 1rem;
+    max-width: 64rem;
+    width: 100%;
+  }
+  .gate {
+    border: 1.5px solid #333;
+    border-radius: 8px;
+    padding: 1rem 1.1rem;
+    background: #141414;
+    min-width: 10rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+  .gate .g-kind { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.14em; color: #777; }
+  .gate .g-title { font-size: 1.05rem; color: #ddd; }
+  .gate .g-tag { font-size: 0.85rem; font-weight: 700; }
+  .gate.real { border-color: #4a9; background: rgba(68,170,153,0.06); }
+  .gate.real .g-tag { color: #5cdb95; }
+  .gate.ceremony { border-color: #c55; background: rgba(204,85,85,0.07); }
+  .gate.ceremony .g-tag { color: #e06060; }
+  .gate.release { border-color: #f0c040; background: rgba(240,192,64,0.07); }
+  .gate.release .g-tag { color: #f0c040; }
+  .gate-arrow { display: flex; align-items: center; color: #555; font-size: 1.5rem; padding: 0 0.55rem; }
+
+  /* Slide 4: before/after chip stacks */
+  .chip-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    align-items: stretch;
+    width: 100%;
+    max-width: 22rem;
+  }
+  .chip {
+    border: 1.5px solid #333;
+    border-radius: 7px;
+    padding: 0.75rem 1rem;
+    font-size: 1.02rem;
+    color: #ccc;
+    background: #141414;
+    text-align: left;
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: center;
+  }
+  .chip .c-tag { font-size: 0.78rem; font-weight: 700; white-space: nowrap; letter-spacing: 0.04em; }
+  .chip.real { border-color: #4a9; }
+  .chip.real .c-tag { color: #5cdb95; }
+  .chip.ceremony { border-color: #c55; background: rgba(204,85,85,0.05); }
+  .chip.ceremony .c-tag { color: #e06060; }
+  .chip.release { border-color: #f0c040; background: rgba(240,192,64,0.05); }
+  .chip.release .c-tag { color: #f0c040; }
+  .chip-arrow { color: #555; font-size: 1.4rem; text-align: center; }
+  .aside {
+    margin-top: 1.6rem;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 1rem 1.4rem;
+    background: #121212;
+    max-width: 46rem;
+    font-size: 1.05rem;
+    color: #999;
+  }
+  .aside .lead { color: #6cc; font-weight: 600; }
+
+  /* Addendum: code blocks */
+  .code {
+    font-family: monospace;
+    font-size: 0.82rem;
+    text-align: left;
+    background: #101010;
+    border: 1px solid #262626;
+    border-radius: 8px;
+    padding: 0.85rem 1.05rem;
+    color: #cdd3d8;
+    line-height: 1.55;
+    overflow-x: auto;
+    white-space: pre;
+    max-width: 100%;
+    width: 100%;
+  }
+  .code .t { color: #8aa0d8; }
+  .code .v { color: #5cdb95; }
+  .code .c { color: #667; }
+  .code .k { color: #f0c040; }
+  .opt-label {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #8a97a3;
+    margin: 0 0 0.3rem;
+    text-align: left;
+    width: 100%;
+  }
+  .tradeoff {
+    font-size: 1rem;
+    color: #aaa;
+    text-align: left;
+    width: 100%;
+    margin-top: 0.7rem;
+    line-height: 1.5;
+  }
+
+  @media (max-width: 900px) {
+    .slide { padding: 2rem; }
+    h1 { font-size: 3rem; }
+    h2 { font-size: 2rem; }
+    .compare { flex-direction: column; gap: 2.5rem; }
+    .gate-row { flex-direction: column; align-items: stretch; }
+    .gate-arrow { justify-content: center; transform: rotate(90deg); padding: 0.3rem 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- TITLE -->
+<div class="slide" id="slide-0">
+  <h1><a href="#slide-0">Releases</a></h1>
+  <p class="subtitle">libraries and apps</p>
+</div>
+
+<!-- SLIDE 1: Two Machines -->
+<div class="slide" id="slide-1">
+  <span class="slide-number">01</span>
+  <h2><a href="#slide-1">Two Machines</a></h2>
+  <p class="med" style="margin-bottom:1.5rem">What a repo <em>makes</em> decides how it ships.</p>
+
+  <div class="compare">
+    <!-- LEFT: Libraries -->
+    <div class="compare-col">
+      <h4 style="color:#f0c040">Libraries &rarr; GitHub Actions</h4>
+      <svg viewBox="0 0 440 250" style="max-width:100%;height:auto">
+        <defs>
+          <marker id="a1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M 0,0 L 10,5 L 0,10 Z" fill="#555" />
+          </marker>
+        </defs>
+
+        <!-- commit -->
+        <circle cx="42" cy="165" r="9" fill="#5cdb95" />
+        <text x="42" y="192" text-anchor="middle" fill="#5cdb95" font-size="12" font-family="Georgia">commit</text>
+
+        <line x1="56" y1="165" x2="112" y2="165" stroke="#444" stroke-width="1.5" marker-end="url(#a1)" />
+
+        <!-- GitHub Actions (hexagon) -->
+        <polygon points="188,165 171,194 137,194 120,165 137,136 171,136"
+                 fill="#141414" stroke="#6b7fbf" stroke-width="1.6" />
+        <text x="154" y="162" text-anchor="middle" fill="#aeb8e0" font-size="12" font-family="Georgia">GitHub</text>
+        <text x="154" y="177" text-anchor="middle" fill="#aeb8e0" font-size="12" font-family="Georgia">Actions</text>
+
+        <line x1="190" y1="165" x2="278" y2="165" stroke="#444" stroke-width="1.5" marker-end="url(#a1)" />
+
+        <!-- Nexus cylinder -->
+        <path d="M316,140 L316,198 A34,9 0 0 0 384,198 L384,140" fill="#141414" stroke="#f0c040" stroke-width="1.5" />
+        <ellipse cx="350" cy="140" rx="34" ry="9" fill="#1a1710" stroke="#f0c040" stroke-width="1.5" />
+        <text x="350" y="178" text-anchor="middle" fill="#f0c040" font-size="13" font-family="Georgia">Nexus</text>
+
+        <!-- published version tags -->
+        <line x1="350" y1="131" x2="350" y2="96" stroke="#333" stroke-width="1" stroke-dasharray="3 4" />
+        <text x="350" y="88" text-anchor="middle" fill="#f0c040" font-size="13" font-family="monospace">1.3.0</text>
+        <text x="350" y="66" text-anchor="middle" fill="#888" font-size="12" font-family="monospace">1.3.0-SNAPSHOT</text>
+      </svg>
+      <p class="caption">Numbered jars go to Nexus. The number <em>is</em> the name &mdash; other code depends on exactly it.</p>
+    </div>
+
+    <!-- RIGHT: Apps -->
+    <div class="compare-col">
+      <h4 style="color:#5cdb95">Apps &rarr; git tag &rarr; CCoE</h4>
+      <svg viewBox="0 0 440 250" style="max-width:100%;height:auto">
+        <defs>
+          <marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M 0,0 L 10,5 L 0,10 Z" fill="#555" />
+          </marker>
+        </defs>
+
+        <!-- commit -->
+        <circle cx="24" cy="120" r="8" fill="#5cdb95" />
+        <text x="24" y="146" text-anchor="middle" fill="#5cdb95" font-size="11" font-family="Georgia">commit</text>
+
+        <line x1="35" y1="120" x2="59" y2="120" stroke="#444" stroke-width="1.5" marker-end="url(#a2)" />
+
+        <!-- release branch -->
+        <rect x="62" y="98" width="82" height="44" rx="8" fill="#141414" stroke="#8a97a3" stroke-width="1.5" />
+        <text x="103" y="117" text-anchor="middle" fill="#c3ccd4" font-size="12" font-family="Georgia">release</text>
+        <text x="103" y="133" text-anchor="middle" fill="#c3ccd4" font-size="12" font-family="Georgia">branch</text>
+
+        <line x1="146" y1="120" x2="168" y2="120" stroke="#444" stroke-width="1.5" marker-end="url(#a2)" />
+
+        <!-- git tag = the release -->
+        <path d="M186,100 L214,100 L214,140 L186,140 L172,120 Z" fill="rgba(240,192,64,0.08)" stroke="#f0c040" stroke-width="1.6" />
+        <circle cx="182" cy="120" r="2" fill="#0a0a0a" stroke="#f0c040" stroke-width="1" />
+        <text x="198" y="124" text-anchor="middle" fill="#f0c040" font-size="12" font-family="Georgia">tag</text>
+        <text x="193" y="162" text-anchor="middle" fill="#b9932f" font-size="10" font-family="Georgia" font-style="italic">the release</text>
+
+        <line x1="216" y1="120" x2="238" y2="120" stroke="#444" stroke-width="1.5" marker-end="url(#a2)" />
+
+        <!-- devops -->
+        <rect x="240" y="98" width="70" height="44" rx="8" fill="#141414" stroke="#8a97a3" stroke-width="1.5" />
+        <text x="275" y="124" text-anchor="middle" fill="#c3ccd4" font-size="12" font-family="Georgia">CCoE</text>
+
+        <line x1="312" y1="120" x2="334" y2="120" stroke="#3a5a4a" stroke-width="1.5" marker-end="url(#a2)" />
+
+        <!-- AWS -->
+        <rect x="336" y="98" width="68" height="44" rx="8" fill="rgba(68,170,153,0.06)" stroke="#4a9" stroke-width="1.5" />
+        <text x="370" y="116" text-anchor="middle" fill="#9fd8c4" font-size="12" font-family="Georgia">AWS</text>
+        <circle cx="370" cy="130" r="3.5" fill="#5cdb95" />
+      </svg>
+      <p class="caption">Cut a release branch, tag it &mdash; <em>that's</em> the release. The CCoE then deploys the tag to AWS.</p>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 2: Two Truths -->
+<div class="slide" id="slide-2">
+  <span class="slide-number">02</span>
+  <h2><a href="#slide-2">Two Truths</a></h2>
+  <p class="med" style="margin-bottom:1.5rem">The split is on purpose. It comes down to who depends on the version number.</p>
+
+  <div class="compare">
+    <!-- LEFT: library = its version -->
+    <div class="compare-col">
+      <h4 style="color:#f0c040">A library <em>is</em> its version</h4>
+      <svg viewBox="0 0 420 250" style="max-width:100%;height:auto">
+        <defs>
+          <marker id="pin" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto">
+            <path d="M 0,0 L 10,5 L 0,10 Z" fill="#666" />
+          </marker>
+        </defs>
+
+        <!-- the jar / artifact -->
+        <rect x="96" y="86" width="120" height="92" rx="9" fill="rgba(240,192,64,0.05)" stroke="#f0c040" stroke-width="1.7" />
+        <line x1="96" y1="110" x2="216" y2="110" stroke="#f0c040" stroke-width="1.2" opacity="0.7" />
+        <text x="156" y="146" text-anchor="middle" fill="#f0c040" font-size="24" font-family="monospace" font-weight="700">1.2.0</text>
+        <text x="156" y="168" text-anchor="middle" fill="#a98d3a" font-size="11" font-family="Georgia" font-style="italic">immutable</text>
+
+        <!-- downstream consumers pinning it -->
+        <circle cx="356" cy="72" r="7" fill="#141414" stroke="#888" stroke-width="1.5" />
+        <text x="372" y="76" text-anchor="start" fill="#999" font-size="11" font-family="monospace">app</text>
+        <circle cx="368" cy="132" r="7" fill="#141414" stroke="#888" stroke-width="1.5" />
+        <text x="384" y="136" text-anchor="start" fill="#999" font-size="11" font-family="monospace">lib</text>
+        <circle cx="356" cy="192" r="7" fill="#141414" stroke="#888" stroke-width="1.5" />
+        <text x="372" y="196" text-anchor="start" fill="#999" font-size="11" font-family="monospace">svc</text>
+
+        <line x1="349" y1="74" x2="220" y2="106" stroke="#555" stroke-width="1.3" marker-end="url(#pin)" />
+        <line x1="361" y1="132" x2="221" y2="132" stroke="#555" stroke-width="1.3" marker-end="url(#pin)" />
+        <line x1="349" y1="190" x2="220" y2="158" stroke="#555" stroke-width="1.3" marker-end="url(#pin)" />
+      </svg>
+      <p class="caption">Fixed and permanent. Other code depends on <em>exactly this</em>. The number can't lie.</p>
+    </div>
+
+    <!-- RIGHT: app = its deployment -->
+    <div class="compare-col">
+      <h4 style="color:#5cdb95">An app <em>is</em> what's running</h4>
+      <svg viewBox="0 0 420 250" style="max-width:100%;height:auto">
+        <defs>
+          <marker id="use" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto">
+            <path d="M 0,0 L 10,5 L 0,10 Z" fill="#666" />
+          </marker>
+        </defs>
+
+        <!-- the running deploy, named by a git tag -->
+        <rect x="72" y="94" width="158" height="62" rx="10" fill="rgba(68,170,153,0.05)" stroke="#4a9" stroke-width="1.7" />
+        <circle cx="90" cy="110" r="9" fill="none" stroke="#356254" stroke-width="1.3" />
+        <circle cx="90" cy="110" r="4.5" fill="#5cdb95" />
+        <text x="153" y="133" text-anchor="middle" fill="#9fd8c4" font-size="13" font-family="monospace">PUBLIC_BETA2026</text>
+        <text x="151" y="180" text-anchor="middle" fill="#9fd8c4" font-size="11.5" font-family="Georgia" font-style="italic">the running build (UK)</text>
+        <text x="151" y="198" text-anchor="middle" fill="#6a6a6a" font-size="10" font-family="Georgia">NL ships as BETA &middot; a name per theme</text>
+
+        <!-- users just use it; no code pins the name -->
+        <circle cx="356" cy="82" r="7" fill="#141414" stroke="#888" stroke-width="1.5" />
+        <text x="372" y="86" text-anchor="start" fill="#999" font-size="11" font-family="Georgia">user</text>
+        <circle cx="368" cy="125" r="7" fill="#141414" stroke="#888" stroke-width="1.5" />
+        <text x="384" y="129" text-anchor="start" fill="#999" font-size="11" font-family="Georgia">user</text>
+        <circle cx="356" cy="168" r="7" fill="#141414" stroke="#888" stroke-width="1.5" />
+        <text x="372" y="172" text-anchor="start" fill="#999" font-size="11" font-family="Georgia">user</text>
+
+        <line x1="349" y1="84" x2="234" y2="110" stroke="#555" stroke-width="1.3" marker-end="url(#use)" />
+        <line x1="361" y1="125" x2="235" y2="125" stroke="#555" stroke-width="1.3" marker-end="url(#use)" />
+        <line x1="349" y1="166" x2="234" y2="142" stroke="#555" stroke-width="1.3" marker-end="url(#use)" />
+      </svg>
+      <p class="caption">It has a version too &mdash; a public release name, set by a git tag. But no other code locks onto it; what counts is which build is deployed.</p>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 3: The Dance -->
+<div class="slide" id="slide-3">
+  <span class="slide-number">03</span>
+  <h2><a href="#slide-3">The Dance</a></h2>
+  <p class="med" style="margin-bottom:0.5rem">The flow is fine &mdash; watch what the version number has to do:</p>
+
+  <svg viewBox="0 0 720 300" style="max-width:100%;height:auto;width:47rem;margin:0.5rem 0;overflow:visible">
+    <defs>
+      <marker id="dstep" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+        <path d="M 0,0 L 10,5 L 0,10 Z" fill="#c55" />
+      </marker>
+    </defs>
+
+    <!-- 1. the change: normal dev on the snapshot line -->
+    <path d="M75,120 L260,120" stroke="#5cdb95" stroke-width="3" fill="none" />
+    <circle cx="75" cy="120" r="6" fill="#5cdb95" />
+    <text x="78" y="102" text-anchor="middle" fill="#9fd8c4" font-size="13" font-family="monospace">1.3.0-SNAPSHOT</text>
+    <text x="176" y="110" text-anchor="middle" fill="#5cdb95" font-size="12.5" font-family="Georgia" font-style="italic">the change</text>
+
+    <!-- 2. strip -SNAPSHOT: manual step down -->
+    <path d="M260,120 L363,218" stroke="#c55" stroke-width="3" fill="none" stroke-dasharray="7 5" marker-end="url(#dstep)" />
+
+    <!-- release: the tag, ships itself -->
+    <path d="M378,199 L400,199 L400,237 L378,237 L364,218 Z" fill="rgba(240,192,64,0.10)" stroke="#f0c040" stroke-width="1.8" />
+    <circle cx="374" cy="218" r="2" fill="#0a0a0a" stroke="#f0c040" stroke-width="1" />
+    <text x="387" y="222" text-anchor="middle" fill="#f0c040" font-size="12" font-family="Georgia">tag</text>
+    <text x="382" y="264" text-anchor="middle" fill="#f0c040" font-size="13" font-family="monospace">1.3.0</text>
+    <text x="382" y="283" text-anchor="middle" fill="#b9932f" font-size="11" font-family="Georgia" font-style="italic">publish &mdash; ships itself</text>
+
+    <!-- 3. restore -SNAPSHOT + bump: manual step up -->
+    <path d="M400,218 L512,100" stroke="#c55" stroke-width="3" fill="none" stroke-dasharray="7 5" marker-end="url(#dstep)" />
+
+    <!-- 4. dev continues, one minor higher -->
+    <path d="M512,100 L668,100" stroke="#5cdb95" stroke-width="3" fill="none" />
+    <circle cx="512" cy="100" r="6" fill="#5cdb95" />
+    <text x="527" y="86" text-anchor="start" fill="#9fd8c4" font-size="13" font-family="monospace">1.4.0-SNAPSHOT</text>
+    <text x="592" y="122" text-anchor="middle" fill="#5cdb95" font-size="12.5" font-family="Georgia" font-style="italic">dev continues</text>
+  </svg>
+
+  <!-- legend -->
+  <svg viewBox="0 0 470 24" style="max-width:100%;height:auto;width:27rem;margin-top:0.4rem;margin-bottom:0.5rem">
+    <line x1="6" y1="12" x2="36" y2="12" stroke="#5cdb95" stroke-width="3" />
+    <text x="44" y="16" fill="#9fd8c4" font-size="12.5" font-family="Georgia">real work</text>
+    <line x1="150" y1="12" x2="180" y2="12" stroke="#c55" stroke-width="3" stroke-dasharray="7 5" />
+    <text x="188" y="16" fill="#e0a0a0" font-size="12.5" font-family="Georgia">two PRs by hand &mdash; just the version</text>
+  </svg>
+</div>
+
+<!-- SLIDE 4: Delete the Dance -->
+<div class="slide" id="slide-4">
+  <span class="slide-number">04</span>
+  <h2><a href="#slide-4">Delete the Dance</a></h2>
+  <p class="med" style="margin-bottom:1.5rem">Take the version out of the code. Let the git tag be the one place it lives.</p>
+
+  <div class="compare" style="max-width:64rem">
+    <!-- TODAY -->
+    <div class="compare-col">
+      <h4 style="color:#e06060">Today</h4>
+      <svg viewBox="0 0 380 230" style="max-width:100%;height:auto;overflow:visible">
+        <defs>
+          <marker id="d4a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto">
+            <path d="M 0,0 L 10,5 L 0,10 Z" fill="#c55" />
+          </marker>
+        </defs>
+        <path d="M40,95 L150,95" stroke="#5cdb95" stroke-width="3" fill="none" />
+        <circle cx="40" cy="95" r="5.5" fill="#5cdb95" />
+        <path d="M150,95 L205,163" stroke="#c55" stroke-width="3" fill="none" stroke-dasharray="6 4" marker-end="url(#d4a)" />
+        <path d="M219,148 L239,148 L239,182 L219,182 L206,165 Z" fill="rgba(240,192,64,0.10)" stroke="#f0c040" stroke-width="1.6" />
+        <text x="226" y="169" text-anchor="middle" fill="#f0c040" font-size="10.5" font-family="monospace">1.3.0</text>
+        <path d="M239,165 L300,95" stroke="#c55" stroke-width="3" fill="none" stroke-dasharray="6 4" marker-end="url(#d4a)" />
+        <path d="M300,95 L345,95" stroke="#5cdb95" stroke-width="3" fill="none" />
+        <circle cx="300" cy="95" r="5.5" fill="#5cdb95" />
+        <text x="192" y="212" text-anchor="middle" fill="#e06060" font-size="12.5" font-family="Georgia" font-style="italic">two detours, by hand</text>
+      </svg>
+    </div>
+
+    <!-- WITH GIT-DERIVED VERSIONING -->
+    <div class="compare-col">
+      <h4 style="color:#5cdb95">Let git set the version</h4>
+      <svg viewBox="0 0 380 230" style="max-width:100%;height:auto;overflow:visible">
+        <path d="M40,95 L345,95" stroke="#5cdb95" stroke-width="3" fill="none" />
+        <circle cx="40" cy="95" r="5.5" fill="#5cdb95" />
+        <circle cx="345" cy="95" r="5.5" fill="#5cdb95" />
+        <line x1="192" y1="95" x2="192" y2="77" stroke="#f0c040" stroke-width="1.6" />
+        <path d="M192,55 L228,55 L228,79 L192,79 Z" fill="rgba(240,192,64,0.12)" stroke="#f0c040" stroke-width="1.6" />
+        <text x="210" y="71" text-anchor="middle" fill="#f0c040" font-size="10.5" font-family="monospace">1.3.0</text>
+        <circle cx="192" cy="95" r="4" fill="#f0c040" />
+        <text x="192" y="212" text-anchor="middle" fill="#5cdb95" font-size="12.5" font-family="Georgia" font-style="italic">one line, no detour</text>
+      </svg>
+      <p class="caption" style="margin-top:0.6rem">The pom keeps a dummy version forever. Every push makes a snapshot for free.</p>
+    </div>
+  </div>
+
+  <div class="aside">
+    <span class="lead">The one thing you still set by hand:</span> the dev line &mdash; <code>1.3.0-SNAPSHOT</code> &mdash;
+    once per minor version, when you start it. Other code uses it just like today.
+    <strong style="color:#f0c040">Three routine PRs per release &rarr; one real bump per minor version.</strong>
+  </div>
+
+  <p class="sm" style="margin-top:1.4rem">Apps stay as they are &mdash; release branch, git tag, then the CCoE ships to AWS. That's for another day.</p>
+</div>
+
+<!-- ADDENDUM: the mechanism -->
+<div class="slide" id="slide-5">
+  <span class="slide-number">addendum</span>
+  <h2><a href="#slide-5">One way to do it</a></h2>
+  <p class="med" style="margin-bottom:1.8rem">Stop editing the version by hand. Two off-the-shelf ways, both keep releases as a git tag:</p>
+
+  <div class="compare" style="max-width:74rem;gap:2.5rem">
+    <!-- Option A: CI-friendly versions -->
+    <div class="compare-col">
+      <h4 style="color:#f0c040">CI-friendly versions</h4>
+      <p class="opt-label">plain maven &middot; minimal change</p>
+      <div class="code"><span class="c">&lt;!-- pom.xml --&gt;</span>
+<span class="t">&lt;version&gt;</span>${revision}<span class="t">&lt;/version&gt;</span>
+<span class="t">&lt;properties&gt;</span>
+  <span class="t">&lt;revision&gt;</span><span class="v">1.3.0-SNAPSHOT</span><span class="t">&lt;/revision&gt;</span>
+<span class="t">&lt;/properties&gt;</span>
+
+<span class="c"># release build sets the number</span>
+<span class="k">mvn deploy -Drevision=</span><span class="v">1.3.0</span></div>
+      <p class="tradeoff">Keep <em>one</em> dev-line property; the release build supplies the number. Add <code>flatten-maven-plugin</code> so Nexus gets the real value, not <code>${revision}</code>.</p>
+    </div>
+
+    <!-- Option B: git-versioning extension -->
+    <div class="compare-col">
+      <h4 style="color:#5cdb95">git-versioning extension</h4>
+      <p class="opt-label">qoomon &middot; most automatic</p>
+      <div class="code"><span class="c">&lt;!-- .mvn/extensions.xml --&gt;</span>
+<span class="t">&lt;extension&gt;</span>
+  <span class="t">&lt;groupId&gt;</span><span class="v">me.qoomon</span><span class="t">&lt;/groupId&gt;</span>
+  <span class="t">&lt;artifactId&gt;</span><span class="v">maven-git-versioning-extension</span><span class="t">&lt;/artifactId&gt;</span>
+  <span class="t">&lt;version&gt;</span><span class="v">9.12.0</span><span class="t">&lt;/version&gt;</span>
+<span class="t">&lt;/extension&gt;</span>
+
+<span class="c">&lt;!-- .mvn/…-extension.xml --&gt;</span>
+<span class="t">&lt;ref type=</span><span class="v">"tag"</span><span class="t">&gt;</span>
+  <span class="t">&lt;pattern&gt;</span><span class="v">v(?&lt;version&gt;.*)</span><span class="t">&lt;/pattern&gt;</span>
+  <span class="t">&lt;version&gt;</span><span class="v">${ref.version}</span><span class="t">&lt;/version&gt;</span>
+<span class="t">&lt;/ref&gt;</span></div>
+      <p class="tradeoff">The pom holds a placeholder, untouched. Tag <code>v1.3.0</code> &rarr; ships <code>1.3.0</code>; nothing edited by hand. The branch SNAPSHOT name is derived from git.</p>
+    </div>
+  </div>
+
+  <div class="aside" style="max-width:74rem;margin-top:1.8rem">
+    <span class="lead">Also:</span> <code>jgitver</code> derives the version from the last tag plus commit distance &mdash; even less config, more opinionated.
+    <strong style="color:#f0c040">Whichever you pick, check once that the pom published to Nexus carries the real number, not the placeholder.</strong>
+  </div>
+</div>
+
+<div id="slide-indicator"></div>
+
+<script>
+(function() {
+  var slides = document.querySelectorAll('.slide');
+  var indicator = document.getElementById('slide-indicator');
+  var labels = ['title', '1', '2', '3', '4', '+'];
+
+  function updateIndicator() {
+    var current = 0;
+    var scrollY = window.scrollY + window.innerHeight / 2;
+    for (var i = 0; i < slides.length; i++) {
+      if (scrollY >= slides[i].offsetTop) current = i;
+    }
+    indicator.innerHTML = labels.map(function(label, i) {
+      var cls = i === current ? 'current' : '';
+      return '<a href="#slide-' + i + '" class="' + cls + '">' + label + '</a>';
+    }).join(' &middot; ');
+  }
+
+  var slidesArr = slides;
+  function getCurrentSlide() {
+    var scrollY = window.scrollY + window.innerHeight / 2;
+    for (var i = slidesArr.length - 1; i >= 0; i--) {
+      if (scrollY >= slidesArr[i].offsetTop) return i;
+    }
+    return 0;
+  }
+
+  document.addEventListener('keydown', function(e) {
+    var num = parseInt(e.key);
+    if (!isNaN(num) && num >= 0 && num < slides.length) {
+      slides[num].scrollIntoView({ behavior: 'smooth' });
+      return;
+    }
+    var cur = getCurrentSlide();
+    if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ') {
+      e.preventDefault();
+      if (cur < slides.length - 1) slides[cur + 1].scrollIntoView({ behavior: 'smooth' });
+    }
+    if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+      e.preventDefault();
+      if (cur > 0) slides[cur - 1].scrollIntoView({ behavior: 'smooth' });
+    }
+  });
+
+  window.addEventListener('scroll', updateIndicator);
+  updateIndicator();
+})();
+</script>
+
+</body>
+</html>
