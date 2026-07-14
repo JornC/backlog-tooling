@@ -251,6 +251,7 @@
       <h4 style="color:#f0c040;margin-bottom:1rem">
         <span style="display:block;font-size:2rem;letter-spacing:0.05em;line-height:1.05">LIBRARIES</span>
         <span style="display:block;font-size:0.9rem;font-weight:400;text-transform:none;letter-spacing:0.02em;color:#a98d3a;margin-top:0.3rem">GitHub Actions &rarr; Publish</span>
+        <span style="display:block;font-size:0.82rem;font-weight:400;text-transform:none;letter-spacing:0;color:#6f6f6f;margin-top:0.4rem">IMAER-java &middot; gwt-client-common &middot; file-server-client</span>
       </h4>
       <svg viewBox="0 0 440 250" style="max-width:100%;height:auto">
         <defs>
@@ -292,6 +293,7 @@
       <h4 style="color:#5cdb95;margin-bottom:1rem">
         <span style="display:block;font-size:2rem;letter-spacing:0.05em;line-height:1.05">DELIVERABLES</span>
         <span style="display:block;font-size:0.9rem;font-weight:400;text-transform:none;letter-spacing:0.02em;color:#4f8f79;margin-top:0.3rem">Git Tag &rarr; Deploy</span>
+        <span style="display:block;font-size:0.82rem;font-weight:400;text-transform:none;letter-spacing:0;color:#6f6f6f;margin-top:0.4rem">Calculator &middot; Register &middot; GRIP &middot; Archive</span>
       </h4>
       <svg viewBox="0 0 440 250" style="max-width:100%;height:auto">
         <defs>
@@ -356,21 +358,22 @@
 
         <!-- the jar / artifact -->
         <rect x="96" y="86" width="120" height="92" rx="9" fill="rgba(240,192,64,0.05)" stroke="#f0c040" stroke-width="1.7" />
+        <text x="156" y="103" text-anchor="middle" fill="#c8a94a" font-size="12" font-family="monospace">IMAER-java</text>
         <line x1="96" y1="110" x2="216" y2="110" stroke="#f0c040" stroke-width="1.2" opacity="0.7" />
         <text x="156" y="150" text-anchor="middle" fill="#f0c040" font-size="32" font-family="monospace" font-weight="700">1.2.0</text>
         <text x="156" y="168" text-anchor="middle" fill="#a98d3a" font-size="11" font-family="Georgia" font-style="italic">immutable</text>
 
         <!-- downstream consumers pinning it -->
-        <circle cx="356" cy="72" r="7" fill="#141414" stroke="#888" stroke-width="1.5" />
-        <text x="372" y="76" text-anchor="start" fill="#999" font-size="11" font-family="monospace">app</text>
-        <circle cx="368" cy="132" r="7" fill="#141414" stroke="#888" stroke-width="1.5" />
-        <text x="384" y="136" text-anchor="start" fill="#999" font-size="11" font-family="monospace">lib</text>
-        <circle cx="356" cy="192" r="7" fill="#141414" stroke="#888" stroke-width="1.5" />
-        <text x="372" y="196" text-anchor="start" fill="#999" font-size="11" font-family="monospace">svc</text>
+        <circle cx="336" cy="74" r="7" fill="#141414" stroke="#888" stroke-width="1.5" />
+        <text x="352" y="78" text-anchor="start" fill="#999" font-size="10.5" font-family="Georgia">Calculator</text>
+        <circle cx="348" cy="132" r="7" fill="#141414" stroke="#888" stroke-width="1.5" />
+        <text x="364" y="136" text-anchor="start" fill="#999" font-size="10.5" font-family="Georgia">Register</text>
+        <circle cx="336" cy="190" r="7" fill="#141414" stroke="#888" stroke-width="1.5" />
+        <text x="352" y="194" text-anchor="start" fill="#999" font-size="10.5" font-family="Georgia">GRIP</text>
 
-        <line x1="349" y1="74" x2="220" y2="106" stroke="#555" stroke-width="1.3" marker-end="url(#pin)" />
-        <line x1="361" y1="132" x2="221" y2="132" stroke="#555" stroke-width="1.3" marker-end="url(#pin)" />
-        <line x1="349" y1="190" x2="220" y2="158" stroke="#555" stroke-width="1.3" marker-end="url(#pin)" />
+        <line x1="329" y1="76" x2="219" y2="106" stroke="#555" stroke-width="1.3" marker-end="url(#pin)" />
+        <line x1="341" y1="132" x2="220" y2="132" stroke="#555" stroke-width="1.3" marker-end="url(#pin)" />
+        <line x1="329" y1="188" x2="219" y2="158" stroke="#555" stroke-width="1.3" marker-end="url(#pin)" />
       </svg>
       <p class="caption">Immutable: Nexus never overwrites a published version, and the build is reproducible. Other code pins <em>exactly this</em> &mdash; forever.</p>
     </div>
@@ -385,11 +388,13 @@
           </marker>
         </defs>
 
-        <!-- the release: version = tag = commit, one thing -->
-        <rect x="38" y="62" width="180" height="122" rx="9" fill="rgba(240,192,64,0.05)" stroke="#f0c040" stroke-width="1.7" />
-        <text x="128" y="114" text-anchor="middle" fill="#f0c040" font-size="32" font-family="monospace" font-weight="700">v2.1.0</text>
-        <text x="128" y="142" text-anchor="middle" fill="#c8a94a" font-size="12.5" font-family="monospace">= tag = commit a1b9f3c</text>
-        <text x="128" y="169" text-anchor="middle" fill="#f0c040" font-size="12" font-family="Georgia" letter-spacing="2">THE RELEASE</text>
+        <!-- the release: version = tag = commit = public name, one thing -->
+        <text x="128" y="46" text-anchor="middle" fill="#8a97a3" font-size="12" font-family="Georgia">Calculator</text>
+        <rect x="38" y="54" width="180" height="138" rx="9" fill="rgba(240,192,64,0.05)" stroke="#f0c040" stroke-width="1.7" />
+        <text x="128" y="100" text-anchor="middle" fill="#f0c040" font-size="30" font-family="monospace" font-weight="700">v2.1.0</text>
+        <text x="128" y="126" text-anchor="middle" fill="#c8a94a" font-size="12" font-family="monospace">= tag = commit a1b9f3c</text>
+        <text x="128" y="147" text-anchor="middle" fill="#c8a94a" font-size="12" font-family="monospace">= &ldquo;PUBLIC_BETA2026&rdquo;</text>
+        <text x="128" y="177" text-anchor="middle" fill="#f0c040" font-size="12" font-family="Georgia" letter-spacing="2">THE RELEASE</text>
 
         <!-- it gets deployed, not consumed by code -->
         <line x1="224" y1="123" x2="256" y2="123" stroke="#3a5a4a" stroke-width="1.5" marker-end="url(#use)" />
@@ -398,7 +403,7 @@
         <circle cx="282" cy="123" r="4.5" fill="#5cdb95" />
         <text x="322" y="128" text-anchor="middle" fill="#9fd8c4" font-size="13" font-family="Georgia">deployed</text>
       </svg>
-      <p class="caption">The version, the tag, and the commit are the same thing &mdash; the release. Nothing builds against it; it just marks which commit went live.</p>
+      <p class="caption">The version, the tag, the commit, and the public name are all the same release. Nothing builds against it; it just marks which commit went live.</p>
     </div>
   </div>
 </div>
