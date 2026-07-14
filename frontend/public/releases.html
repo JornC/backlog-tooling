@@ -242,13 +242,16 @@
 <!-- SLIDE 1: Two Machines -->
 <div class="slide" id="slide-1">
   <span class="slide-number">01</span>
-  <h2><a href="#slide-1">Two Machines</a></h2>
+  <h2><a href="#slide-1">Two Release Types</a></h2>
   <p class="med" style="margin-bottom:1.5rem">What a repo <em>makes</em> decides how it ships.</p>
 
   <div class="compare">
     <!-- LEFT: Libraries -->
     <div class="compare-col">
-      <h4 style="color:#f0c040">Libraries &rarr; GitHub Actions</h4>
+      <h4 style="color:#f0c040;margin-bottom:1rem">
+        <span style="display:block;font-size:2rem;letter-spacing:0.05em;line-height:1.05">LIBRARIES</span>
+        <span style="display:block;font-size:0.9rem;font-weight:400;text-transform:none;letter-spacing:0.02em;color:#a98d3a;margin-top:0.3rem">GitHub Actions &rarr; Publish</span>
+      </h4>
       <svg viewBox="0 0 440 250" style="max-width:100%;height:auto">
         <defs>
           <marker id="a1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
@@ -275,17 +278,21 @@
         <ellipse cx="350" cy="140" rx="34" ry="9" fill="#1a1710" stroke="#f0c040" stroke-width="1.5" />
         <text x="350" y="178" text-anchor="middle" fill="#f0c040" font-size="13" font-family="Georgia">Nexus</text>
 
-        <!-- published version tags -->
-        <line x1="350" y1="131" x2="350" y2="96" stroke="#333" stroke-width="1" stroke-dasharray="3 4" />
-        <text x="350" y="88" text-anchor="middle" fill="#f0c040" font-size="13" font-family="monospace">1.3.0</text>
-        <text x="350" y="66" text-anchor="middle" fill="#888" font-size="12" font-family="monospace">1.3.0-SNAPSHOT</text>
+        <!-- the published artifact = the release -->
+        <line x1="350" y1="131" x2="350" y2="99" stroke="#333" stroke-width="1" stroke-dasharray="3 4" />
+        <text x="350" y="52" text-anchor="middle" fill="#888" font-size="11" font-family="monospace">1.3.0-SNAPSHOT</text>
+        <text x="350" y="78" text-anchor="middle" fill="#f0c040" font-size="15" font-family="monospace">1.3.0</text>
+        <text x="350" y="93" text-anchor="middle" fill="#f0c040" font-size="9.5" font-family="Georgia" letter-spacing="1.5">THE RELEASE</text>
       </svg>
-      <p class="caption">Numbered jars go to Nexus. The number <em>is</em> the name &mdash; other code depends on exactly it.</p>
+      <p class="caption">A versioned artifact goes to Nexus. The version <em>is</em> the name &mdash; other code depends on exactly it.</p>
     </div>
 
     <!-- RIGHT: Apps -->
     <div class="compare-col">
-      <h4 style="color:#5cdb95">Apps &rarr; git tag &rarr; CCoE</h4>
+      <h4 style="color:#5cdb95;margin-bottom:1rem">
+        <span style="display:block;font-size:2rem;letter-spacing:0.05em;line-height:1.05">DELIVERABLES</span>
+        <span style="display:block;font-size:0.9rem;font-weight:400;text-transform:none;letter-spacing:0.02em;color:#4f8f79;margin-top:0.3rem">Git Tag &rarr; Deploy</span>
+      </h4>
       <svg viewBox="0 0 440 250" style="max-width:100%;height:auto">
         <defs>
           <marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
@@ -310,7 +317,7 @@
         <path d="M186,100 L214,100 L214,140 L186,140 L172,120 Z" fill="rgba(240,192,64,0.08)" stroke="#f0c040" stroke-width="1.6" />
         <circle cx="182" cy="120" r="2" fill="#0a0a0a" stroke="#f0c040" stroke-width="1" />
         <text x="198" y="124" text-anchor="middle" fill="#f0c040" font-size="12" font-family="Georgia">tag</text>
-        <text x="193" y="162" text-anchor="middle" fill="#b9932f" font-size="10" font-family="Georgia" font-style="italic">the release</text>
+        <text x="193" y="164" text-anchor="middle" fill="#f0c040" font-size="9.5" font-family="Georgia" letter-spacing="1.5">THE RELEASE</text>
 
         <line x1="216" y1="120" x2="238" y2="120" stroke="#444" stroke-width="1.5" marker-end="url(#a2)" />
 
@@ -325,7 +332,7 @@
         <text x="370" y="116" text-anchor="middle" fill="#9fd8c4" font-size="12" font-family="Georgia">AWS</text>
         <circle cx="370" cy="130" r="3.5" fill="#5cdb95" />
       </svg>
-      <p class="caption">Cut a release branch, tag it &mdash; <em>that's</em> the release. The CCoE then deploys the tag to AWS.</p>
+      <p class="caption">Make a release branch, put a tag on it &mdash; <em>that</em> tag is the release. The CCoE then deploys it to AWS.</p>
     </div>
   </div>
 </div>
@@ -333,7 +340,7 @@
 <!-- SLIDE 2: Two Truths -->
 <div class="slide" id="slide-2">
   <span class="slide-number">02</span>
-  <h2><a href="#slide-2">Two Truths</a></h2>
+  <h2><a href="#slide-2">Who Depends on the Version</a></h2>
   <p class="med" style="margin-bottom:1.5rem">The split is on purpose. It comes down to who depends on the version number.</p>
 
   <div class="compare">
@@ -350,7 +357,7 @@
         <!-- the jar / artifact -->
         <rect x="96" y="86" width="120" height="92" rx="9" fill="rgba(240,192,64,0.05)" stroke="#f0c040" stroke-width="1.7" />
         <line x1="96" y1="110" x2="216" y2="110" stroke="#f0c040" stroke-width="1.2" opacity="0.7" />
-        <text x="156" y="146" text-anchor="middle" fill="#f0c040" font-size="24" font-family="monospace" font-weight="700">1.2.0</text>
+        <text x="156" y="150" text-anchor="middle" fill="#f0c040" font-size="32" font-family="monospace" font-weight="700">1.2.0</text>
         <text x="156" y="168" text-anchor="middle" fill="#a98d3a" font-size="11" font-family="Georgia" font-style="italic">immutable</text>
 
         <!-- downstream consumers pinning it -->
@@ -365,12 +372,12 @@
         <line x1="361" y1="132" x2="221" y2="132" stroke="#555" stroke-width="1.3" marker-end="url(#pin)" />
         <line x1="349" y1="190" x2="220" y2="158" stroke="#555" stroke-width="1.3" marker-end="url(#pin)" />
       </svg>
-      <p class="caption">Fixed and permanent. Other code depends on <em>exactly this</em>. The number can't lie.</p>
+      <p class="caption">Immutable: Nexus never overwrites a published version, and the build is reproducible. Other code pins <em>exactly this</em> &mdash; forever.</p>
     </div>
 
     <!-- RIGHT: app = its deployment -->
     <div class="compare-col">
-      <h4 style="color:#5cdb95">An app <em>is</em> what's running</h4>
+      <h4 style="color:#5cdb95">A deliverable <em>is</em> a tagged commit</h4>
       <svg viewBox="0 0 420 250" style="max-width:100%;height:auto">
         <defs>
           <marker id="use" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto">
@@ -378,27 +385,20 @@
           </marker>
         </defs>
 
-        <!-- the running deploy, named by a git tag -->
-        <rect x="72" y="94" width="158" height="62" rx="10" fill="rgba(68,170,153,0.05)" stroke="#4a9" stroke-width="1.7" />
-        <circle cx="90" cy="110" r="9" fill="none" stroke="#356254" stroke-width="1.3" />
-        <circle cx="90" cy="110" r="4.5" fill="#5cdb95" />
-        <text x="153" y="133" text-anchor="middle" fill="#9fd8c4" font-size="13" font-family="monospace">PUBLIC_BETA2026</text>
-        <text x="151" y="180" text-anchor="middle" fill="#9fd8c4" font-size="11.5" font-family="Georgia" font-style="italic">the running build (UK)</text>
-        <text x="151" y="198" text-anchor="middle" fill="#6a6a6a" font-size="10" font-family="Georgia">NL ships as BETA &middot; a name per theme</text>
+        <!-- the release: version = tag = commit, one thing -->
+        <rect x="38" y="62" width="180" height="122" rx="9" fill="rgba(240,192,64,0.05)" stroke="#f0c040" stroke-width="1.7" />
+        <text x="128" y="114" text-anchor="middle" fill="#f0c040" font-size="32" font-family="monospace" font-weight="700">v2.1.0</text>
+        <text x="128" y="142" text-anchor="middle" fill="#c8a94a" font-size="12.5" font-family="monospace">= tag = commit a1b9f3c</text>
+        <text x="128" y="169" text-anchor="middle" fill="#f0c040" font-size="12" font-family="Georgia" letter-spacing="2">THE RELEASE</text>
 
-        <!-- users just use it; no code pins the name -->
-        <circle cx="356" cy="82" r="7" fill="#141414" stroke="#888" stroke-width="1.5" />
-        <text x="372" y="86" text-anchor="start" fill="#999" font-size="11" font-family="Georgia">user</text>
-        <circle cx="368" cy="125" r="7" fill="#141414" stroke="#888" stroke-width="1.5" />
-        <text x="384" y="129" text-anchor="start" fill="#999" font-size="11" font-family="Georgia">user</text>
-        <circle cx="356" cy="168" r="7" fill="#141414" stroke="#888" stroke-width="1.5" />
-        <text x="372" y="172" text-anchor="start" fill="#999" font-size="11" font-family="Georgia">user</text>
-
-        <line x1="349" y1="84" x2="234" y2="110" stroke="#555" stroke-width="1.3" marker-end="url(#use)" />
-        <line x1="361" y1="125" x2="235" y2="125" stroke="#555" stroke-width="1.3" marker-end="url(#use)" />
-        <line x1="349" y1="166" x2="234" y2="142" stroke="#555" stroke-width="1.3" marker-end="url(#use)" />
+        <!-- it gets deployed, not consumed by code -->
+        <line x1="224" y1="123" x2="256" y2="123" stroke="#3a5a4a" stroke-width="1.5" marker-end="url(#use)" />
+        <rect x="260" y="99" width="120" height="48" rx="10" fill="rgba(68,170,153,0.05)" stroke="#4a9" stroke-width="1.7" />
+        <circle cx="282" cy="123" r="9" fill="none" stroke="#356254" stroke-width="1.3" />
+        <circle cx="282" cy="123" r="4.5" fill="#5cdb95" />
+        <text x="322" y="128" text-anchor="middle" fill="#9fd8c4" font-size="13" font-family="Georgia">deployed</text>
       </svg>
-      <p class="caption">It has a version too &mdash; a public release name, set by a git tag. But no other code locks onto it; what counts is which build is deployed.</p>
+      <p class="caption">The version, the tag, and the commit are the same thing &mdash; the release. Nothing builds against it; it just marks which commit went live.</p>
     </div>
   </div>
 </div>
@@ -407,55 +407,50 @@
 <div class="slide" id="slide-3">
   <span class="slide-number">03</span>
   <h2><a href="#slide-3">The Dance</a></h2>
-  <p class="med" style="margin-bottom:0.5rem">The flow is fine &mdash; watch what the version number has to do:</p>
+  <p class="med" style="margin-bottom:0.5rem">Re-design this from scratch and you'd land on exactly this flow &mdash; then watch how much of it is done by hand.</p>
 
-  <svg viewBox="0 0 720 300" style="max-width:100%;height:auto;width:47rem;margin:0.5rem 0;overflow:visible">
+  <svg viewBox="0 0 760 360" style="max-width:100%;height:auto;width:50rem;margin:0.5rem 0;overflow:visible">
     <defs>
       <marker id="dstep" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
         <path d="M 0,0 L 10,5 L 0,10 Z" fill="#c55" />
       </marker>
     </defs>
 
-    <!-- 1. the change: normal dev on the snapshot line -->
-    <path d="M75,120 L260,120" stroke="#5cdb95" stroke-width="3" fill="none" />
-    <circle cx="75" cy="120" r="6" fill="#5cdb95" />
-    <text x="78" y="102" text-anchor="middle" fill="#9fd8c4" font-size="13" font-family="monospace">1.3.0-SNAPSHOT</text>
-    <text x="176" y="110" text-anchor="middle" fill="#5cdb95" font-size="12.5" font-family="Georgia" font-style="italic">the change</text>
+    <!-- dev line 1: the change -->
+    <path d="M90,130 L280,130" stroke="#5cdb95" stroke-width="4" fill="none" />
+    <circle cx="90" cy="130" r="7" fill="#5cdb95" />
+    <text x="190" y="96" text-anchor="middle" fill="#9fd8c4" font-size="24" font-family="monospace">1.3.0-SNAPSHOT</text>
+    <text x="190" y="156" text-anchor="middle" fill="#5cdb95" font-size="13" font-family="Georgia" font-style="italic">the change</text>
 
-    <!-- 2. strip -SNAPSHOT: manual step down -->
-    <path d="M260,120 L363,218" stroke="#c55" stroke-width="3" fill="none" stroke-dasharray="7 5" marker-end="url(#dstep)" />
+    <!-- PR #1: strip -SNAPSHOT, by hand (down) -->
+    <path d="M280,130 L388,256" stroke="#c55" stroke-width="4" fill="none" stroke-dasharray="8 5" marker-end="url(#dstep)" />
+    <text x="250" y="210" text-anchor="end" fill="#e06060" font-size="16" font-family="Georgia" font-style="italic">manual PR</text>
 
-    <!-- release: the tag, ships itself -->
-    <path d="M378,199 L400,199 L400,237 L378,237 L364,218 Z" fill="rgba(240,192,64,0.10)" stroke="#f0c040" stroke-width="1.8" />
-    <circle cx="374" cy="218" r="2" fill="#0a0a0a" stroke="#f0c040" stroke-width="1" />
-    <text x="387" y="222" text-anchor="middle" fill="#f0c040" font-size="12" font-family="Georgia">tag</text>
-    <text x="382" y="264" text-anchor="middle" fill="#f0c040" font-size="13" font-family="monospace">1.3.0</text>
-    <text x="382" y="283" text-anchor="middle" fill="#b9932f" font-size="11" font-family="Georgia" font-style="italic">publish &mdash; ships itself</text>
+    <!-- release -->
+    <circle cx="398" cy="262" r="6" fill="#f0c040" />
+    <text x="398" y="306" text-anchor="middle" fill="#f0c040" font-size="30" font-family="monospace">1.3.0</text>
+    <text x="398" y="328" text-anchor="middle" fill="#b9932f" font-size="12" font-family="Georgia" font-style="italic">publish &mdash; ships itself</text>
 
-    <!-- 3. restore -SNAPSHOT + bump: manual step up -->
-    <path d="M400,218 L512,100" stroke="#c55" stroke-width="3" fill="none" stroke-dasharray="7 5" marker-end="url(#dstep)" />
+    <!-- PR #2: restore -SNAPSHOT + bump, by hand (up) -->
+    <path d="M408,256 L516,130" stroke="#c55" stroke-width="4" fill="none" stroke-dasharray="8 5" marker-end="url(#dstep)" />
+    <text x="548" y="210" text-anchor="start" fill="#e06060" font-size="16" font-family="Georgia" font-style="italic">manual PR</text>
 
-    <!-- 4. dev continues, one minor higher -->
-    <path d="M512,100 L668,100" stroke="#5cdb95" stroke-width="3" fill="none" />
-    <circle cx="512" cy="100" r="6" fill="#5cdb95" />
-    <text x="527" y="86" text-anchor="start" fill="#9fd8c4" font-size="13" font-family="monospace">1.4.0-SNAPSHOT</text>
-    <text x="592" y="122" text-anchor="middle" fill="#5cdb95" font-size="12.5" font-family="Georgia" font-style="italic">dev continues</text>
-  </svg>
+    <!-- dev line 2: dev continues -->
+    <path d="M516,130 L706,130" stroke="#5cdb95" stroke-width="4" fill="none" />
+    <circle cx="516" cy="130" r="7" fill="#5cdb95" />
+    <text x="614" y="96" text-anchor="middle" fill="#9fd8c4" font-size="24" font-family="monospace">1.4.0-SNAPSHOT</text>
+    <text x="614" y="156" text-anchor="middle" fill="#5cdb95" font-size="13" font-family="Georgia" font-style="italic">dev continues</text>
 
-  <!-- legend -->
-  <svg viewBox="0 0 470 24" style="max-width:100%;height:auto;width:27rem;margin-top:0.4rem;margin-bottom:0.5rem">
-    <line x1="6" y1="12" x2="36" y2="12" stroke="#5cdb95" stroke-width="3" />
-    <text x="44" y="16" fill="#9fd8c4" font-size="12.5" font-family="Georgia">real work</text>
-    <line x1="150" y1="12" x2="180" y2="12" stroke="#c55" stroke-width="3" stroke-dasharray="7 5" />
-    <text x="188" y="16" fill="#e0a0a0" font-size="12.5" font-family="Georgia">two PRs by hand &mdash; just the version</text>
+    <!-- takeaway -->
+    <text x="398" y="352" text-anchor="middle" fill="#e06060" font-size="21" font-family="Georgia">Two PRs, by hand &mdash; just to move a number.</text>
   </svg>
 </div>
 
 <!-- SLIDE 4: Delete the Dance -->
 <div class="slide" id="slide-4">
   <span class="slide-number">04</span>
-  <h2><a href="#slide-4">Delete the Dance</a></h2>
-  <p class="med" style="margin-bottom:1.5rem">Take the version out of the code. Let the git tag be the one place it lives.</p>
+  <h2><a href="#slide-4">Can we delete the dance?</a></h2>
+  <p class="med" style="margin-bottom:1.5rem">Can we drop the manual version bumps &mdash; and let the git tag carry it?</p>
 
   <div class="compare" style="max-width:64rem">
     <!-- TODAY -->
@@ -496,35 +491,31 @@
     </div>
   </div>
 
-  <div class="aside">
-    <span class="lead">The one thing you still set by hand:</span> the dev line &mdash; <code>1.3.0-SNAPSHOT</code> &mdash;
-    once per minor version, when you start it. Other code uses it just like today.
-    <strong style="color:#f0c040">Three routine PRs per release &rarr; one real bump per minor version.</strong>
-  </div>
-
-  <p class="sm" style="margin-top:1.4rem">Apps stay as they are &mdash; release branch, git tag, then the CCoE ships to AWS. That's for another day.</p>
+  <p style="font-size:2.4rem;font-weight:300;color:#e8e8e8;margin-top:2rem;max-width:48rem;line-height:1.2">
+    A release becomes just a <span class="highlight">git tag</span>.<br>No version PRs.
+  </p>
 </div>
 
 <!-- ADDENDUM: the mechanism -->
 <div class="slide" id="slide-5">
   <span class="slide-number">addendum</span>
-  <h2><a href="#slide-5">One way to do it</a></h2>
-  <p class="med" style="margin-bottom:1.8rem">Stop editing the version by hand. Two off-the-shelf ways, both keep releases as a git tag:</p>
+  <h2><a href="#slide-5">Options</a></h2>
+  <p class="med" style="margin-bottom:1.8rem">The architecture stays exactly as it is &mdash; it's how we want it. We only automate the mechanical part: the by-hand version bumps. Two off-the-shelf ways:</p>
 
   <div class="compare" style="max-width:74rem;gap:2.5rem">
     <!-- Option A: CI-friendly versions -->
     <div class="compare-col">
       <h4 style="color:#f0c040">CI-friendly versions</h4>
       <p class="opt-label">plain maven &middot; minimal change</p>
-      <div class="code"><span class="c">&lt;!-- pom.xml --&gt;</span>
+      <div class="code"><span class="c">&lt;!-- pom.xml: version is a placeholder --&gt;</span>
 <span class="t">&lt;version&gt;</span>${revision}<span class="t">&lt;/version&gt;</span>
 <span class="t">&lt;properties&gt;</span>
-  <span class="t">&lt;revision&gt;</span><span class="v">1.3.0-SNAPSHOT</span><span class="t">&lt;/revision&gt;</span>
+  <span class="t">&lt;revision&gt;</span><span class="v">1.3.0-SNAPSHOT</span><span class="t">&lt;/revision&gt;</span>  <span class="c">&lt;!-- one place --&gt;</span>
 <span class="t">&lt;/properties&gt;</span>
 
-<span class="c"># release build sets the number</span>
+<span class="c"># release: pass the number, no PR</span>
 <span class="k">mvn deploy -Drevision=</span><span class="v">1.3.0</span></div>
-      <p class="tradeoff">Keep <em>one</em> dev-line property; the release build supplies the number. Add <code>flatten-maven-plugin</code> so Nexus gets the real value, not <code>${revision}</code>.</p>
+      <p class="tradeoff">The version lives in <em>one</em> property, not scattered through the pom. To release, the build passes the number on the command line &mdash; instead of a PR that edits the pom. (<code>flatten-maven-plugin</code> writes the real number into what Nexus receives.)</p>
     </div>
 
     <!-- Option B: git-versioning extension -->
@@ -548,8 +539,7 @@
   </div>
 
   <div class="aside" style="max-width:74rem;margin-top:1.8rem">
-    <span class="lead">Also:</span> <code>jgitver</code> derives the version from the last tag plus commit distance &mdash; even less config, more opinionated.
-    <strong style="color:#f0c040">Whichever you pick, check once that the pom published to Nexus carries the real number, not the placeholder.</strong>
+    <span class="lead">Also:</span> <code>jgitver</code> derives the version from the last tag plus commit distance &mdash; even less config, but more opinionated (less flexible).
   </div>
 </div>
 
