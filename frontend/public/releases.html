@@ -505,13 +505,29 @@
 <div class="slide" id="slide-5">
   <span class="slide-number">addendum</span>
   <h2><a href="#slide-5">Options</a></h2>
-  <p class="med" style="margin-bottom:1.8rem">The architecture stays exactly as it is &mdash; it's how we want it. We only automate the mechanical part: the by-hand version bumps. Two off-the-shelf ways:</p>
+  <p class="med" style="margin-bottom:1.8rem">The architecture stays exactly as it is &mdash; it's how we want it. We only automate the mechanical part: the by-hand version bumps. Three ways, least change first:</p>
 
-  <div class="compare" style="max-width:74rem;gap:2.5rem">
-    <!-- Option A: CI-friendly versions -->
+  <div class="compare" style="max-width:80rem;gap:2rem">
+    <!-- automate the existing dance -->
+    <div class="compare-col">
+      <h4 style="color:#7f9cc9">Automate the dance</h4>
+      <p class="opt-label">github action &middot; least change</p>
+      <div class="code"><span class="c"># manual trigger, two inputs:</span>
+<span class="c">#   release_version, next_dev_version</span>
+
+<span class="k">mvn versions:set</span> -DnewVersion=$release
+<span class="k">mvn enforcer:enforce</span>   <span class="c"># no SNAPSHOT deps</span>
+git commit &amp;&amp; git push
+<span class="k">gh release create</span> $release   <span class="c"># tag + publish</span>
+<span class="k">mvn versions:set</span> -DnewVersion=$next_dev
+git commit &amp;&amp; git push</div>
+      <p class="tradeoff">The three PRs collapse into one button. The version still lives in the pom and is committed twice per release &mdash; the machine does it, not you. (Commits go straight to the branch.)</p>
+    </div>
+
+    <!-- CI-friendly versions -->
     <div class="compare-col">
       <h4 style="color:#f0c040">CI-friendly versions</h4>
-      <p class="opt-label">plain maven &middot; minimal change</p>
+      <p class="opt-label">plain maven &middot; one property</p>
       <div class="code"><span class="c">&lt;!-- pom.xml: version is a placeholder --&gt;</span>
 <span class="t">&lt;version&gt;</span>${revision}<span class="t">&lt;/version&gt;</span>
 <span class="t">&lt;properties&gt;</span>
@@ -543,7 +559,8 @@
     </div>
   </div>
 
-  <div class="aside" style="max-width:74rem;margin-top:1.8rem">
+  <div class="aside" style="max-width:80rem;margin-top:1.8rem">
+    <span class="lead">Safety net:</span> guard every release with the <code>requireReleaseDeps</code> enforcer &mdash; never publish a library that depends on a <code>-SNAPSHOT</code>. Works with all three.<br>
     <span class="lead">Also:</span> <code>jgitver</code> derives the version from the last tag plus commit distance &mdash; even less config, but more opinionated (less flexible).
   </div>
 </div>
