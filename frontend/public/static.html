@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Static</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Georgia', serif;
+    background: #0a0a0a;
+    color: #e8e8e8;
+    line-height: 1.5;
+  }
+  #slide-indicator {
+    position: fixed;
+    top: 2rem;
+    left: 2.5rem;
+    font-family: monospace;
+    font-size: 1rem;
+    color: #666;
+    z-index: 100;
+  }
+  #slide-indicator a { color: inherit; text-decoration: none; transition: color 0.2s; }
+  #slide-indicator a:hover { color: #f0c040; }
+  #slide-indicator .current { color: #f0c040; font-weight: 700; }
+  .slide {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 4rem;
+    border-bottom: 1px solid #222;
+    position: relative;
+    text-align: center;
+  }
+  .slide-number {
+    position: absolute;
+    top: 2rem;
+    right: 3rem;
+    font-size: 0.85rem;
+    color: #444;
+    font-family: monospace;
+  }
+
+  h1 { font-size: 6rem; font-weight: 300; letter-spacing: -0.03em; margin-bottom: 0.5rem; color: #fff; }
+  .subtitle { font-size: 1.4rem; color: #777; font-style: italic; letter-spacing: 0.05em; }
+  h2 { font-size: 3.4rem; font-weight: 300; margin-bottom: 2rem; color: #fff; letter-spacing: -0.02em; }
+  h1 a, h2 a { color: inherit; text-decoration: none; transition: color 0.2s; }
+  h1 a:hover, h2 a:hover { color: #f0c040; }
+  .big { font-size: 2rem; max-width: 48rem; margin-bottom: 0.6rem; color: #ddd; }
+  .med { font-size: 1.4rem; max-width: 50rem; margin-bottom: 0.5rem; color: #bbb; }
+  .sm { font-size: 1.1rem; max-width: 52rem; color: #888; }
+  .highlight { color: #f0c040; }
+  .good { color: #5cdb95; }
+  .bad { color: #e06060; }
+  code {
+    font-family: monospace;
+    font-size: 0.92em;
+    color: #e0a54a;
+    background: rgba(240,192,64,0.08);
+    padding: 0.1rem 0.35rem;
+    border-radius: 3px;
+  }
+  .punchline {
+    font-size: 2.4rem;
+    color: #f0c040;
+    margin-top: 2rem;
+    font-style: italic;
+    max-width: 50rem;
+    font-weight: 300;
+    line-height: 1.25;
+  }
+
+  /* Side-by-side comparison */
+  .compare {
+    display: flex;
+    gap: 3rem;
+    margin: 0.5rem 0 1.2rem;
+    max-width: 72rem;
+    width: 100%;
+    align-items: stretch;
+  }
+  .compare-col {
+    flex: 1;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .compare-col h4 {
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: 1rem;
+    font-weight: 600;
+  }
+  .compare-col svg { max-width: 100%; height: auto; }
+  .compare-col .caption {
+    font-size: 1.05rem;
+    color: #aaa;
+    margin-top: 1rem;
+    font-style: italic;
+    max-width: 30rem;
+    line-height: 1.5;
+  }
+
+  /* Slide 2: dynamic thing -> what happens to it */
+  .moves {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr auto;
+    gap: 0.6rem 1rem;
+    align-items: center;
+    max-width: 62rem;
+    width: 100%;
+    margin-top: 0.5rem;
+  }
+  .moves .from, .moves .to {
+    border: 1.5px solid #333;
+    border-radius: 7px;
+    padding: 0.65rem 1rem;
+    font-size: 1.02rem;
+    background: #141414;
+    text-align: left;
+  }
+  .moves .from { border-color: #c55; background: rgba(204,85,85,0.05); color: #e0b0b0; }
+  .moves .to { border-color: #4a9; color: #cfe9df; }
+  .moves .to.gone { border-style: dashed; border-color: #555; color: #888; }
+  .moves .arrow { color: #555; font-size: 1.3rem; }
+  .moves .tag { font-family: monospace; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-align: left; }
+  .moves .tag.replace { color: #5cdb95; }
+  .moves .tag.remove { color: #f0c040; }
+  .moves .head { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.14em; color: #777; text-align: left; padding-bottom: 0.2rem; }
+
+  /* Slide 3: doors */
+  .sure {
+    border: 1.5px solid #4a9;
+    background: rgba(68,170,153,0.06);
+    border-radius: 8px;
+    padding: 1rem 1.5rem;
+    max-width: 66rem;
+    width: 100%;
+    font-size: 1.2rem;
+    color: #cfe9df;
+    margin-bottom: 1.4rem;
+  }
+  .sure .lead { color: #5cdb95; font-family: monospace; font-size: 0.8rem; letter-spacing: 0.14em; text-transform: uppercase; display: block; margin-bottom: 0.3rem; }
+  .doors {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    max-width: 66rem;
+    width: 100%;
+  }
+  .door {
+    border: 1.5px dashed #a98d3a;
+    border-radius: 8px;
+    padding: 1.1rem 1rem 1.2rem;
+    background: rgba(240,192,64,0.03);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.55rem;
+  }
+  .door .opt {
+    font-family: monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #a98d3a;
+  }
+  .door .d-title { font-size: 1.2rem; color: #f0c040; line-height: 1.25; }
+  .door .d-text { font-size: 0.98rem; color: #aaa; line-height: 1.45; }
+
+  @media (max-width: 900px) {
+    .slide { padding: 4.5rem 1.5rem 2.5rem; }
+    h1 { font-size: 3rem; }
+    h2 { font-size: 2rem; margin-bottom: 1.5rem; }
+    .big { font-size: 1.5rem; }
+    .med { font-size: 1.15rem; }
+    .punchline { font-size: 1.6rem; }
+    .compare { flex-direction: column; gap: 2.5rem; }
+    .moves { grid-template-columns: 1fr; }
+    .moves .arrow, .moves .head { display: none; }
+    .moves .tag { margin-bottom: 0.8rem; }
+    .doors { grid-template-columns: 1fr 1fr; }
+    #slide-indicator { top: 1rem; left: 1.5rem; }
+    .slide-number { top: 1rem; right: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- shared arrow heads -->
+<svg style="position:absolute;width:0;height:0" aria-hidden="true">
+  <defs>
+    <marker id="ar-grey" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto">
+      <path d="M 0,0 L 10,5 L 0,10 Z" fill="#666" />
+    </marker>
+    <marker id="ar-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto">
+      <path d="M 0,0 L 10,5 L 0,10 Z" fill="#5cdb95" />
+    </marker>
+    <marker id="ar-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto">
+      <path d="M 0,0 L 10,5 L 0,10 Z" fill="#c55" />
+    </marker>
+  </defs>
+</svg>
+
+<!-- TITLE -->
+<div class="slide" id="slide-0">
+  <h1><a href="#slide-0">Static</a></h1>
+  <p class="subtitle">AER-149 &mdash; a web server that only hands out files</p>
+</div>
+
+<!-- SLIDE 1: What it is -->
+<div class="slide" id="slide-1">
+  <span class="slide-number">01</span>
+  <h2><a href="#slide-1">What It Is</a></h2>
+  <p class="med" style="margin-bottom:1.5rem;max-width:60rem">Years ago the web server did almost everything. Today two servers share the job. After this epic, only Connect does.</p>
+
+  <div class="compare" style="max-width:92rem;gap:2rem">
+    <div class="compare-col">
+      <h4 style="color:#e06060">Years ago</h4>
+      <svg viewBox="0 0 440 262">
+        <rect x="150" y="18" width="140" height="52" rx="9" fill="#141414" stroke="#8a97a3" stroke-width="1.6" />
+        <text x="220" y="50" text-anchor="middle" fill="#c3ccd4" font-size="16" font-family="Georgia">Client</text>
+
+        <rect x="20" y="172" width="180" height="76" rx="9" fill="rgba(204,85,85,0.10)" stroke="#e06060" stroke-width="2.4" />
+        <text x="110" y="204" text-anchor="middle" fill="#e8a0a0" font-size="16" font-family="Georgia">Web server</text>
+        <text x="110" y="227" text-anchor="middle" fill="#a66" font-size="10" font-family="monospace">Tomcat &middot; JSP &middot; DB &middot; GWT-RPC</text>
+
+        <rect x="240" y="172" width="180" height="76" rx="9" fill="#101010" stroke="#356254" stroke-width="1.4" />
+        <text x="330" y="204" text-anchor="middle" fill="#6fa08f" font-size="16" font-family="Georgia">Connect</text>
+        <text x="330" y="227" text-anchor="middle" fill="#4f8f79" font-size="10.5" font-family="monospace">the API</text>
+
+        <line x1="118" y1="170" x2="192" y2="76" stroke="#e06060" stroke-width="3.2" marker-end="url(#ar-red)" />
+        <text x="128" y="94" text-anchor="end" fill="#e06060" font-size="11.5" font-family="Georgia" font-style="italic">context, system info,</text>
+        <text x="128" y="110" text-anchor="end" fill="#e06060" font-size="11.5" font-family="Georgia" font-style="italic">page, language,</text>
+        <text x="128" y="126" text-anchor="end" fill="#e06060" font-size="11.5" font-family="Georgia" font-style="italic">customer, toggles,</text>
+        <text x="128" y="142" text-anchor="end" fill="#e06060" font-size="11.5" font-family="Georgia" font-style="italic">RPC calls</text>
+
+        <line x1="322" y1="170" x2="248" y2="76" stroke="#4a9" stroke-width="1.4" marker-end="url(#ar-green)" />
+        <text x="304" y="120" text-anchor="start" fill="#4f8f79" font-size="11.5" font-family="Georgia" font-style="italic">calculations</text>
+      </svg>
+      <p class="caption">The web server ran the show: context, system info and RPC calls all came from Tomcat. Connect was there for calculations.</p>
+    </div>
+
+    <div class="compare-col">
+      <h4 style="color:#f0c040">Today</h4>
+      <svg viewBox="0 0 440 262">
+        <rect x="150" y="18" width="140" height="52" rx="9" fill="#141414" stroke="#8a97a3" stroke-width="1.6" />
+        <text x="220" y="50" text-anchor="middle" fill="#c3ccd4" font-size="16" font-family="Georgia">Client</text>
+
+        <rect x="20" y="172" width="180" height="76" rx="9" fill="rgba(204,85,85,0.06)" stroke="#c55" stroke-width="1.6" />
+        <text x="110" y="204" text-anchor="middle" fill="#e8a0a0" font-size="16" font-family="Georgia">Web server</text>
+        <text x="110" y="227" text-anchor="middle" fill="#a66" font-size="10.5" font-family="monospace">Tomcat &middot; JSP &middot; database</text>
+
+        <rect x="240" y="172" width="180" height="76" rx="9" fill="rgba(68,170,153,0.06)" stroke="#4a9" stroke-width="1.6" />
+        <text x="330" y="204" text-anchor="middle" fill="#9fd8c4" font-size="16" font-family="Georgia">Connect</text>
+        <text x="330" y="227" text-anchor="middle" fill="#4f8f79" font-size="10.5" font-family="monospace">the API</text>
+
+        <line x1="118" y1="170" x2="192" y2="76" stroke="#c55" stroke-width="2" marker-end="url(#ar-red)" />
+        <text x="136" y="112" text-anchor="end" fill="#e06060" font-size="11.5" font-family="Georgia" font-style="italic">page, language,</text>
+        <text x="136" y="128" text-anchor="end" fill="#e06060" font-size="11.5" font-family="Georgia" font-style="italic">customer, toggles</text>
+
+        <line x1="322" y1="170" x2="248" y2="76" stroke="#5cdb95" stroke-width="2" marker-end="url(#ar-green)" />
+        <text x="304" y="112" text-anchor="start" fill="#5cdb95" font-size="11.5" font-family="Georgia" font-style="italic">context,</text>
+        <text x="304" y="128" text-anchor="start" fill="#5cdb95" font-size="11.5" font-family="Georgia" font-style="italic">data</text>
+      </svg>
+      <p class="caption">Context and system info moved to Connect. The web server still reads the database, picks the language and the customer, and writes settings into the page.</p>
+    </div>
+
+    <div class="compare-col">
+      <h4 style="color:#5cdb95">After AER-149</h4>
+      <svg viewBox="0 0 440 262">
+        <rect x="150" y="18" width="140" height="52" rx="9" fill="#141414" stroke="#8a97a3" stroke-width="1.6" />
+        <text x="220" y="50" text-anchor="middle" fill="#c3ccd4" font-size="16" font-family="Georgia">Client</text>
+
+        <rect x="20" y="172" width="180" height="76" rx="9" fill="#101010" stroke="#555" stroke-width="1.4" stroke-dasharray="5 4" />
+        <text x="110" y="204" text-anchor="middle" fill="#999" font-size="16" font-family="Georgia">Static files</text>
+        <text x="110" y="227" text-anchor="middle" fill="#666" font-size="10.5" font-family="monospace">any host &middot; no logic</text>
+
+        <rect x="240" y="172" width="180" height="76" rx="9" fill="rgba(68,170,153,0.09)" stroke="#5cdb95" stroke-width="2.2" />
+        <text x="330" y="204" text-anchor="middle" fill="#9fd8c4" font-size="16" font-family="Georgia">Connect</text>
+        <text x="330" y="227" text-anchor="middle" fill="#5cdb95" font-size="10.5" font-family="monospace">the one source</text>
+
+        <line x1="118" y1="170" x2="192" y2="76" stroke="#555" stroke-width="1.5" stroke-dasharray="4 4" marker-end="url(#ar-grey)" />
+        <text x="136" y="120" text-anchor="end" fill="#777" font-size="11.5" font-family="Georgia" font-style="italic">files</text>
+
+        <line x1="322" y1="170" x2="248" y2="76" stroke="#5cdb95" stroke-width="3" marker-end="url(#ar-green)" />
+        <text x="304" y="112" text-anchor="start" fill="#5cdb95" font-size="11.5" font-family="Georgia" font-style="italic">everything</text>
+        <text x="304" y="128" text-anchor="start" fill="#5cdb95" font-size="11.5" font-family="Georgia" font-style="italic">else</text>
+      </svg>
+      <p class="caption">The web server hands out files and nothing else. What the client shows and does comes from Connect alone.</p>
+    </div>
+  </div>
+
+  <p class="sm">The road in between: system info to Connect, GWT-RPC and the servlets removed, one call to rule them all (<code>/ui/context</code>), client errors reported to Connect.</p>
+</div>
+
+<!-- SLIDE 2: The approach -->
+<div class="slide" id="slide-2">
+  <span class="slide-number">02</span>
+  <h2><a href="#slide-2">The Approach</a></h2>
+  <p class="med" style="margin-bottom:1.6rem">Find every dynamic thing the web server still does. Then <span class="good">replace</span> it, or <span class="highlight">remove the need</span> for it.</p>
+
+  <div class="moves">
+    <div class="head">dynamic today</div><div></div><div class="head">after</div><div></div>
+
+    <div class="from">Reads the database at startup</div><div class="arrow">&rarr;</div>
+    <div class="to gone">Nothing. Connect already serves it.</div><div class="tag remove">REMOVE</div>
+
+    <div class="from">Picks the language on the server</div><div class="arrow">&rarr;</div>
+    <div class="to">The browser picks the language</div><div class="tag replace">REPLACE</div>
+
+    <div class="from">Decides Calculator or Check at runtime</div><div class="arrow">&rarr;</div>
+    <div class="to">Check is a build variant</div><div class="tag replace">REPLACE</div>
+
+    <div class="from">Reads environment toggles</div><div class="arrow">&rarr;</div>
+    <div class="to">Set at build time, or dropped</div><div class="tag replace">REPLACE</div>
+
+    <div class="from">Servlet gives the print page its Connect URL</div><div class="arrow">&rarr;</div>
+    <div class="to">The URL travels in the print link</div><div class="tag replace">REPLACE</div>
+
+    <div class="from">JSP pages rendered per request</div><div class="arrow">&rarr;</div>
+    <div class="to">HTML generated once, at build time</div><div class="tag replace">REPLACE</div>
+  </div>
+
+  <p class="sm" style="margin-top:1.6rem">One small PR per row. Each is safe to ship alone. When the list is empty, Tomcat has nothing left to do and we swap it for a file server.</p>
+</div>
+
+<!-- SLIDE 3: What it enables -->
+<div class="slide" id="slide-3">
+  <span class="slide-number">03</span>
+  <h2><a href="#slide-3">What It Enables</a></h2>
+
+  <div class="sure">
+    <span class="lead">what we get for sure</span>
+    A very simple, very dumb web server. No Tomcat, no Java, no database connection, no state. Nothing to patch, nothing to crash.
+  </div>
+
+  <div class="doors">
+    <div class="door">
+      <span class="opt">optional</span>
+      <span class="d-title">Serve it from Amplify</span>
+      <span class="d-text">Or a bucket, a CDN, plain nginx. A deploy is uploading files.</span>
+    </div>
+    <div class="door">
+      <span class="opt">optional</span>
+      <span class="d-title">Swap one side, keep the other</span>
+      <span class="d-text">New Connect under the same client. New client on the same Connect.</span>
+    </div>
+    <div class="door">
+      <span class="opt">optional</span>
+      <span class="d-title">The client in its own repo</span>
+      <span class="d-text">Nothing on the serving side ties it to this repo any more.</span>
+    </div>
+    <div class="door">
+      <span class="opt">optional</span>
+      <span class="d-title">A new client, next to the old one</span>
+      <span class="d-text">It only needs to speak the Connect API. No big bang.</span>
+    </div>
+  </div>
+
+  <p class="punchline">We don't have to do any of it.<br>Today we can't. After AER-149 we can.</p>
+</div>
+
+<div id="slide-indicator"></div>
+
+<script>
+(function() {
+  var slides = document.querySelectorAll('.slide');
+  var indicator = document.getElementById('slide-indicator');
+  var labels = ['title', '1', '2', '3'];
+
+  function getCurrentSlide() {
+    var scrollY = window.scrollY + window.innerHeight / 2;
+    for (var i = slides.length - 1; i >= 0; i--) {
+      if (scrollY >= slides[i].offsetTop) return i;
+    }
+    return 0;
+  }
+
+  function updateIndicator() {
+    var current = getCurrentSlide();
+    indicator.innerHTML = labels.map(function(label, i) {
+      var cls = i === current ? 'current' : '';
+      return '<a href="#slide-' + i + '" class="' + cls + '">' + label + '</a>';
+    }).join(' &middot; ');
+  }
+
+  document.addEventListener('keydown', function(e) {
+    var num = parseInt(e.key);
+    if (!isNaN(num) && num >= 0 && num < slides.length) {
+      slides[num].scrollIntoView({ behavior: 'smooth' });
+      return;
+    }
+    var cur = getCurrentSlide();
+    if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ') {
+      e.preventDefault();
+      if (cur < slides.length - 1) slides[cur + 1].scrollIntoView({ behavior: 'smooth' });
+    }
+    if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+      e.preventDefault();
+      if (cur > 0) slides[cur - 1].scrollIntoView({ behavior: 'smooth' });
+    }
+  });
+
+  window.addEventListener('scroll', updateIndicator);
+  updateIndicator();
+})();
+</script>
+
+</body>
+</html>

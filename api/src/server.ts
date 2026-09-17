@@ -36,6 +36,9 @@ if (existsSync(frontendDist)) {
   app.get("/releases", (_req, res) => {
     res.sendFile(join(frontendDist, "releases.html"));
   });
+  app.get("/static", (_req, res) => {
+    res.sendFile(join(frontendDist, "static.html"));
+  });
   app.get("/{*splat}", (_req, res) => {
     res.sendFile(join(frontendDist, "index.html"));
   });
