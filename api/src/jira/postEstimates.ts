@@ -113,13 +113,14 @@ async function discoverFieldIds(): Promise<FieldIds> {
 interface ScheduleItem {
   title: string;
   code: string;
+  noVote?: boolean;
 }
 
 export async function postEstimatesToJira(
   schedule: ScheduleItem[],
   roomStateManager: RoomStateManager,
 ): Promise<JiraItemResult[]> {
-  const aerItems = schedule.filter((item) => item.code.startsWith("aer-"));
+  const aerItems = schedule.filter((item) => item.code.startsWith("aer-") && !item.noVote);
 
   if (aerItems.length === 0) {
     return [];

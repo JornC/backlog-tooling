@@ -19,7 +19,7 @@
 
 <script setup lang="ts">
 import { ActionType, type RoomStateFragment } from "@/domain/types";
-import { useScheduleStore, type ScheduleItem } from "@/stores/scheduleStore";
+import { hasVoting, useScheduleStore, type ScheduleItem } from "@/stores/scheduleStore";
 import { useSocketStore } from "@/ws/socketManager";
 import { computed } from "vue";
 
@@ -68,7 +68,7 @@ const formatTestEstimates = (room: RoomStateFragment[] | undefined) =>
 
 const itemsWithRooms = computed(() =>
   items.value
-    .filter((v) => v.code.startsWith("aer-"))
+    .filter(hasVoting)
     .map((item) => ({
       item,
       room: getRoom(item.code),

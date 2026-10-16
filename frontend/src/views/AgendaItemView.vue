@@ -21,7 +21,7 @@
       <div ref="titleSectionRef" class="title-section">
         <div class="title-row">
           <div class="title-left">
-            <h1 class="current-topic">
+            <h1 ref="titleRef" class="current-topic">
               <a :href="aeriusItemHref" v-if="isAeriusItem" target="_blank" class="item-title">
                 {{ aeriusItemTitle }}
                 <span class="material-symbols-rounded open-icon">open_in_new</span>
@@ -52,7 +52,7 @@
         </fieldset>
       </div>
 
-      <template v-if="isAeriusItem">
+      <template v-if="isVotingItem">
         <h2 class="poker-count-title">
           <span>Estimates</span>
           <div :class="{ showing: totalPokerCount > 0 }" class="count-badge">
@@ -80,6 +80,8 @@
       </template>
       </div>
     </div>
+
+    <spotlight-stage v-if="isSpotlight" :key="scheduleItem?.code" :target="titleRef" />
   </main>
 </template>
 
@@ -87,7 +89,7 @@
 import type { RoomStateFragment } from "@/domain/types";
 import { ActionType } from "@/domain/types";
 import { useContextStore } from "@/stores/contextStore";
-import { useScheduleStore } from "@/stores/scheduleStore";
+import { hasVoting, isSpotlightGroup, useScheduleStore } from "@/stores/scheduleStore";
 import { useSocketStore } from "@/ws/socketManager";
 
 const socketStore = useSocketStore();
@@ -109,6 +111,8 @@ watch(
 
 const scheduleItem = computed(() => scheduleStore.findScheduleItem(route.params.code as string));
 const isAeriusItem = computed(() => scheduleItem.value?.code.startsWith("aer-"));
+const isVotingItem = computed(() => !!scheduleItem.value && hasVoting(scheduleItem.value));
+const isSpotlight = computed(() => isSpotlightGroup(scheduleItem.value?.groupTitle));
 const aeriusItemTitle = computed(() => scheduleItem.value?.title);
 const aeriusItemHref = computed(
   () =>
@@ -119,6 +123,7 @@ const aeriusItemHref = computed(
 );
 const moderator = computed(() => socketStore.moderator);
 
+const titleRef = ref<HTMLElement>();
 const titleSectionRef = ref<HTMLElement>();
 const titleHeight = ref("0px");
 
@@ -321,6 +326,7 @@ h3 {
 }
 
 main {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: var(--spacer);

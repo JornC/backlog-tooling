@@ -33,6 +33,14 @@
         description.
       </li>
       <li>
+        <strong>No voting</strong>: Put "#novote" anywhere in an item line to hide the estimates
+        for that item.
+      </li>
+      <li>
+        <strong>Spotlight</strong>: Items under a group title with "Spotlight" in it, like
+        "# Spotlight", get no estimates, but do get spotlights.
+      </li>
+      <li>
         <strong>Item description 2</strong>: Lines surrounded by "quotation marks" indicate a
         paragraph of description text for the previous item. Links will be hyperlink-ified.
       </li>
@@ -45,11 +53,13 @@
 </template>
 
 <script lang="ts" setup>
-import { useScheduleStore } from "@/stores/scheduleStore";
+import { isSpotlightGroup, useScheduleStore } from "@/stores/scheduleStore";
 import { useSocketStore } from "@/ws/socketManager";
 
 const socketStore = useSocketStore();
 const scheduleStore = useScheduleStore();
+
+const NO_VOTE_TAG = /\s*#novote\b\s*/gi;
 
 const schedule = ref("");
 const loadingJira = ref(false);
@@ -92,7 +102,13 @@ async function loadFromJira() {
 
 function parseSchedule(
   scheduleText: string,
-): Array<{ title: string; code: string; description?: string; groupTitle?: string }> {
+): Array<{
+  title: string;
+  code: string;
+  description?: string;
+  groupTitle?: string;
+  noVote?: boolean;
+}> {
   const lines = scheduleText.split("\n");
   let previousItem: {
     title: string;
@@ -120,9 +136,12 @@ function parseSchedule(
         return null;
       }
 
+      const noVoteTag = line.match(NO_VOTE_TAG) !== null;
+      const itemLine = noVoteTag ? line.replace(NO_VOTE_TAG, " ").trim() : line;
+
       const description =
-        line.startsWith("AER-") && line.indexOf(" ") > -1
-          ? line.substring(line.indexOf(" ") + 1)
+        itemLine.startsWith("AER-") && itemLine.indexOf(" ") > -1
+          ? itemLine.substring(itemLine.indexOf(" ") + 1)
           : undefined;
 
       if (line.trim() === "-- group") {
@@ -130,7 +149,7 @@ function parseSchedule(
         return null;
       }
 
-      const rawTitle = line.startsWith("AER-") ? line.split(" ", 2)[0] : line.trim();
+      const rawTitle = itemLine.startsWith("AER-") ? itemLine.split(" ", 2)[0] : itemLine.trim();
       const title = rawTitle.replace(/[:;,]+$/, "");
       const normalizedCode = title.toLowerCase().replace(/\s+/g, "-");
 
@@ -141,6 +160,7 @@ function parseSchedule(
               description,
               code: normalizedCode,
               groupTitle: currentGroupTitle,
+              noVote: noVoteTag || isSpotlightGroup(currentGroupTitle),
             }
           : null;
 
@@ -153,6 +173,7 @@ function parseSchedule(
     code: string;
     description?: string;
     groupTitle?: string;
+    noVote?: boolean;
   }>;
   return items;
 }
@@ -167,6 +188,7 @@ function resetSchedule() {
         .map((item) =>
           [
             item.title +
+              (item.noVote && !isSpotlightGroup(item.groupTitle) ? " #novote" : "") +
               ((item.title.startsWith("AER-") && item.description?.length) || 0 > 0
                 ? ` ${  item.description?.split("\n")[0]}`
                 : ""),

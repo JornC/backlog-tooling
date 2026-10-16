@@ -20,6 +20,7 @@ declare module 'vue' {
     SessionControls: typeof import('./components/mod/SessionControls.vue')['default']
     SessionEnded: typeof import('./components/SessionEnded.vue')['default']
     SpinWheel: typeof import('./components/magicbox/SpinWheel.vue')['default']
+    SpotlightStage: typeof import('./components/SpotlightStage.vue')['default']
     UserControls: typeof import('./components/mod/UserControls.vue')['default']
     UserPanel: typeof import('./components/mod/UserPanel.vue')['default']
     Vibes: typeof import('./components/signals/Vibes.vue')['default']

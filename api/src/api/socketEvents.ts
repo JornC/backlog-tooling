@@ -83,6 +83,7 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
     groupTitle?: string;
     locked?: boolean;
     size?: number;
+    noVote?: boolean;
   }
   */
 

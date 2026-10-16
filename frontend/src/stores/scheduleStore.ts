@@ -8,6 +8,15 @@ export interface ScheduleItem {
   locked?: boolean;
   lockedBy?: string;
   size?: number;
+  noVote?: boolean;
+}
+
+export function isSpotlightGroup(groupTitle?: string): boolean {
+  return /\bspotlight/i.test(groupTitle ?? "");
+}
+
+export function hasVoting(item: ScheduleItem): boolean {
+  return item.code.startsWith("aer-") && !item.noVote;
 }
 
 export const useScheduleStore = defineStore("scheduleStore", {

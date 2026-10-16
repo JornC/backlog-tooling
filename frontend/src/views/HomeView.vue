@@ -410,6 +410,14 @@ const changelog = ref<ChangelogEntry[]>([
       { type: "Removed", description: "The old signal buttons (Ready, Question, Thinking, Pass, Wrap up, Coffee) and the Reset signals control" },
     ],
   },
+  {
+    version: "v2.6",
+    date: new Date("2026-10-14"),
+    changes: [
+      { type: "Added", description: "Put #novote in a schedule line to hide the estimates for that item" },
+      { type: "Added", description: "Spotlight section: items under a \"# Spotlight\" group title get no estimates, but do get stage lights" },
+    ],
+  },
 ]);
 
 const formatDate = (date: Date): string => {
