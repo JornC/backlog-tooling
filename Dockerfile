@@ -1,4 +1,4 @@
-FROM node:22-slim AS build
+FROM node:22.23.4-slim AS build
 WORKDIR /app
 COPY frontend/package*.json frontend/
 RUN cd frontend && npm ci
@@ -9,7 +9,7 @@ RUN cd api && npm ci
 COPY api/ api/
 RUN cd api && npm run build
 
-FROM node:22-slim
+FROM node:22.23.4-slim
 WORKDIR /app
 COPY api/package*.json api/
 RUN cd api && npm ci --omit=dev
