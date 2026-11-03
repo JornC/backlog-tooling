@@ -2,6 +2,7 @@ export enum ActionType {
   POKER_DEV_ESTIMATE = "POKER_DEV_ESTIMATE",
   POKER_TEST_ESTIMATE = "POKER_TEST_ESTIMATE",
   POKER_REVEAL = "POKER_REVEAL",
+  DRUMROLL_RATING = "DRUMROLL_RATING",
 }
 
 export interface RoomStateFragment {
@@ -118,6 +119,11 @@ export class RoomStateManager {
   purgePoker(roomName: string) {
     const room = this.roomStates.get(roomName) || {};
     this.purgeRoom(room, (v) => v.startsWith("POKER_"));
+  }
+
+  purgeDrumrollRatings(roomName: string) {
+    const room = this.roomStates.get(roomName) || {};
+    this.purgeRoom(room, (v) => v === ActionType.DRUMROLL_RATING);
   }
 
   private purgeRoom(room: RoomState, predicate: (v: ActionType) => boolean) {

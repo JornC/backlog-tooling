@@ -418,6 +418,18 @@ const changelog = ref<ChangelogEntry[]>([
       { type: "Added", description: "Spotlight section: items under a \"# Spotlight\" group title get no estimates, but do get stage lights" },
     ],
   },
+  {
+    version: "v2.7",
+    date: new Date("2026-11-03"),
+    changes: [
+      { type: "Added", description: "58 new drumrolls: movie quotes, game show tunes and dramatic stingers" },
+      { type: "Updated", description: "Drumrolls last at most 5 seconds and all play at the same loudness" },
+      { type: "Updated", description: "Random drumroll picks the best ones more often" },
+      { type: "Added", description: "Rate the drumroll that just played, once the estimates are revealed" },
+      { type: "Updated", description: "The boring vibe is now Coffee" },
+      { type: "Added", description: "A vibe that hits 100% plays a sound, at most once a minute per room" },
+    ],
+  },
 ]);
 
 const formatDate = (date: Date): string => {

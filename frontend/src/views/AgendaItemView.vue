@@ -77,6 +77,14 @@
             :estimate-action="ActionType.POKER_TEST_ESTIMATE"
             @send-action="sendAction($event)" />
         </fieldset>
+        <fieldset v-if="revealed && lastDrumroll" class="poker-section revealed">
+          <legend>Drumroll</legend>
+          <drumroll-rating
+            :user-id="socketStore.userId"
+            :room-state="currentRoomState"
+            :drumroll="lastDrumroll"
+            @send-action="sendAction($event)" />
+        </fieldset>
       </template>
       </div>
     </div>
@@ -122,6 +130,10 @@ const aeriusItemHref = computed(
       .toUpperCase()}`,
 );
 const moderator = computed(() => socketStore.moderator);
+const lastDrumroll = computed(() => {
+  const id = scheduleItem.value && socketStore.lastDrumrolls[scheduleItem.value.code];
+  return socketStore.drumrolls.find((d) => d.id === id);
+});
 
 const titleRef = ref<HTMLElement>();
 const titleSectionRef = ref<HTMLElement>();

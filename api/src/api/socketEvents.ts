@@ -1,5 +1,6 @@
 import { Express } from "express";
 import { Socket, Server as SocketIOServer } from "socket.io";
+import { DRUMROLL_RATINGS, DRUMROLLS, TIER_WEIGHT, VIBE_SOUNDS } from "../data/sounds";
 import { ActionType, RoomStateFragment, RoomStateManager } from "../data/roomStateManager";
 import { ScratchboardState } from "../data/scratchboardmanager";
 import { sendSessionSummary } from "../email/sessionSummary";
@@ -89,21 +90,14 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
 
   let playSounds = true;
 
-  const drumrolls = [
-    "/drumroll-1-low.mp3",
-    "/drumroll-2-mid.mp3",
-    "/fx-wait.mp3",
-    "/jeopardy-fade.mp3",
-    "/phone-ringing-marimba.mp3",
-    "/sonido-de-siguiente.mp3",
-    "/tarot-shuffle.mp3",
-  ];
+  const drumrollPool = DRUMROLLS.flatMap((d) => Array(TIER_WEIGHT[d.tier]).fill(d.id));
   let drumrollType = "random";
+  const lastDrumrolls = new Map<string, string>();
 
   const VALID_VIBES = [
     "agree",
     "disagree",
-    "boring",
+    "coffee",
     "confused",
     "skeptical",
     "mindblown",
@@ -113,6 +107,37 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
   // Sanity cap: a user can stack vibes (10 clicks = a strong vibe) but not flood the room.
   const VIBE_RATE_MAX = 12;
   const VIBE_RATE_WINDOW_MS = 4000;
+
+  // Same mood math as the client (useRoomMood): a vibe hits 100% at a decayed weight of 6.
+  const MOOD_WINDOW_MS = 25000;
+  const MOOD_SATURATION = 6;
+  const VIBE_SOUND_COOLDOWN_MS = 60000;
+  const vibeSoundPools = new Map<string, string[]>();
+  VIBE_SOUNDS.forEach((v) => {
+    const pool = vibeSoundPools.get(v.vibe) ?? [];
+    vibeSoundPools.set(v.vibe, [...pool, ...Array(TIER_WEIGHT[v.tier]).fill(v.id)]);
+  });
+  const roomVibes = new Map<string, { vibe: string; t: number }[]>();
+  const lastVibeSounds = new Map<string, number>();
+
+  function pickVibeSound(roomName: string, vibe: string, now: number): string | undefined {
+    const recent = (roomVibes.get(roomName) ?? []).filter((v) => now - v.t < MOOD_WINDOW_MS);
+    recent.push({ vibe, t: now });
+    roomVibes.set(roomName, recent);
+
+    const weight = recent
+      .filter((v) => v.vibe === vibe)
+      .reduce((sum, v) => sum + 1 - (now - v.t) / MOOD_WINDOW_MS, 0);
+    if (Math.round((weight / MOOD_SATURATION) * 100) < 100) {
+      return undefined;
+    }
+    if (now - (lastVibeSounds.get(roomName) ?? 0) < VIBE_SOUND_COOLDOWN_MS) {
+      return undefined;
+    }
+    lastVibeSounds.set(roomName, now);
+    const pool = vibeSoundPools.get(vibe)!;
+    return pool[Math.floor(Math.random() * pool.length)];
+  }
 
   const roomTimers = new Map();
 
@@ -253,8 +278,12 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
       schedule = getDefaultSchedule();
       playSounds = true;
       drumrollType = "random";
+      lastDrumrolls.clear();
+      roomVibes.clear();
+      lastVibeSounds.clear();
       Array.from(roomStateManager.roomKeys()).forEach((key: string) => {
         roomStateManager.purgePoker(key);
+        roomStateManager.purgeDrumrollRatings(key);
       });
       roster.clear();
       scratchboard.clear();
@@ -323,6 +352,8 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
     let vibeTimestamps: number[] = [];
 
     socket.emit("user_socket_id", socket.id);
+    socket.emit("drumrolls", DRUMROLLS);
+    socket.emit("last_drumrolls", Object.fromEntries(lastDrumrolls));
     broadcastSchedule();
     broadcastServerStatus();
     broadcastScratchboard();
@@ -518,7 +549,7 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
       if (moderatorUserId !== userId) {
         return;
       }
-      if (typeof type !== "string" || (type !== "random" && !drumrolls.includes(type))) { return; }
+      if (typeof type !== "string" || (type !== "random" && !DRUMROLLS.some((d) => d.id === type))) { return; }
 
       console.log("Changing drumroll to: ", type);
       drumrollType = type;
@@ -531,13 +562,17 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
 
       const roomName = getUserRoom(socket);
       if (roomName) {
-        const file =
+        const id =
           drumrollType === "random"
-            ? drumrolls[Math.floor(Math.random() * drumrolls.length)]
+            ? drumrollPool[Math.floor(Math.random() * drumrollPool.length)]
             : drumrollType;
 
-        console.log("Sending drumroll play: ", drumrollType, file);
-        apiNamespace.to(roomName).emit("drumroll_play", "/drumrolls" + file);
+        console.log("Sending drumroll play: ", drumrollType, id);
+        apiNamespace.to(roomName).emit("drumroll_play", `/drumrolls/${id}.mp3`);
+        lastDrumrolls.set(roomName, id);
+        roomStateManager.purgeDrumrollRatings(roomName);
+        broadcastRoom(roomName);
+        apiNamespace.emit("last_drumrolls", Object.fromEntries(lastDrumrolls));
       }
     });
 
@@ -641,6 +676,7 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
       if (!sessionPin) { return; }
       if (!msg || !Object.values(ActionType).includes(msg.type)) { return; }
       if (msg.value !== undefined && typeof msg.value !== "string" && typeof msg.value !== "number") { return; }
+      if (msg.type === ActionType.DRUMROLL_RATING && !DRUMROLL_RATINGS.includes(msg.value)) { return; }
       const roomName = getUserRoom(socket);
       if (roomName && isRoomLocked(roomName)) {
         return;
@@ -670,6 +706,11 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
       // Ephemeral fire-and-forget: re-broadcast to the room (incl. sender), never persisted.
       // Stacking is intentional: repeated clicks accumulate into a stronger, longer mood.
       apiNamespace.to(roomName).emit("vibe", vibe);
+
+      const sound = pickVibeSound(roomName, vibe, now);
+      if (sound) {
+        apiNamespace.to(roomName).emit("vibe_sound", `/vibes/${sound}.mp3`);
+      }
     });
 
     socket.on("disconnecting", () => {

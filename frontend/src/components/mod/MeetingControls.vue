@@ -16,9 +16,11 @@
       </div>
       <select v-model="drumrollSelection">
         <option value="random" selected>Random!</option>
-        <option v-for="drumroll in drumrolls" :key="drumroll" :value="drumroll">
-          {{ drumroll }}
-        </option>
+        <optgroup v-for="group in drumrollGroups" :key="group.tier" :label="group.label">
+          <option v-for="drumroll in group.items" :key="drumroll.id" :value="drumroll.id">
+            {{ drumroll.label }}
+          </option>
+        </optgroup>
       </select>
     </div>
 
@@ -61,28 +63,42 @@
 </template>
 
 <script lang="ts" setup>
-import { ActionType } from "@/domain/types";
+import { ActionType, type DrumrollTier } from "@/domain/types";
 import { useScheduleStore } from "@/stores/scheduleStore";
 import { useSocketStore } from "@/ws/socketManager";
 
-const drumrolls = [
-  "/drumroll-1-low.mp3",
-  "/drumroll-2-mid.mp3",
-  "/fx-wait.mp3",
-  "/jeopardy-fade.mp3",
-  "/phone-ringing-marimba.mp3",
-  "/sonido-de-siguiente.mp3",
-  "/tarot-shuffle.mp3",
-];
+const DRUMROLL_TIER_LABELS: Record<DrumrollTier, string> = {
+  fantastic: "Fantastic",
+  fine: "Fine",
+  meh: "Meh",
+};
 
 const socketStore = useSocketStore();
 const scheduleStore = useScheduleStore();
+
+const drumrollGroups = computed(() =>
+  (Object.keys(DRUMROLL_TIER_LABELS) as DrumrollTier[]).map((tier) => ({
+    tier,
+    label: DRUMROLL_TIER_LABELS[tier],
+    items: socketStore.drumrolls.filter((d) => d.tier === tier),
+  })),
+);
 
 const drumrollSelection = ref<string>(localStorage.getItem("drumrollSelection") || "random");
 watch(drumrollSelection, (neww) => {
   localStorage.setItem("drumrollSelection", neww);
   socketStore.emitNamed("persist_drumroll", neww);
 });
+watch(
+  () => socketStore.drumrolls,
+  (drumrolls) => {
+    const selection = drumrollSelection.value;
+    if (drumrolls.length && selection !== "random" && !drumrolls.some((d) => d.id === selection)) {
+      drumrollSelection.value = "random";
+    }
+  },
+  { immediate: true },
+);
 
 const route = useRoute();
 const router = useRouter();

@@ -9,6 +9,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     ApplicationNavigation: typeof import('./components/nav/ApplicationNavigation.vue')['default']
+    DrumrollRating: typeof import('./components/signals/DrumrollRating.vue')['default']
     EstimationPoker: typeof import('./components/signals/EstimationPoker.vue')['default']
     MeetingControls: typeof import('./components/mod/MeetingControls.vue')['default']
     PinControls: typeof import('./components/mod/PinControls.vue')['default']

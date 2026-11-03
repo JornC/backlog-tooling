@@ -1,5 +1,6 @@
 import {
   ConnectionStatus,
+  type Drumroll,
   MOOD_WINDOW_MS,
   type RoomStateFragment,
   type ScratchboardState,
@@ -31,6 +32,8 @@ export const useSocketStore = defineStore("socket", {
     sessionEmails: [] as string[],
     excludedFromSchedule: { reason: "", keys: [] as string[] },
     recentVibes: [] as { vibe: Vibe; t: number }[],
+    drumrolls: [] as Drumroll[],
+    lastDrumrolls: {} as Record<string, string>,
   }),
 
   getters: {
@@ -82,7 +85,24 @@ export const useSocketStore = defineStore("socket", {
         allRooms.forEach((v: any) => this.rooms.set(v[0], v[1]));
       });
 
+      socket.on("drumrolls", (drumrolls: Drumroll[]) => {
+        this.drumrolls = drumrolls;
+      });
+
+      socket.on("last_drumrolls", (lastDrumrolls: Record<string, string>) => {
+        this.lastDrumrolls = lastDrumrolls;
+      });
+
       socket.on("drumroll_play", (file) => {
+        const audioPlayer = new Audio(file);
+        audioPlayer.volume = 0.5;
+        audioPlayer.play();
+      });
+
+      socket.on("vibe_sound", (file) => {
+        if (!useContextStore().playSounds || !this.playSounds) {
+          return;
+        }
         const audioPlayer = new Audio(file);
         audioPlayer.volume = 0.5;
         audioPlayer.play();
