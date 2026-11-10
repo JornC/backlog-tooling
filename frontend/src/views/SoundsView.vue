@@ -22,10 +22,23 @@
       <section class="sound-section">
         <h2>Drumrolls</h2>
         <p class="hint">
-          Random drumrolls pick fantastic ones 3x and fine ones 2x as often as meh ones.
+          Random drumrolls pick fantastic ones 3x and fine ones 2x as often as meh ones. Votes
+          are counted across all sessions.
         </p>
-        <div v-for="group in drumrollGroups" :key="group.tier" class="sound-group">
-          <h3>{{ TIER_LABELS[group.tier] }} ({{ group.items.length }})</h3>
+        <div class="sort" role="group" aria-label="Sort drumrolls">
+          <button
+            v-for="(label, mode) in SORT_LABELS"
+            :key="mode"
+            :class="{ active: sortMode === mode }"
+            @click="sortMode = mode">
+            {{ label }}
+          </button>
+        </div>
+        <p v-if="sortMode === 'dropped' && !drumrollGroups.length" class="message">
+          No drumroll has been voted Drop yet.
+        </p>
+        <div v-for="group in drumrollGroups" :key="group.key" class="sound-group">
+          <h3>{{ group.title }} ({{ group.items.length }})</h3>
           <div class="sound-grid">
             <sound-tile
               v-for="d in group.items"
@@ -33,6 +46,7 @@
               :label="d.label"
               :file="`/drumrolls/${d.id}.mp3`"
               :playing="playingFile === `/drumrolls/${d.id}.mp3`"
+              :summary="ratingSummary(d.id)"
               @toggle="toggle" />
           </div>
         </div>
@@ -72,6 +86,7 @@
 <script setup lang="ts">
 import SoundTile from "@/components/sounds/SoundTile.vue";
 import {
+  DRUMROLL_RATINGS,
   VIBES,
   VIBE_META,
   type Drumroll,
@@ -87,6 +102,23 @@ const TIER_LABELS: Record<DrumrollTier, string> = {
   meh: "Meh",
 };
 
+type SortMode = "group" | "loved" | "dropped";
+const SORT_LABELS: Record<SortMode, string> = {
+  group: "By group",
+  loved: "Most loved",
+  dropped: "Most dropped",
+};
+// Fantastic counts most toward "loved"; Too long and Drop count against it.
+const LOVE_SCORE: Record<string, number> = {
+  Fantastic: 2,
+  Fine: 1,
+  Meh: 0,
+  "Too long": -1,
+  Drop: -2,
+};
+
+const sortMode = ref<SortMode>("group");
+const ratings = ref<Record<string, Record<string, number>>>({});
 const drumrolls = ref<Drumroll[]>([]);
 const vibeSounds = ref<VibeSound[]>([]);
 const loading = ref(true);
@@ -102,6 +134,7 @@ onMounted(async () => {
     const data = await res.json();
     drumrolls.value = data.drumrolls;
     vibeSounds.value = data.vibeSounds;
+    ratings.value = data.ratings ?? {};
   } catch {
     loadError.value = true;
   } finally {
@@ -119,12 +152,40 @@ function vibeSoundLabel(sound: VibeSound): string {
   return words.charAt(0).toUpperCase() + words.slice(1);
 }
 
-const drumrollGroups = computed(() =>
-  TIERS.map((tier) => ({
-    tier,
-    items: drumrolls.value.filter((d) => d.tier === tier && matches(d.label)),
-  })).filter((g) => g.items.length),
-);
+function count(id: string, rating: string): number {
+  return ratings.value[id]?.[rating] ?? 0;
+}
+
+function ratingSummary(id: string): string {
+  const parts = DRUMROLL_RATINGS.filter((r) => count(id, r)).map(
+    (r) => `${count(id, r)} ${r.toLowerCase()}`,
+  );
+  return parts.length ? parts.join(" · ") : "No votes yet";
+}
+
+function loveScore(id: string): number {
+  return DRUMROLL_RATINGS.reduce((sum, r) => sum + count(id, r) * (LOVE_SCORE[r] ?? 0), 0);
+}
+
+const drumrollGroups = computed(() => {
+  const visible = drumrolls.value.filter((d) => matches(d.label));
+  if (sortMode.value === "group") {
+    return TIERS.map((tier) => ({
+      key: tier,
+      title: TIER_LABELS[tier],
+      items: visible.filter((d) => d.tier === tier),
+    })).filter((g) => g.items.length);
+  }
+  const sorted =
+    sortMode.value === "loved"
+      ? [...visible].sort((a, b) => loveScore(b.id) - loveScore(a.id))
+      : [...visible]
+          .filter((d) => count(d.id, "Drop") > 0)
+          .sort((a, b) => count(b.id, "Drop") - count(a.id, "Drop"));
+  return sorted.length
+    ? [{ key: sortMode.value, title: SORT_LABELS[sortMode.value], items: sorted }]
+    : [];
+});
 
 const vibeGroups = computed(() =>
   VIBES.map((vibe) => ({
@@ -231,5 +292,26 @@ onBeforeUnmount(() => player.pause());
 
 .message {
   opacity: 0.7;
+}
+
+.sort {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacer) * 0.4);
+
+  button {
+    padding: 0.3em 0.7em;
+    border: 2px solid var(--brand-color-1);
+    border-radius: var(--radius);
+    background: none;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+
+    &.active {
+      background: var(--brand-color-1);
+      color: white;
+    }
+  }
 }
 </style>

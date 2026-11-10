@@ -2,7 +2,10 @@
   <div class="sound-tile" :class="{ playing }">
     <button class="play" :aria-label="(playing ? 'Stop ' : 'Play ') + label" @click="emit('toggle', file)">
       <span class="material-symbols-rounded">{{ playing ? "stop" : "play_arrow" }}</span>
-      <span class="label">{{ label }}</span>
+      <span class="text">
+        <span class="label">{{ label }}</span>
+        <span v-if="summary" class="summary">{{ summary }}</span>
+      </span>
     </button>
     <a class="open" :href="file" target="_blank" rel="noopener" :title="`Open ${label} mp3`">
       <span class="material-symbols-rounded">open_in_new</span>
@@ -15,6 +18,7 @@ defineProps<{
   label: string;
   file: string;
   playing: boolean;
+  summary?: string;
 }>();
 
 const emit = defineEmits<{
@@ -49,10 +53,22 @@ const emit = defineEmits<{
   text-align: left;
   cursor: pointer;
 
-  .label {
+  .text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .label,
+  .summary {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+
+  .summary {
+    font-size: 0.8em;
+    opacity: 0.7;
   }
 }
 

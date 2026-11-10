@@ -34,3 +34,6 @@ cypress/fixtures/unzip/
 *.njsproj
 *.sln
 *.sw?
+
+# Local API data (drumroll ratings)
+api/data

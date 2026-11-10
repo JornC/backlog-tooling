@@ -19,6 +19,10 @@ registry:
   password:
     - KAMAL_REGISTRY_PASSWORD
 
+# Named volume: Docker seeds it from the image's /data (owned by the app user) on first use.
+volumes:
+  - backlog-data:/data
+
 env:
   secret:
     - JIRA_USER

@@ -76,6 +76,7 @@ dev/
 - **Locked items**: When moderator locks an item, user actions are frozen and the item is marked done. Tracks which moderator locked it.
 - **Session finish**: Posts consensus estimates to JIRA (majority wins, ties skipped, existing values never overwritten), sends email summary to SMTP_TO + any moderator-provided emails, then resets all state.
 - **JIRA integration**: Uses basic auth (JIRA_USER + JIRA_API_TOKEN). "Story point estimate" (customfield_10016) = test SP, "Story Points" (customfield_10028) = dev + test SP. No test votes defaults to 0sp test. Field IDs auto-discovered with hardcoded fallback for the Aerius instance.
+- **Drumroll ratings**: Vote totals persist across sessions in `$DATA_DIR/drumroll-ratings.json` (dev: `api/data/`, prod: the `backlog-data` Docker volume at `/data`). Shown on the `/sounds` page via `GET /api/sounds`.
 - **Email**: SMTP via Gmail (SMTP_USER, SMTP_PASS, SMTP_TO). Moderators can add their email (stored in localStorage, collected per-session). All recipients deduplicated.
 
 ## Code Style

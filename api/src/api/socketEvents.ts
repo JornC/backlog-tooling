@@ -1,6 +1,7 @@
 import { Express } from "express";
 import { Socket, Server as SocketIOServer } from "socket.io";
 import { DRUMROLL_RATINGS, DRUMROLLS, TIER_WEIGHT, VIBE_SOUNDS } from "../data/sounds";
+import { getRatingTotals, recordRatingChange } from "../data/ratingStore";
 import { ActionType, RoomStateFragment, RoomStateManager } from "../data/roomStateManager";
 import { ScratchboardState } from "../data/scratchboardmanager";
 import { sendSessionSummary } from "../email/sessionSummary";
@@ -156,7 +157,7 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
   const apiNamespace = io.of(path);
 
   app.get("/api/sounds", (_req, res) => {
-    res.json({ drumrolls: DRUMROLLS, vibeSounds: VIBE_SOUNDS });
+    res.json({ drumrolls: DRUMROLLS, vibeSounds: VIBE_SOUNDS, ratings: getRatingTotals() });
   });
 
   // HTTP endpoint for PIN verification
@@ -689,10 +690,23 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
       const fragment: RoomStateFragment = msg;
 
       if (roomName) {
+        const isRating = fragment.type === ActionType.DRUMROLL_RATING;
+        const before = isRating ? userRating(roomName) : undefined;
         roomStateManager.setRoomStateFragment(roomName, userId, fragment);
+        const drumrollId = lastDrumrolls.get(roomName);
+        if (isRating && drumrollId) {
+          recordRatingChange(drumrollId, before, userRating(roomName));
+        }
         broadcastRoom(roomName);
       }
     });
+
+    function userRating(roomName: string): string | undefined {
+      const vote = roomStateManager
+        .getRoomState(roomName)
+        ?.find((f) => f.user === userId && f.type === ActionType.DRUMROLL_RATING);
+      return vote?.value as string | undefined;
+    }
 
     socket.on("vibe", (vibe) => {
       if (!sessionPin) { return; }
