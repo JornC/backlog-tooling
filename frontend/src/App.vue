@@ -61,8 +61,8 @@ function rgb(vibe: Vibe): string {
 function layerOpacity(vibe: Vibe): number {
   return ((vibePercents.value[vibe] || 0) / 100) * MAX_LAYER_OPACITY;
 }
-const STANDALONE_ROUTES = ["/admin", "/epicwheel", "/sounds"];
-const isStandaloneRoute = computed(() => STANDALONE_ROUTES.includes(route.path));
+// Standalone pages skip the meeting layout and the PIN gate.
+const isStandaloneRoute = computed(() => route.meta.standalone === true);
 const isSessionEnded = computed(() => socketStore.status === ConnectionStatus.SessionEnded);
 const isPinRequired = computed(() => socketStore.status === ConnectionStatus.PinRequired);
 

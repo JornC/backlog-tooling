@@ -22,16 +22,20 @@ const router = createRouter({
       path: "/admin",
       name: "admin",
       component: () => import("../views/AdminView.vue"),
+      meta: { standalone: true },
     },
     {
       path: "/epicwheel",
       name: "epicwheel",
       component: () => import("../views/MagicBoxView.vue"),
+      meta: { standalone: true },
     },
     {
       path: "/sounds",
+      alias: "/audio",
       name: "sounds",
       component: () => import("../views/SoundsView.vue"),
+      meta: { standalone: true },
     },
   ],
 });
