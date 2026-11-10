@@ -28,6 +28,11 @@ const router = createRouter({
       name: "epicwheel",
       component: () => import("../views/MagicBoxView.vue"),
     },
+    {
+      path: "/sounds",
+      name: "sounds",
+      component: () => import("../views/SoundsView.vue"),
+    },
   ],
 });
 

@@ -29,6 +29,7 @@
 
     <nav class="nav-menu">
       <router-link class="item" :to="{ name: 'home' }">Home</router-link>
+      <router-link class="item" :to="{ name: 'sounds' }">Sounds</router-link>
       <template v-if="socketStore.hasPin && scheduleStore.schedule.length > 0">
       <div
         v-for="group in scheduleStore.groupedSchedule"

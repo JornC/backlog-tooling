@@ -60,6 +60,12 @@ export interface Drumroll {
   tier: DrumrollTier;
 }
 
+export interface VibeSound {
+  id: string;
+  vibe: Vibe;
+  tier: DrumrollTier;
+}
+
 export enum ConnectionStatus {
   Connecting = "Connecting",
   Connected = "Connected",

@@ -155,6 +155,10 @@ export function setupSocketEvents(io: SocketIOServer, app: Express) {
   const path = "/";
   const apiNamespace = io.of(path);
 
+  app.get("/api/sounds", (_req, res) => {
+    res.json({ drumrolls: DRUMROLLS, vibeSounds: VIBE_SOUNDS });
+  });
+
   // HTTP endpoint for PIN verification
   app.use("/api/verify-pin", (req, _res, next) => {
     // Parse JSON body manually since express.json() may not be registered
